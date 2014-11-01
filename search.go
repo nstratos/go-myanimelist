@@ -1,19 +1,20 @@
-package main
+package mal
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
 
-const getListUrl = "http://myanimelist.net/malappinfo.php"
-
 const userAgent = `Mozilla/5.0 (Windows NT 6.3; Win64; x64) 
 				   AppleWebKit/537.36 (KHTML, like Gecko) 
 				   Chrome/37.0.2049.0 Safari/537.36`
+
+const getUrl = "http://myanimelist.net/malappinfo.php"
+
+const searchUrl = "http://myanimelist.net/api/anime/search.xml?q="
 
 type MyAnimeList struct {
 	Info  MyInfo  `xml:"myinfo"`
@@ -21,7 +22,7 @@ type MyAnimeList struct {
 }
 
 type MyInfo struct {
-	Id                int    `xml:"user_id"`
+	ID                int    `xml:"user_id"`
 	Name              string `xml:"user_name"`
 	Watching          int    `xml:"user_watching"`
 	Completed         int    `xml:"user_completed"`
@@ -54,27 +55,68 @@ type Anime struct {
 	MyTags            string `xml:"my_tags"`
 }
 
-func main() {
+type Result struct {
+	Entries []Entry `xml:"entry"`
+}
+
+type Entry struct {
+	ID        int    `xml:"id"`
+	Title     string `xml:"title"`
+	English   string `xml:"english"`
+	Synonyms  string `xml:"synonyms"`
+	Episodes  int    `xml:"episodes"`
+	Type      string `xml:"type"`
+	Status    string `xml:"status"`
+	StartDate string `xml:"start_date"`
+	EndDate   string `xml:"end_date"`
+	Synopsis  string `xml:"synopsis"`
+	Image     string `xml:"image"`
+}
+
+func Search(query string) (Result, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", searchUrl+query, nil)
+	if err != nil {
+		log.Fatalln(err)
+		return Result{}, err
+	}
+	req.Header.Add("User-Agent", userAgent)
+	req.SetBasicAuth("Leonteus", "001010100")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return Result{}, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	result := Result{}
+	if err := xml.Unmarshal(body, &result); err != nil {
+		log.Fatalf("Error unmarshaling (%s) XML was: %s", err, string(body))
+		return Result{}, err
+	}
+
+	return result, nil
+}
+
+func Get() (MyAnimeList, error) {
 
 	xmlData := readXml()
+	// xmlData := fetchXml()
 
 	mal := MyAnimeList{}
 
 	if err := xml.Unmarshal(xmlData, &mal); err != nil {
-		log.Fatalln("Error unmarshaling:", err)
-		return
+		log.Fatalf("Error unmarshaling (%s) XML was: %s\n", err, string(xmlData))
+		return MyAnimeList{}, err
 	}
 
-	// fmt.Printf("%v \n", mal)
-	for _, anime := range mal.Anime {
-		fmt.Printf("%s\n", anime.MyRewatching)
-	}
-
+	return mal, nil
 }
 
 // Reads xml from locally stored file myanimelist.xml
 func readXml() []byte {
-	xmlFile, err := os.Open("myanimelist.xml")
+	xmlFile, err := os.Open("./myanimelist.xml")
 	if err != nil {
 		log.Fatalln("Error opening file:", err)
 	}
@@ -90,7 +132,7 @@ func readXml() []byte {
 // Fetches a fresh XML from MyAnimeList.net
 func fetchXml() []byte {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", getListUrl+"?u=Leonteus&status=all&type=anime", nil)
+	req, err := http.NewRequest("GET", getUrl+"?u=Leonteus&status=all&type=anime", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
