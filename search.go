@@ -8,9 +8,11 @@ import (
 	"os"
 )
 
-const userAgent = `Mozilla/5.0 (Windows NT 6.3; Win64; x64) 
-				   AppleWebKit/537.36 (KHTML, like Gecko) 
-				   Chrome/37.0.2049.0 Safari/537.36`
+/*const userAgent = `Mozilla/5.0 (Windows NT 6.3; Win64; x64)
+  AppleWebKit/537.36 (KHTML, like Gecko)
+  Chrome/37.0.2049.0 Safari/537.36`*/
+
+const userAgent = "api-indiv-D34850D0C639C90E47E396244732D8DF"
 
 const getUrl = "http://myanimelist.net/malappinfo.php"
 
@@ -101,8 +103,8 @@ func Search(query string) (Result, error) {
 
 func Get() (MyAnimeList, error) {
 
-	xmlData := readXml()
-	// xmlData := fetchXml()
+	//xmlData := readXml()
+	xmlData := fetchXml()
 
 	mal := MyAnimeList{}
 
