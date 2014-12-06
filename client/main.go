@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 
 	"bitbucket.org/nstratos/mal"
 )
@@ -17,8 +18,7 @@ func main() {
 	// for _, anime := range myAnimeList.Anime {
 	// 	fmt.Printf("%s\n", anime.SeriesTitle)
 	// }
-
-	result, err := mal.Search("full metal")
+	result, err := mal.Search(url.QueryEscape("full metal"))
 	if err != nil {
 		log.Fatalf("Error searching (%s)\n", err)
 		return

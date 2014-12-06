@@ -12,7 +12,7 @@ import (
   AppleWebKit/537.36 (KHTML, like Gecko)
   Chrome/37.0.2049.0 Safari/537.36`*/
 
-const userAgent = "api-indiv-D34850D0C639C90E47E396244732D8DF"
+const userAgent = "api-indiv-2D4068FCF43349DA30D8D4E5667883C2"
 
 const getUrl = "http://myanimelist.net/malappinfo.php"
 
