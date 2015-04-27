@@ -2,9 +2,11 @@ package mal
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -12,11 +14,11 @@ import (
   AppleWebKit/537.36 (KHTML, like Gecko)
   Chrome/37.0.2049.0 Safari/537.36`*/
 
-const userAgent = "api-indiv-2D4068FCF43349DA30D8D4E5667883C2"
-
-const getUrl = "http://myanimelist.net/malappinfo.php"
-
-const searchUrl = "http://myanimelist.net/api/anime/search.xml?q="
+const (
+	userAgent = "api-indiv-2D4068FCF43349DA30D8D4E5667883C2"
+	getUrl    = "http://myanimelist.net/malappinfo.php"
+	searchUrl = "http://myanimelist.net/api/anime/search.xml?q="
+)
 
 type MyAnimeList struct {
 	Info  MyInfo  `xml:"myinfo"`
@@ -77,13 +79,13 @@ type Entry struct {
 
 func Search(query string) (Result, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", searchUrl+query, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", searchUrl, url.QueryEscape(query)), nil)
 	if err != nil {
 		log.Fatalln(err)
 		return Result{}, err
 	}
 	req.Header.Add("User-Agent", userAgent)
-	req.SetBasicAuth("Leonteus", "001010100")
+	//req.SetBasicAuth("Leonteus", "001010100")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
@@ -101,10 +103,10 @@ func Search(query string) (Result, error) {
 	return result, nil
 }
 
-func Get() (MyAnimeList, error) {
+func GetAnime(username string) (MyAnimeList, error) {
 
 	//xmlData := readXml()
-	xmlData := fetchXml()
+	xmlData := get(fmt.Sprintf("%s?u=%s&status=all&type=anime", getUrl, username))
 
 	mal := MyAnimeList{}
 
@@ -132,9 +134,9 @@ func readXml() []byte {
 }
 
 // Fetches a fresh XML from MyAnimeList.net
-func fetchXml() []byte {
+func get(url string) []byte {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", getUrl+"?u=Leonteus&status=all&type=anime", nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
