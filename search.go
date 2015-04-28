@@ -1,6 +1,7 @@
 package mal
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -49,6 +50,8 @@ func SearchAnime(query string) (AnimeResult, error) {
 	}
 
 	result := AnimeResult{}
+	// enconding/xml cannot handle entity &bull;
+	xmlData = bytes.Replace(xmlData, []byte("&bull;"), []byte("<![CDATA[&bull;]]>"), -1)
 	err = xml.Unmarshal(xmlData, &result)
 	if err != nil {
 		return AnimeResult{}, fmt.Errorf("cannot unmarshal '%s' (%s)", string(xmlData), err)
@@ -65,6 +68,8 @@ func SearchManga(query string) (MangaResult, error) {
 	}
 
 	result := MangaResult{}
+	// enconding/xml cannot handle entity &bull;
+	xmlData = bytes.Replace(xmlData, []byte("&bull;"), []byte("<![CDATA[&bull;]]>"), -1)
 	err = xml.Unmarshal(xmlData, &result)
 	if err != nil {
 		return MangaResult{}, fmt.Errorf("cannot unmarshal '%s' (%s)", string(xmlData), err)

@@ -120,6 +120,7 @@ func getList(url string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("User-Agent", userAgent)
+	req.SetBasicAuth(username, password) // Seems that it is not needed.
 
 	resp, err := defaultClient.Do(req)
 	if err != nil {

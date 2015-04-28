@@ -18,7 +18,7 @@ func main() {
 	//searchManga("naruto")
 	//getAnime("Leonteus")
 	//getManga("Leonteus")
-	data := mal.AnimeData{Status: "6", Score: 9}
+	//data := mal.AnimeData{Status: "1", Score: 9}
 	// data := mal.AnimeData{
 	// 	Episode:            1,
 	// 	Status:             "onhold",
@@ -37,9 +37,15 @@ func main() {
 	// 	FansubGroup:        "horriblesubs",
 	// 	Tags:               "mytag",
 	// }
-	mal.UpdateAnime(9989, data)
+	//mal.UpdateAnime(9989, data)
 	//mal.AddAnime(9989, data)
 	//searchAnime("anohana")
+	//mal.DeleteAnime(9989)
+	//searchManga("anohana")
+	//data := mal.MangaData{Status: "1", Score: 10}
+	//mal.AddManga(35733, data)
+	//mal.UpdateManga(35733, data)
+	mal.DeleteManga(35733)
 }
 
 func verify() {
