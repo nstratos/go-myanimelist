@@ -15,10 +15,31 @@ func main() {
 
 	mal.Init("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
 	//verify()
-	//searchAnime("Full metal")
 	//searchManga("naruto")
 	//getAnime("Leonteus")
-	getManga("Leonteus")
+	//getManga("Leonteus")
+	data := mal.AnimeData{Status: "6", Score: 9}
+	// data := mal.AnimeData{
+	// 	Episode:            1,
+	// 	Status:             "onhold",
+	// 	Score:              4,
+	// 	DownloadedEpisodes: 1,
+	// 	StorageType:        0,
+	// 	StorageValue:       0.0,
+	// 	TimesRewatched:     1,
+	// 	RewatchValue:       5,
+	// 	DateStart:          "12252007",
+	// 	DateFinish:         "12252008",
+	// 	Priority:           3,
+	// 	EnableDiscussion:   0,
+	// 	EnableRewatching:   1,
+	// 	Comments:           "good",
+	// 	FansubGroup:        "horriblesubs",
+	// 	Tags:               "mytag",
+	// }
+	mal.UpdateAnime(9989, data)
+	//mal.AddAnime(9989, data)
+	//searchAnime("anohana")
 }
 
 func verify() {
@@ -123,11 +144,12 @@ func searchAnime(query string) {
 	}
 	for _, entry := range result.Entries {
 		fmt.Printf("----------------------------------------\n")
-		fmt.Printf("| Title: %s\n", entry.Title)
+		fmt.Printf("| ID: %v\n", entry.ID)
+		fmt.Printf("| Title: %v\n", entry.Title)
 		fmt.Printf("| Episodes: %d\n", entry.Episodes)
-		fmt.Printf("| Type: %s\n", entry.Type)
+		fmt.Printf("| Type: %v\n", entry.Type)
 		fmt.Printf("| Score: %v\n", entry.Score)
-		fmt.Printf("| Synopsis: %s\n", entry.Synopsis)
+		fmt.Printf("| Synopsis: %v\n", entry.Synopsis)
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("\n")
 	}
@@ -141,12 +163,13 @@ func searchManga(query string) {
 	}
 	for _, entry := range result.Entries {
 		fmt.Printf("----------------------------------------\n")
-		fmt.Printf("| Title: %s\n", entry.Title)
+		fmt.Printf("| ID: %v\n", entry.ID)
+		fmt.Printf("| Title: %v\n", entry.Title)
 		fmt.Printf("| Chapters: %d\n", entry.Chapters)
 		fmt.Printf("| Volumes: %d\n", entry.Volumes)
-		fmt.Printf("| Type: %s\n", entry.Type)
+		fmt.Printf("| Type: %v\n", entry.Type)
 		fmt.Printf("| Score: %v\n", entry.Score)
-		fmt.Printf("| Synopsis: %s\n", entry.Synopsis)
+		fmt.Printf("| Synopsis: %v\n", entry.Synopsis)
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("\n")
 	}
