@@ -68,9 +68,10 @@ type Series struct {
 	SeriesImage    string `xml:"series_image"`
 }
 
+// My holds user specific data for each anime or manga.
 // MyStatus: 1 = watching, 2 = completed, 3 = on hold, 4 = dropped, 6 = plantowatch
 type My struct {
-	MyId           int    `xml:"my_id"`
+	MyID           int    `xml:"my_id"`
 	MyStartDate    string `xml:"my_start_date"`
 	MyFinishDate   string `xml:"my_finish_date"`
 	MyScore        int    `xml:"my_score"`
@@ -134,7 +135,7 @@ func getList(url string) ([]byte, error) {
 }
 
 // Reads xml from locally stored file myanimelist.xml
-func readXml() []byte {
+func readXML() []byte {
 	xmlFile, err := os.Open("./myanimelist.xml")
 	if err != nil {
 		log.Fatalln("Error opening file:", err)

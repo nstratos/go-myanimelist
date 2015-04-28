@@ -12,19 +12,23 @@ type User struct {
 	Username string `xml:"username"`
 }
 
-// Response:
+// Verify the user's credentials.
+//
+// Response
+//
 // Success: 200 status code, XML data for user.
 // Failure: 204 status code (no content).
-
-// Example Response:
-// <?xml version="1.0" encoding="utf-8"?>
-// <user>
-//     <id>1</id>
-//     <username>Xinil</username>
-// </user>
+//
+// Example Response
+//
+//  <?xml version="1.0" encoding="utf-8"?>
+//  <user>
+//    <id>1</id>
+//    <username>Xinil</username>
+//  </user>
 func Verify() (User, error) {
-	const verifyUrl = "http://myanimelist.net/api/account/verify_credentials.xml"
-	req, err := http.NewRequest("GET", verifyUrl, nil)
+	const verifyURL = "http://myanimelist.net/api/account/verify_credentials.xml"
+	req, err := http.NewRequest("GET", verifyURL, nil)
 	if err != nil {
 		return User{}, err
 	}

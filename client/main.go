@@ -38,7 +38,7 @@ func getAnime(username string) {
 
 	for _, anime := range al.Anime {
 		fmt.Printf("----------------Anime-------------------\n")
-		fmt.Printf("| MyId: %v\n", anime.MyId)
+		fmt.Printf("| MyID: %v\n", anime.MyID)
 		fmt.Printf("| MyStartDate: %v\n", anime.MyStartDate)
 		fmt.Printf("| MyFinishDate: %v\n", anime.MyFinishDate)
 		fmt.Printf("| MyScore: %v\n", anime.MyScore)
@@ -80,7 +80,7 @@ func getManga(username string) {
 
 	for _, manga := range ml.Manga {
 		fmt.Printf("----------------Manga-------------------\n")
-		fmt.Printf("| MyId: %v\n", manga.MyId)
+		fmt.Printf("| MyID: %v\n", manga.MyID)
 		fmt.Printf("| MyStartDate: %v\n", manga.MyStartDate)
 		fmt.Printf("| MyFinishDate: %v\n", manga.MyFinishDate)
 		fmt.Printf("| MyScore: %v\n", manga.MyScore)
