@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-const accountUrl = "http://myanimelist.net/api/account/verify_credentials.xml"
-
 type User struct {
 	ID       int    `xml:"id"`
 	Username string `xml:"username"`
@@ -24,16 +22,16 @@ type User struct {
 //     <id>1</id>
 //     <username>Xinil</username>
 // </user>
-func Verify(username, password string) (User, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", accountUrl, nil)
+func Verify() (User, error) {
+	const verifyUrl = "http://myanimelist.net/api/account/verify_credentials.xml"
+	req, err := http.NewRequest("GET", verifyUrl, nil)
 	if err != nil {
 		return User{}, err
 	}
-
 	req.Header.Add("User-Agent", userAgent)
 	req.SetBasicAuth(username, password)
-	resp, err := client.Do(req)
+
+	resp, err := defaultClient.Do(req)
 	if err != nil {
 		return User{}, err
 	}
