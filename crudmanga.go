@@ -108,7 +108,7 @@ func postManga(postURL string, mangaID int, data []byte) ([]byte, error) {
 }
 
 func deleteManga(mangaID int) ([]byte, error) {
-	const deleteMangaURL = "http://myanimelist.net/api/animelist/delete/"
+	const deleteMangaURL = "http://myanimelist.net/api/mangalist/delete/"
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", deleteMangaURL, mangaID), nil)
 	if err != nil {
 		return nil, err
