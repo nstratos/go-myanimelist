@@ -18,8 +18,8 @@ func main() {
 	//searchManga("naruto")
 	//getAnime("Leonteus")
 	//getManga("Leonteus")
-	//data := mal.AnimeData{Status: "1", Score: 9}
-	// data := mal.AnimeData{
+	//data := mal.AnimeEntry{Status: "1", Score: 9}
+	// data := mal.AnimeEntry{
 	// 	Episode:            1,
 	// 	Status:             "onhold",
 	// 	Score:              4,
@@ -53,10 +53,15 @@ func main() {
 	// if err != nil {
 	// 	log.Fatalf("Anime.Delete error: %v\n", err)
 	// }
-	_, err := client.Anime.Add(11933, mal.AnimeData{Status: "1", Score: 10})
+	// _, err := client.Anime.Add(11933, mal.AnimeEntry{Status: "1", Score: 10})
+	// if err != nil {
+	// 	log.Fatalf("Anime.Add error: %v\n", err)
+	// }
+	result, _, err := client.Anime.Search("anohana")
 	if err != nil {
-		log.Fatalf("Anime.Add error: %v\n", err)
+		log.Fatalf("Anime.Search error: %v\n", err)
 	}
+	printAnimeResult(result)
 }
 
 func verify() {
@@ -159,7 +164,11 @@ func searchAnime(query string) {
 		log.Fatalf("searchAnime: %s\n", err)
 		return
 	}
-	for _, entry := range result.Entries {
+	printAnimeResult(&result)
+}
+
+func printAnimeResult(result *mal.AnimeResult) {
+	for _, entry := range result.Rows {
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("| ID: %v\n", entry.ID)
 		fmt.Printf("| Title: %v\n", entry.Title)
@@ -178,7 +187,7 @@ func searchManga(query string) {
 		log.Fatalf("Error searching: %s\n", err)
 		return
 	}
-	for _, entry := range result.Entries {
+	for _, entry := range result.Rows {
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("| ID: %v\n", entry.ID)
 		fmt.Printf("| Title: %v\n", entry.Title)

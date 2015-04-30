@@ -73,7 +73,7 @@ func AddManga(mangaID int, data MangaData) ([]byte, error) {
 }
 
 func DeleteManga(mangaID int) ([]byte, error) {
-	resp, err := deleteAnime(mangaID)
+	resp, err := deleteManga(mangaID)
 	if err != nil {
 		return nil, fmt.Errorf("delete manga failed: '%s', %s", string(resp), err)
 	}

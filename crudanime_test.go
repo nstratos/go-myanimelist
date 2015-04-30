@@ -3,6 +3,8 @@ package mal
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -42,20 +44,75 @@ func TestAnimeService_Add(t *testing.T) {
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		testFormValue(t, r, "data", "<entry><status>watching</status></entry>")
-		w.WriteHeader(http.StatusCreated)
 		fmt.Fprintf(w, "Created")
 	})
 
-	resp, err := client.Anime.Add(55, AnimeData{Status: "watching"})
+	_, err := client.Anime.Add(55, AnimeEntry{Status: "watching"})
 	if err != nil {
-		t.Errorf("Anime.Delete returned error %v", err)
+		t.Errorf("Anime.Add returned error %v", err)
 	}
-	testResponseStatus(t, resp, 201)
 }
 
-func testResponseStatus(t *testing.T, resp *http.Response, want int) {
-	if resp.StatusCode != want {
-		t.Errorf("status code = %d, want %d", resp.StatusCode, want)
+func TestAnimeService_Update(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testID(t, r, "55")
+		testBasicAuth(t, r, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testContentType(t, r, "application/x-www-form-urlencoded")
+		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		fmt.Fprintf(w, "Updated")
+	})
+
+	_, err := client.Anime.Update(55, AnimeEntry{Status: "onhold"})
+	if err != nil {
+		t.Errorf("Anime.Update returned error %v", err)
+	}
+}
+
+func TestAnimeService_Search(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/anime/search.xml", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{"q": "query"})
+		fmt.Fprintf(w, `
+			<anime>
+				<entry>
+					<title>title1</title>
+					<id>55</id>
+				</entry>
+				<entry>
+					<title>title2</title>
+					<id>56</id>
+				</entry>
+			</anime>`)
+	})
+
+	result, _, err := client.Anime.Search("query")
+	if err != nil {
+		t.Errorf("Anime.Search returned error %v", err)
+	}
+	want := &AnimeResult{
+		[]AnimeRow{
+			AnimeRow{Row: Row{ID: 55, Title: "title1"}},
+			AnimeRow{Row: Row{ID: 56, Title: "title2"}},
+		},
+	}
+	if !reflect.DeepEqual(result, want) {
+		t.Errorf("Account.Search returned %+v, want %+v", result, want)
 	}
 }
 
@@ -75,5 +132,18 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 	v := r.FormValue(value)
 	if v != want {
 		t.Errorf("form value %v = %v, want %v", value, v, want)
+	}
+}
+
+type urlValues map[string]string
+
+func testURLValues(t *testing.T, r *http.Request, values urlValues) {
+	want := url.Values{}
+	for k, v := range values {
+		want.Add(k, v)
+	}
+	actual := r.URL.Query()
+	if !reflect.DeepEqual(want, actual) {
+		t.Errorf("URL Values = %v, want %v", actual, want)
 	}
 }

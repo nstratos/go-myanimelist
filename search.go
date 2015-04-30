@@ -9,35 +9,35 @@ import (
 	"net/url"
 )
 
-type AnimeResult struct {
-	Entries []AnimeEntry `xml:"entry"`
-}
+// type AnimeResult struct {
+// 	Rows []AnimeRow `xml:"entry"`
+// }
 
 type MangaResult struct {
-	Entries []MangaEntry `xml:"entry"`
+	Rows []MangaRow `xml:"entry"`
 }
 
-type Entry struct {
-	ID        int     `xml:"id"`
-	Title     string  `xml:"title"`
-	English   string  `xml:"english"`
-	Synonyms  string  `xml:"synonyms"`
-	Score     float64 `xml:"score"`
-	Type      string  `xml:"type"`
-	Status    string  `xml:"status"`
-	StartDate string  `xml:"start_date"`
-	EndDate   string  `xml:"end_date"`
-	Synopsis  string  `xml:"synopsis"`
-	Image     string  `xml:"image"`
-}
+// type Row struct {
+// 	ID        int     `xml:"id"`
+// 	Title     string  `xml:"title"`
+// 	English   string  `xml:"english"`
+// 	Synonyms  string  `xml:"synonyms"`
+// 	Score     float64 `xml:"score"`
+// 	Type      string  `xml:"type"`
+// 	Status    string  `xml:"status"`
+// 	StartDate string  `xml:"start_date"`
+// 	EndDate   string  `xml:"end_date"`
+// 	Synopsis  string  `xml:"synopsis"`
+// 	Image     string  `xml:"image"`
+// }
 
-type AnimeEntry struct {
-	Entry
-	Episodes int `xml:"episodes"`
-}
+// type AnimeRow struct {
+// 	Row
+// 	Episodes int `xml:"episodes"`
+// }
 
-type MangaEntry struct {
-	Entry
+type MangaRow struct {
+	Row
 	Chapters int `xml:"chapters"`
 	Volumes  int `xml:"volumes"`
 }
