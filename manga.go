@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// MangaData holds values such as score, chapter and status that we want our
+// MangaEntry holds values such as score, chapter and status that we want our
 // manga entry to have when we add or update it on our list.
 //
 // Status is required and can be:
@@ -20,7 +20,7 @@ import (
 // EnableDiscussion and EnableRereading can be: 1=enable, 0=disable
 //
 // Tags are comma separated: test tag, 2nd tag
-type MangaData struct {
+type MangaEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Volume             int      `xml:"volume,omitempty"`
 	Chapter            int      `xml:"chapter,omitempty"`
@@ -40,7 +40,25 @@ type MangaData struct {
 	RetailVolumes      int      `xml:"retail_volumes,omitempty"`
 }
 
-func UpdateManga(mangaID int, data MangaData) ([]byte, error) {
+type MangaService struct {
+	client *Client
+}
+
+func (s *MangaService) Add(mangaID int, entry MangaEntry) (*http.Response, error) {
+
+	const endpoint = "api/mangalist/add/"
+
+	return s.client.post(endpoint, mangaID, entry)
+}
+
+func (s *MangaService) Update(mangaID int, entry MangaEntry) (*http.Response, error) {
+
+	const endpoint = "api/mangalist/update/"
+
+	return s.client.post(endpoint, mangaID, entry)
+}
+
+func UpdateManga(mangaID int, data MangaEntry) ([]byte, error) {
 	xmlData, err := xml.MarshalIndent(data, "", "")
 	if err != nil {
 		return nil, fmt.Errorf("cannot marshal: %s", err)
@@ -56,7 +74,7 @@ func UpdateManga(mangaID int, data MangaData) ([]byte, error) {
 	return resp, nil
 }
 
-func AddManga(mangaID int, data MangaData) ([]byte, error) {
+func AddManga(mangaID int, data MangaEntry) ([]byte, error) {
 	xmlData, err := xml.MarshalIndent(data, "", "")
 	if err != nil {
 		return nil, fmt.Errorf("cannot marshal: %s", err)

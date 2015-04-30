@@ -46,47 +46,21 @@ func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*http.Response, error
 
 	const endpoint = "api/animelist/add/"
 
-	return s.postAnime(endpoint, animeID, entry)
+	return s.client.post(endpoint, animeID, entry)
 }
 
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*http.Response, error) {
 
 	const endpoint = "api/animelist/update/"
 
-	return s.postAnime(endpoint, animeID, entry)
-}
-
-func (s *AnimeService) postAnime(endpoint string, animeID int, entry AnimeEntry) (*http.Response, error) {
-	req, err := s.client.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, animeID), entry)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := s.client.Do(req, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return s.client.post(endpoint, animeID, entry)
 }
 
 func (s *AnimeService) Delete(animeID int) (*http.Response, error) {
 
 	const endpoint = "api/animelist/delete/"
 
-	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, animeID), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(req, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return s.client.delete(endpoint, animeID)
 }
 
 type AnimeResult struct {

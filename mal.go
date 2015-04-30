@@ -55,6 +55,7 @@ type Client struct {
 
 	Account *AccountService
 	Anime   *AnimeService
+	Manga   *MangaService
 }
 
 func NewClient() *Client {
@@ -63,6 +64,7 @@ func NewClient() *Client {
 	c := &Client{client: httpClient, BaseURL: baseURL, UserAgent: defaultUserAgent}
 	c.Account = &AccountService{client: c}
 	c.Anime = &AnimeService{client: c}
+	c.Manga = &MangaService{client: c}
 	return c
 }
 
@@ -133,6 +135,36 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	}
 
 	return resp, err
+}
+
+func (c *Client) post(endpoint string, id int, entry interface{}) (*http.Response, error) {
+	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := c.Do(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (c *Client) delete(endpoint string, id int) (*http.Response, error) {
+	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.Do(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func CheckResponse(r *http.Response) error {
