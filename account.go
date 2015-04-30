@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 type AccountService struct {
@@ -18,34 +17,21 @@ type User struct {
 }
 
 func (s *AccountService) Verify() (*User, *http.Response, error) {
-	verifyURL, _ := url.Parse("api/account/verify_credentials.xml")
-	u := s.client.BaseURL.ResolveReference(verifyURL)
 
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	req.Header.Add("User-Agent", s.client.UserAgent)
-	req.SetBasicAuth(s.client.Username, s.client.Password)
+	verifyURL := "api/account/verify_credentials.xml"
 
-	resp, err := s.client.client.Do(req)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
+	req, err := s.client.NewRequest("GET", verifyURL, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	user := User{}
-	err = xml.Unmarshal(body, &user)
+	user := new(User)
+	resp, err := s.client.Do(req, user)
 	if err != nil {
-		return nil, resp, fmt.Errorf("cannot unmarshal '%s' (%s)\n", string(body), err)
+		return nil, resp, err
 	}
 
-	return &user, resp, nil
+	return user, resp, err
 }
 
 // Verify the user's credentials.

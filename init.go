@@ -1,6 +1,11 @@
 package mal
 
 import (
+	"bytes"
+	"encoding/xml"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -63,4 +68,86 @@ func (c *Client) SetCredentials(username, password, userAgent string) {
 	c.Username = username
 	c.Password = password
 	c.UserAgent = userAgent
+}
+
+func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+	rel, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	u := c.BaseURL.ResolveReference(rel)
+
+	var buf io.ReadWriter
+	if body != nil {
+		buf = new(bytes.Buffer)
+		err := xml.NewEncoder(buf).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	req, err := http.NewRequest(method, u.String(), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.UserAgent != "" {
+		req.Header.Add("User-Agent", c.UserAgent)
+	}
+
+	if c.Username != "" {
+		req.SetBasicAuth(c.Username, c.Password)
+	}
+
+	return req, nil
+
+}
+
+func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	err = CheckResponse(resp)
+	if err != nil {
+		return resp, err
+	}
+
+	if v != nil {
+		// If we get a writer, we copy the body to the writer (e.g. so it can
+		// write in a created file) otherwise we decode the expected XML.
+		if w, ok := v.(io.Writer); ok {
+			io.Copy(w, resp.Body)
+		} else {
+			err = xml.NewDecoder(resp.Body).Decode(v)
+		}
+	}
+
+	return resp, err
+}
+
+func CheckResponse(r *http.Response) error {
+	if r.StatusCode >= 200 && r.StatusCode <= 299 {
+		return nil
+	}
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return fmt.Errorf("cannot read response body %v", err)
+	}
+	return &ErrorResponse{Response: r, Body: data}
+}
+
+type ErrorResponse struct {
+	Response *http.Response
+	Body     []byte
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d '%s'",
+		r.Response.Request.Method, r.Response.Request.URL,
+		r.Response.StatusCode, string(r.Body))
 }

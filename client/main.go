@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	mal.Init("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
+	//mal.Init("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
 	//verify()
 	//searchManga("naruto")
 	//getAnime("Leonteus")
@@ -45,7 +45,19 @@ func main() {
 	//data := mal.MangaData{Status: "1", Score: 10}
 	//mal.AddManga(35733, data)
 	//mal.UpdateManga(35733, data)
-	mal.DeleteManga(35733)
+	//mal.DeleteManga(35733)
+	client := mal.NewClient()
+	client.SetCredentials("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
+	user, _, err := client.Account.Verify()
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	log.Fatalf("Error reading response body: %v\n", err)
+	// }
+	if err != nil {
+		log.Fatalf("Account.Verify error: %v\n", err)
+	}
+
+	fmt.Printf("Account.Verify: %+v\n", user)
 }
 
 func verify() {
