@@ -9,6 +9,46 @@ import (
 	"strings"
 )
 
+type AnimeService struct {
+	client *Client
+}
+
+func (s *AnimeService) Add(animeID int, data AnimeData) (*http.Response, error) {
+
+	const endpoint = "api/animelist/add/"
+
+	req, err := s.client.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, animeID), data)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := s.client.Do(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (s *AnimeService) Delete(animeID int) (*http.Response, error) {
+
+	const endpoint = "api/animelist/delete/"
+
+	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, animeID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.client.Do(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 // AnimeData holds values such as score, episode and status that we want our
 // anime entry to have when we add or update it on our list.
 //

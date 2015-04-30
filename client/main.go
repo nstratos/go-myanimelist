@@ -47,17 +47,16 @@ func main() {
 	//mal.UpdateManga(35733, data)
 	//mal.DeleteManga(35733)
 	client := mal.NewClient()
-	client.SetCredentials("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
-	user, _, err := client.Account.Verify()
-	// body, err := ioutil.ReadAll(resp.Body)
+	client.SetCredentials("Leonteus", "001010100")
+	client.SetUserAgent("api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
+	// _, err := client.Anime.Delete(11933)
 	// if err != nil {
-	// 	log.Fatalf("Error reading response body: %v\n", err)
+	// 	log.Fatalf("Anime.Delete error: %v\n", err)
 	// }
+	_, err := client.Anime.Add(11933, mal.AnimeData{Status: "1", Score: 10})
 	if err != nil {
-		log.Fatalf("Account.Verify error: %v\n", err)
+		log.Fatalf("Anime.Add error: %v\n", err)
 	}
-
-	fmt.Printf("Account.Verify: %+v\n", user)
 }
 
 func verify() {

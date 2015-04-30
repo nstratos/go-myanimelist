@@ -1,13 +1,13 @@
 package mal
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -54,6 +54,7 @@ type Client struct {
 	BaseURL *url.URL
 
 	Account *AccountService
+	Anime   *AnimeService
 }
 
 func NewClient() *Client {
@@ -61,12 +62,16 @@ func NewClient() *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := &Client{client: httpClient, BaseURL: baseURL, UserAgent: defaultUserAgent}
 	c.Account = &AccountService{client: c}
+	c.Anime = &AnimeService{client: c}
 	return c
 }
 
-func (c *Client) SetCredentials(username, password, userAgent string) {
+func (c *Client) SetCredentials(username, password string) {
 	c.Username = username
 	c.Password = password
+}
+
+func (c *Client) SetUserAgent(userAgent string) {
 	c.UserAgent = userAgent
 }
 
@@ -78,16 +83,17 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 	u := c.BaseURL.ResolveReference(rel)
 
-	var buf io.ReadWriter
+	v := url.Values{}
+
 	if body != nil {
-		buf = new(bytes.Buffer)
-		err := xml.NewEncoder(buf).Encode(body)
+		data, err := xml.Marshal(body)
 		if err != nil {
 			return nil, err
 		}
+		v.Set("data", string(data))
 	}
 
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequest(method, u.String(), strings.NewReader(v.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +153,7 @@ type ErrorResponse struct {
 }
 
 func (r *ErrorResponse) Error() string {
-	return fmt.Sprintf("%v %v: %d '%s'",
+	return fmt.Sprintf("%v %v: %d %s",
 		r.Response.Request.Method, r.Response.Request.URL,
 		r.Response.StatusCode, string(r.Body))
 }

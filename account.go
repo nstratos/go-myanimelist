@@ -18,7 +18,7 @@ type User struct {
 
 func (s *AccountService) Verify() (*User, *http.Response, error) {
 
-	verifyURL := "api/account/verify_credentials.xml"
+	const verifyURL = "api/account/verify_credentials.xml"
 
 	req, err := s.client.NewRequest("GET", verifyURL, nil)
 	if err != nil {
