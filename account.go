@@ -16,7 +16,7 @@ type User struct {
 	Username string `xml:"username"`
 }
 
-func (s *AccountService) Verify() (*User, *http.Response, error) {
+func (s *AccountService) Verify() (*User, *Response, error) {
 
 	const verifyURL = "api/account/verify_credentials.xml"
 

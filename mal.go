@@ -1,9 +1,9 @@
 package mal
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -77,6 +77,11 @@ func (c *Client) SetUserAgent(userAgent string) {
 	c.UserAgent = userAgent
 }
 
+type Response struct {
+	*http.Response
+	Body []byte
+}
+
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
@@ -86,7 +91,6 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	u := c.BaseURL.ResolveReference(rel)
 
 	v := url.Values{}
-
 	if body != nil {
 		data, err := xml.Marshal(body)
 		if err != nil {
@@ -112,32 +116,51 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 }
 
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	err = CheckResponse(resp)
+	response, err := readResponse(resp)
 	if err != nil {
-		return resp, err
+		return response, err
 	}
 
+	//if v != nil && len(response.Body) != 0 {
 	if v != nil {
-		// If we get a writer, we copy the body to the writer (e.g. so it can
-		// write in a created file) otherwise we decode the expected XML.
-		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, resp.Body)
-		} else {
-			err = xml.NewDecoder(resp.Body).Decode(v)
+		b := response.Body
+		// enconding/xml cannot handle entity &bull;
+		b = bytes.Replace(b, []byte("&bull;"), []byte("<![CDATA[&bull;]]>"), -1)
+		err := xml.Unmarshal(b, v)
+		if err != nil {
+			return response, fmt.Errorf("cannot decode: %v", err)
 		}
 	}
 
-	return resp, err
+	return response, nil
 }
 
-func (c *Client) post(endpoint string, id int, entry interface{}) (*http.Response, error) {
+func readResponse(r *http.Response) (*Response, error) {
+	resp := &Response{Response: r}
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return resp, fmt.Errorf("cannot read response body: %v", err)
+	}
+	resp.Body = data
+
+	if r.StatusCode < 200 || r.StatusCode > 299 {
+		return resp, fmt.Errorf("%v %v: %d %s",
+			r.Request.Method, r.Request.URL,
+			r.StatusCode, string(data))
+	}
+
+	return resp, nil
+}
+
+func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, error) {
 	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
 	if err != nil {
 		return nil, err
@@ -153,7 +176,7 @@ func (c *Client) post(endpoint string, id int, entry interface{}) (*http.Respons
 	return resp, nil
 }
 
-func (c *Client) delete(endpoint string, id int) (*http.Response, error) {
+func (c *Client) delete(endpoint string, id int) (*Response, error) {
 	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
 	if err != nil {
 		return nil, err
@@ -167,25 +190,17 @@ func (c *Client) delete(endpoint string, id int) (*http.Response, error) {
 	return resp, nil
 }
 
-func CheckResponse(r *http.Response) error {
-	if r.StatusCode >= 200 && r.StatusCode <= 299 {
-		return nil
-	}
+func (c *Client) query(url string, result interface{}) (*Response, error) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	req, err := c.NewRequest("GET", url, nil)
 	if err != nil {
-		return fmt.Errorf("cannot read response body %v", err)
+		return nil, err
 	}
-	return &ErrorResponse{Response: r, Body: data}
-}
 
-type ErrorResponse struct {
-	Response *http.Response
-	Body     []byte
-}
+	resp, err := c.Do(req, result)
+	if err != nil {
+		return resp, err
+	}
 
-func (r *ErrorResponse) Error() string {
-	return fmt.Sprintf("%v %v: %d %s",
-		r.Response.Request.Method, r.Response.Request.URL,
-		r.Response.StatusCode, string(r.Body))
+	return resp, nil
 }

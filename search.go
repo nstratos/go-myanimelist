@@ -13,9 +13,9 @@ import (
 // 	Rows []AnimeRow `xml:"entry"`
 // }
 
-type MangaResult struct {
-	Rows []MangaRow `xml:"entry"`
-}
+// type MangaResult struct {
+// 	Rows []MangaRow `xml:"entry"`
+// }
 
 // type Row struct {
 // 	ID        int     `xml:"id"`
@@ -36,11 +36,11 @@ type MangaResult struct {
 // 	Episodes int `xml:"episodes"`
 // }
 
-type MangaRow struct {
-	Row
-	Chapters int `xml:"chapters"`
-	Volumes  int `xml:"volumes"`
-}
+// type MangaRow struct {
+// 	Row
+// 	Chapters int `xml:"chapters"`
+// 	Volumes  int `xml:"volumes"`
+// }
 
 func SearchAnime(query string) (AnimeResult, error) {
 	const searchAnimeURL = "http://myanimelist.net/api/anime/search.xml?q="

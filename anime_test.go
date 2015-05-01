@@ -112,7 +112,7 @@ func TestAnimeService_Search(t *testing.T) {
 		},
 	}
 	if !reflect.DeepEqual(result, want) {
-		t.Errorf("Account.Search returned %+v, want %+v", result, want)
+		t.Errorf("Anime.Search returned %+v, want %+v", result, want)
 	}
 }
 

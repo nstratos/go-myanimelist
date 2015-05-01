@@ -3,7 +3,6 @@ package mal
 import (
 	"encoding/xml"
 	"fmt"
-	"net/http"
 	"net/url"
 )
 
@@ -42,21 +41,21 @@ type AnimeService struct {
 	client *Client
 }
 
-func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*http.Response, error) {
+func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 
 	const endpoint = "api/animelist/add/"
 
 	return s.client.post(endpoint, animeID, entry)
 }
 
-func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*http.Response, error) {
+func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
 	const endpoint = "api/animelist/update/"
 
 	return s.client.post(endpoint, animeID, entry)
 }
 
-func (s *AnimeService) Delete(animeID int) (*http.Response, error) {
+func (s *AnimeService) Delete(animeID int) (*Response, error) {
 
 	const endpoint = "api/animelist/delete/"
 
@@ -86,20 +85,15 @@ type Row struct {
 	Image     string  `xml:"image"`
 }
 
-func (s *AnimeService) Search(query string) (*AnimeResult, *http.Response, error) {
+func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 
 	const endpoint = "api/anime/search.xml?q="
-
-	req, err := s.client.NewRequest("GET", fmt.Sprintf("%s%s", endpoint, url.QueryEscape(query)), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(query))
 
 	result := new(AnimeResult)
-	resp, err := s.client.Do(req, result)
+	resp, err := s.client.query(u, result)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
-
 	return result, resp, nil
 }

@@ -57,11 +57,12 @@ func main() {
 	// if err != nil {
 	// 	log.Fatalf("Anime.Add error: %v\n", err)
 	// }
-	result, _, err := client.Anime.Search("anohana")
+	result, resp, err := client.Manga.Search("anohana")
 	if err != nil {
-		log.Fatalf("Anime.Search error: %v\n", err)
+		log.Fatalf("Anime.Search error: %v, received: '%v'\n", err, string(resp.Body))
+		//log.Fatalf("Anime.Search error: %v\n", err)
 	}
-	printAnimeResult(result)
+	printMangaResult(result)
 }
 
 func verify() {
@@ -187,6 +188,10 @@ func searchManga(query string) {
 		log.Fatalf("Error searching: %s\n", err)
 		return
 	}
+	printMangaResult(&result)
+}
+
+func printMangaResult(result *mal.MangaResult) {
 	for _, entry := range result.Rows {
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("| ID: %v\n", entry.ID)
