@@ -97,3 +97,54 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 	}
 	return result, resp, nil
 }
+
+type AnimeList struct {
+	MyInfo MyAnimeInfo `xml:"myinfo"`
+	Anime  []Anime     `xml:"anime"`
+}
+
+type MyAnimeInfo struct {
+	ID                int    `xml:"user_id"`
+	Name              string `xml:"user_name"`
+	Completed         int    `xml:"user_completed"`
+	OnHold            int    `xml:"user_onhold"`
+	Dropped           int    `xml:"user_dropped"`
+	DaysSpentWatching string `xml:"user_days_spent_watching"`
+	Watching          int    `xml:"user_watching"`
+	PlanToWatch       int    `xml:"user_plantowatch"`
+}
+
+type Anime struct {
+	SeriesAnimeDBID   int    `xml:"series_animedb_id"`
+	SeriesEpisodes    int    `xml:"series_episodes"`
+	SeriesTitle       string `xml:"series_title"`
+	SeriesSynonyms    string `xml:"series_synonyms"`
+	SeriesType        int    `xml:"series_type"`
+	SeriesStatus      int    `xml:"series_status"`
+	SeriesStart       string `xml:"series_start"`
+	SeriesEnd         string `xml:"series_end"`
+	SeriesImage       string `xml:"series_image"`
+	MyID              int    `xml:"my_id"`
+	MyStartDate       string `xml:"my_start_date"`
+	MyFinishDate      string `xml:"my_finish_date"`
+	MyScore           int    `xml:"my_score"`
+	MyStatus          int    `xml:"my_status"`
+	MyRewatching      string `xml:"my_rewatching"`
+	MyRewatchingEp    int    `xml:"my_rewatching_ep"`
+	MyLastUpdated     string `xml:"my_last_updated"`
+	MyTags            string `xml:"my_tags"`
+	MyWatchedEpisodes int    `xml:"my_watched_episodes"`
+}
+
+func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
+
+	const endpoint = "malappinfo.php?status=all&type=anime&u="
+	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(username))
+
+	list := new(AnimeList)
+	resp, err := s.client.query(u, list)
+	if err != nil {
+		return nil, resp, err
+	}
+	return list, resp, nil
+}
