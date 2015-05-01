@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -78,5 +80,37 @@ func testContentType(t *testing.T, r *http.Request, want string) {
 	ct := r.Header.Get("Content-Type")
 	if ct != want {
 		t.Errorf("Content-Type = %v, want %v", ct, want)
+	}
+}
+
+func testID(t *testing.T, r *http.Request, want string) {
+	idXML := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
+	xml := idXML[len(idXML)-4:]
+	if xml != ".xml" {
+		t.Errorf("URL path %v does not end in .xml", r.URL.Path)
+	}
+	id := idXML[:len(idXML)-4]
+	if id != want {
+		t.Errorf("provided id = %v, want %v", id, want)
+	}
+}
+
+func testFormValue(t *testing.T, r *http.Request, value, want string) {
+	v := r.FormValue(value)
+	if v != want {
+		t.Errorf("form value %v = %v, want %v", value, v, want)
+	}
+}
+
+type urlValues map[string]string
+
+func testURLValues(t *testing.T, r *http.Request, values urlValues) {
+	want := url.Values{}
+	for k, v := range values {
+		want.Add(k, v)
+	}
+	actual := r.URL.Query()
+	if !reflect.DeepEqual(want, actual) {
+		t.Errorf("URL Values = %v, want %v", actual, want)
 	}
 }
