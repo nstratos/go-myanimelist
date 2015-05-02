@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"bitbucket.org/nstratos/mal"
 )
@@ -44,12 +46,14 @@ func main() {
 	//mal.UpdateManga(35733, data)
 	//mal.DeleteManga(35733)
 	client := mal.NewClient()
-	//client.SetCredentials("Leonteus", "001010100")
-	// agent, err := ioutil.ReadFile("agent.txt")
-	// if err != nil {
-	// 	log.Fatalln("cannot read agent:", err)
-	// }
-	// client.SetUserAgent(string(agent))
+	agent, err := ioutil.ReadFile("agent.txt")
+	if err != nil {
+		log.Fatalln("cannot read agent:", err)
+	}
+	a := string(agent)
+	s := strings.Split(a, "\n")
+	client.SetUserAgent(s[0])
+	client.SetCredentials(s[1], s[2])
 	// _, err := client.Anime.Delete(11933)
 	// if err != nil {
 	// 	log.Fatalf("Anime.Delete error: %v\n", err)
