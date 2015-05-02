@@ -74,6 +74,34 @@ func TestAnimeService_Update(t *testing.T) {
 	}
 }
 
+func TestAnimeService_Update_invalid_ID(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testID(t, r, "0")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testContentType(t, r, "application/x-www-form-urlencoded")
+		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		http.Error(w, "Invalid ID", http.StatusNotImplemented)
+	})
+
+	response, err := client.Anime.Update(0, AnimeEntry{Status: "onhold"})
+
+	if err == nil {
+		t.Errorf("Anime.Update invalid ID should return err")
+	}
+
+	if response == nil {
+		t.Errorf("Anime.Update invalid ID should return also return response")
+	}
+}
+
 func TestAnimeService_Search(t *testing.T) {
 	setup()
 	defer teardown()

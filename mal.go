@@ -201,7 +201,7 @@ func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, er
 
 	resp, err := c.Do(req, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil
@@ -215,7 +215,7 @@ func (c *Client) delete(endpoint string, id int) (*Response, error) {
 
 	resp, err := c.Do(req, nil)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 
 	return resp, nil

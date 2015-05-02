@@ -188,6 +188,39 @@ func TestClient_Do(t *testing.T) {
 	}
 }
 
+func TestClient_Do_XML_invalid_entity(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type foo struct {
+		Bar string `xml:"bar"`
+	}
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if want := "GET"; r.Method != want {
+			t.Errorf("request method = %v, want %v", r.Method, want)
+		}
+		fmt.Fprint(w, `<foo><bar>&foo; bar</bar></foo>`)
+	})
+
+	req, _ := client.NewRequest("GET", "/", nil)
+
+	body := new(foo)
+	response, err := client.Do(req, body)
+
+	if err == nil {
+		t.Errorf("Do() receiving XML with invalid entity should return err")
+	}
+
+	if response == nil {
+		t.Errorf("Do() receiving XML with invalid entity should also return response")
+	}
+
+	if want, got := "<foo><bar>&foo; bar</bar></foo>", string(response.Body); want != got {
+		t.Errorf("Do() receiving XML with invalid entity mal.Response.Body = %v, want %v", got, want)
+	}
+}
+
 func TestClient_Do_404(t *testing.T) {
 	setup()
 	defer teardown()
@@ -210,7 +243,60 @@ func TestClient_Do_404(t *testing.T) {
 	}
 }
 
-// consider deleting
+func TestClient_post_invalid_ID(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testID(t, r, "0")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testContentType(t, r, "application/x-www-form-urlencoded")
+		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		http.Error(w, "Invalid ID", http.StatusNotImplemented)
+	})
+
+	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: "onhold"})
+
+	if err == nil {
+		t.Errorf("Anime.Update invalid ID should return err")
+	}
+
+	if response == nil {
+		t.Errorf("Anime.Update invalid ID should return also return response")
+	}
+}
+
+func TestClient_delete_invalid_ID(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		testID(t, r, "0")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		http.Error(w, "Invalid ID", http.StatusNotImplemented)
+	})
+
+	response, err := client.delete("api/animelist/delete/", 0)
+
+	if err == nil {
+		t.Errorf("Anime.Delete invalid ID should return err")
+	}
+
+	if response == nil {
+		t.Errorf("Anime.Delete invalid ID should return also return response")
+	}
+}
+
 func TestClient_NewRequest_bad_endpoint(t *testing.T) {
 	c := NewClient()
 	inURL := "%foo"
@@ -220,12 +306,11 @@ func TestClient_NewRequest_bad_endpoint(t *testing.T) {
 	}
 }
 
-// consider deleting
 func TestClient_NewRequest_xml_encode_err(t *testing.T) {
 	c := NewClient()
-	in := func() {}
+	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)
 	if err == nil {
-		t.Errorf("NewRequest(%q) should return XML decode err", in)
+		t.Errorf("NewRequest(%q) should return XML encode err", in)
 	}
 }
