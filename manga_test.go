@@ -114,6 +114,36 @@ func TestMangaService_Search(t *testing.T) {
 	}
 }
 
+func TestMangaService_Search_no_content(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{"q": "foo"})
+		http.Error(w, "no content", http.StatusNoContent)
+	})
+
+	result, _, err := client.Manga.Search("foo")
+
+	if err == nil {
+		t.Errorf("Manga.Search for non existent query expected to return err")
+	}
+
+	if got, want := err, NoContentErr; got != want {
+		t.Errorf("Manga.Search for non existent query returned err %v, want %v", got, want)
+	}
+
+	if got := result; got != nil {
+		t.Errorf("Manga.Search for non existent query returned result = %v, want %v", got, nil)
+	}
+}
+
 func TestMangaService_List(t *testing.T) {
 	setup()
 	defer teardown()
@@ -163,5 +193,70 @@ func TestMangaService_List(t *testing.T) {
 	}
 	if !reflect.DeepEqual(result, want) {
 		t.Errorf("Manga.List returned %+v, want %+v", result, want)
+	}
+}
+
+func TestMangaService_List_invalid_username(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{
+			"status": "all",
+			"type":   "manga",
+			"u":      "InvalidUser",
+		})
+		fmt.Fprintf(w, `
+			<myanimelist>
+				<error>Invalid username</error>
+			</myanimelist>
+			`)
+	})
+
+	result, _, err := client.Manga.List("InvalidUser")
+
+	if err == nil {
+		t.Errorf("Manga.List for invalid user expected to return err")
+	}
+
+	want := &MangaList{Error: "Invalid username"}
+	if !reflect.DeepEqual(want, result) {
+		t.Errorf("Manga.List for invalid user returned result = %v, want %v", result, want)
+	}
+}
+
+func TestMangaService_List_server_error(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{
+			"status": "all",
+			"type":   "manga",
+			"u":      "TestUser",
+		})
+		http.Error(w, "something broke", http.StatusInternalServerError)
+	})
+
+	result, _, err := client.Manga.List("TestUser")
+
+	if err == nil {
+		t.Errorf("Manga.List for server error expected to return err")
+	}
+
+	if got := result; got != nil {
+		t.Errorf("Manga.List for server error returned result = %v, want %v", got, nil)
 	}
 }
