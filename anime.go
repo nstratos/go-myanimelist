@@ -101,6 +101,7 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 type AnimeList struct {
 	MyInfo MyAnimeInfo `xml:"myinfo"`
 	Anime  []Anime     `xml:"anime"`
+	Error  string      `xml:"error"`
 }
 
 type MyAnimeInfo struct {
@@ -146,5 +147,10 @@ func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 	if err != nil {
 		return nil, resp, err
 	}
+
+	if list.Error != "" {
+		return list, resp, fmt.Errorf("%v", list.Error)
+	}
+
 	return list, resp, nil
 }

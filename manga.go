@@ -88,6 +88,7 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 type MangaList struct {
 	MyInfo MyMangaInfo `xml:"myinfo"`
 	Manga  []Manga     `xml:"manga"`
+	Error  string      `xml:"error"`
 }
 
 type MyMangaInfo struct {
@@ -139,5 +140,10 @@ func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 	if err != nil {
 		return nil, resp, err
 	}
+
+	if list.Error != "" {
+		return list, resp, fmt.Errorf("%v", list.Error)
+	}
+
 	return list, resp, nil
 }

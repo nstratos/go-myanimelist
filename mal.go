@@ -3,6 +3,7 @@ package mal
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -126,6 +127,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	return response, nil
 }
 
+var NoContentErr = errors.New("no content")
+
 func readResponse(r *http.Response) (*Response, error) {
 	resp := &Response{Response: r}
 
@@ -134,6 +137,10 @@ func readResponse(r *http.Response) (*Response, error) {
 		return resp, fmt.Errorf("cannot read response body: %v", err)
 	}
 	resp.Body = data
+
+	if r.StatusCode == http.StatusNoContent {
+		return resp, NoContentErr
+	}
 
 	if r.StatusCode < 200 || r.StatusCode > 299 {
 		return resp, fmt.Errorf("%v %v: %d %s",

@@ -114,6 +114,36 @@ func TestAnimeService_Search(t *testing.T) {
 	}
 }
 
+func TestAnimeService_Search_no_content(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/anime/search.xml", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{"q": "foo"})
+		http.Error(w, "no content", http.StatusNoContent)
+	})
+
+	result, _, err := client.Anime.Search("foo")
+
+	if err == nil {
+		t.Errorf("Anime.Search for non existent query expected to return err")
+	}
+
+	if got, want := err, NoContentErr; got != want {
+		t.Errorf("Anime.Search for non existent query returned err %v, want %v", got, want)
+	}
+
+	if got := result; got != nil {
+		t.Errorf("Anime.Search for non existent query returned result = %v, want %v", got, nil)
+	}
+}
+
 func TestAnimeService_List(t *testing.T) {
 	setup()
 	defer teardown()
@@ -163,5 +193,70 @@ func TestAnimeService_List(t *testing.T) {
 	}
 	if !reflect.DeepEqual(result, want) {
 		t.Errorf("Anime.List returned %+v, want %+v", result, want)
+	}
+}
+
+func TestAnimeService_List_invalid_username(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{
+			"status": "all",
+			"type":   "anime",
+			"u":      "InvalidUser",
+		})
+		fmt.Fprintf(w, `
+			<myanimelist>
+				<error>Invalid username</error>
+			</myanimelist>
+			`)
+	})
+
+	result, _, err := client.Anime.List("InvalidUser")
+
+	if err == nil {
+		t.Errorf("Anime.List for invalid user expected to return err")
+	}
+
+	want := &AnimeList{Error: "Invalid username"}
+	if !reflect.DeepEqual(want, result) {
+		t.Errorf("Anime.List for invalid user returned result = %v, want %v", result, want)
+	}
+}
+
+func TestAnimeService_List_server_error(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		testURLValues(t, r, urlValues{
+			"status": "all",
+			"type":   "anime",
+			"u":      "TestUser",
+		})
+		http.Error(w, "something broke", http.StatusInternalServerError)
+	})
+
+	result, _, err := client.Anime.List("TestUser")
+
+	if err == nil {
+		t.Errorf("Anime.List for server error expected to return err")
+	}
+
+	if got := result; got != nil {
+		t.Errorf("Anime.List for server error returned result = %v, want %v", got, nil)
 	}
 }
