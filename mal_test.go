@@ -311,6 +311,6 @@ func TestClient_NewRequest_xml_encode_err(t *testing.T) {
 	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)
 	if err == nil {
-		t.Errorf("NewRequest(%q) should return XML encode err", in)
+		t.Errorf("NewRequest receiving a function as body should return XML encode err")
 	}
 }

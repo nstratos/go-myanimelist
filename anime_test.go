@@ -133,8 +133,8 @@ func TestAnimeService_Search(t *testing.T) {
 	}
 	want := &AnimeResult{
 		[]AnimeRow{
-			AnimeRow{Row: Row{ID: 55, Title: "title1"}},
-			AnimeRow{Row: Row{ID: 56, Title: "title2"}},
+			AnimeRow{ID: 55, Title: "title1"},
+			AnimeRow{ID: 56, Title: "title2"},
 		},
 	}
 	if !reflect.DeepEqual(result, want) {
@@ -163,7 +163,7 @@ func TestAnimeService_Search_no_content(t *testing.T) {
 		t.Errorf("Anime.Search for non existent query expected to return err")
 	}
 
-	if got, want := err, NoContentErr; got != want {
+	if got, want := err, ErrNoContent; got != want {
 		t.Errorf("Anime.Search for non existent query returned err %v, want %v", got, want)
 	}
 
@@ -209,7 +209,7 @@ func TestAnimeService_List(t *testing.T) {
 		t.Errorf("Anime.List returned error %v", err)
 	}
 	want := &AnimeList{
-		MyInfo: MyAnimeInfo{ID: 56, Name: "AnotherTestUser"},
+		MyInfo: AnimeMyInfo{ID: 56, Name: "AnotherTestUser"},
 		Anime: []Anime{
 			Anime{
 				SeriesAnimeDBID: 1,

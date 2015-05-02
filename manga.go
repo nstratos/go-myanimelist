@@ -6,37 +6,32 @@ import (
 	"net/url"
 )
 
-// MangaEntry holds values such as score, chapter and status that we want our
-// manga entry to have when we add or update it on our list.
-//
-// Status is required and can be:
-// 1/reading, 2/completed, 3/onhold, 4/dropped, 6/plantoread
-//
-// DateStart and DateFinish require 'mmddyyyy' format
-//
-// EnableDiscussion and EnableRereading can be: 1=enable, 0=disable
-//
-// Tags are comma separated: test tag, 2nd tag
+// MangaEntry represents the values that an manga will have on the list when
+// added or updated. Status is required.
 type MangaEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Volume             int      `xml:"volume,omitempty"`
 	Chapter            int      `xml:"chapter,omitempty"`
-	Status             string   `xml:"status,omitempty"`
+	Status             string   `xml:"status,omitempty"` // // 1|reading, 2|completed, 3|onhold, 4|dropped, 6|plantoread
 	Score              int      `xml:"score,omitempty"`
 	DownloadedChapters int      `xml:"downloaded_chapters,omitempty"`
 	TimesReread        int      `xml:"times_reread,omitempty"`
 	RereadValue        int      `xml:"reread_value,omitempty"`
-	DateStart          string   `xml:"date_start,omitempty"`
-	DateFinish         string   `xml:"date_finish,omitempty"`
+	DateStart          string   `xml:"date_start,omitempty"`  // mmddyyyy
+	DateFinish         string   `xml:"date_finish,omitempty"` // mmddyyyy
 	Priority           int      `xml:"priority,omitempty"`
-	EnableDiscussion   int      `xml:"enable_discussion,omitempty"`
-	EnableRereading    int      `xml:"enable_rereading,omitempty"`
+	EnableDiscussion   int      `xml:"enable_discussion,omitempty"` // 1=enable, 0=disable
+	EnableRereading    int      `xml:"enable_rereading,omitempty"`  // 1=enable, 0=disable
 	Comments           string   `xml:"comments,omitempty"`
 	ScanGroup          string   `xml:"scan_group,omitempty"`
-	Tags               string   `xml:"tags,omitempty"`
+	Tags               string   `xml:"tags,omitempty"` // comma separated: test tag, 2nd tag
 	RetailVolumes      int      `xml:"retail_volumes,omitempty"`
 }
 
+// MangaService handles communication with the Manga List methods of the
+// MyAnimeList API.
+//
+// MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
 type MangaService struct {
 	client         *Client
 	AddEndpoint    *url.URL
@@ -46,31 +41,48 @@ type MangaService struct {
 	ListEndpoint   *url.URL
 }
 
+// Add allows an authenticated user to add a manga to their manga list.
 func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
 
 	return s.client.post(s.AddEndpoint.String(), mangaID, entry)
 }
 
+// Update allows an authenticated user to update an manga on their manga list.
 func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
 
 	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry)
 }
 
+// Delete allows an authenticated user to delete an manga from their manga list.
 func (s *MangaService) Delete(mangaID int) (*Response, error) {
 
 	return s.client.delete(s.DeleteEndpoint.String(), mangaID)
 }
 
+// MangaResult represents the result of an manga search.
 type MangaResult struct {
 	Rows []MangaRow `xml:"entry"`
 }
 
+// MangaRow represents each row of an manga search result.
 type MangaRow struct {
-	Row
-	Chapters int `xml:"chapters"`
-	Volumes  int `xml:"volumes"`
+	ID        int     `xml:"id"`
+	Title     string  `xml:"title"`
+	English   string  `xml:"english"`
+	Synonyms  string  `xml:"synonyms"`
+	Score     float64 `xml:"score"`
+	Type      string  `xml:"type"`
+	Status    string  `xml:"status"`
+	StartDate string  `xml:"start_date"`
+	EndDate   string  `xml:"end_date"`
+	Synopsis  string  `xml:"synopsis"`
+	Image     string  `xml:"image"`
+	Chapters  int     `xml:"chapters"`
+	Volumes   int     `xml:"volumes"`
 }
 
+// Search allows an authenticated user to search manga titles. Upon failure it
+// will return ErrNoContent.
 func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
 	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint, url.QueryEscape(query))
@@ -83,12 +95,15 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 	return result, resp, nil
 }
 
+// MangaList represents the manga list of a user.
 type MangaList struct {
 	MyInfo MyMangaInfo `xml:"myinfo"`
 	Manga  []Manga     `xml:"manga"`
 	Error  string      `xml:"error"`
 }
 
+// MyMangaInfo represents the user's info (like number of watching, completed etc)
+// that is returned when requesting his/her manga list.
 type MyMangaInfo struct {
 	ID                int    `xml:"user_id"`
 	Name              string `xml:"user_name"`
@@ -128,6 +143,7 @@ type Manga struct {
 	MyReadVolumes   int    `xml:"my_read_volumes"`
 }
 
+// List allows an authenticated user to receive the manga list of a user.
 func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 
 	u := fmt.Sprintf("%s?status=all&type=manga&u=%s", s.ListEndpoint, url.QueryEscape(username))

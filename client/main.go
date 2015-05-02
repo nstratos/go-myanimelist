@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os/exec"
 	"runtime"
@@ -44,13 +43,13 @@ func main() {
 	//mal.AddManga(35733, data)
 	//mal.UpdateManga(35733, data)
 	//mal.DeleteManga(35733)
-	agent, err := ioutil.ReadFile("agent.txt")
-	if err != nil {
-		log.Fatalln("cannot read agent:", err)
-	}
 	client := mal.NewClient()
-	client.SetCredentials("Leonteus", "001010100")
-	client.SetUserAgent(string(agent))
+	//client.SetCredentials("Leonteus", "001010100")
+	// agent, err := ioutil.ReadFile("agent.txt")
+	// if err != nil {
+	// 	log.Fatalln("cannot read agent:", err)
+	// }
+	// client.SetUserAgent(string(agent))
 	// _, err := client.Anime.Delete(11933)
 	// if err != nil {
 	// 	log.Fatalf("Anime.Delete error: %v\n", err)

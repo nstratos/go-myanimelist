@@ -105,8 +105,8 @@ func TestMangaService_Search(t *testing.T) {
 	}
 	want := &MangaResult{
 		[]MangaRow{
-			MangaRow{Row: Row{ID: 55, Title: "title1"}},
-			MangaRow{Row: Row{ID: 56, Title: "title2"}},
+			MangaRow{ID: 55, Title: "title1"},
+			MangaRow{ID: 56, Title: "title2"},
 		},
 	}
 	if !reflect.DeepEqual(result, want) {
@@ -135,7 +135,7 @@ func TestMangaService_Search_no_content(t *testing.T) {
 		t.Errorf("Manga.Search for non existent query expected to return err")
 	}
 
-	if got, want := err, NoContentErr; got != want {
+	if got, want := err, ErrNoContent; got != want {
 		t.Errorf("Manga.Search for non existent query returned err %v, want %v", got, want)
 	}
 

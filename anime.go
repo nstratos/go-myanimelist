@@ -6,37 +6,32 @@ import (
 	"net/url"
 )
 
-// AnimeEntry holds values such as score, episode and status that we want our
-// anime entry to have when we add or update it on our list.
-//
-// Status is required and can be:
-// 1/watching, 2/completed, 3/onhold, 4/dropped, 6/plantowatch
-//
-// DateStart and DateFinish require 'mmddyyyy' format
-//
-// EnableDiscussion and EnableRewatching can be: 1=enable, 0=disable
-//
-// Tags are comma separated: test tag, 2nd tag
+// AnimeEntry represents the values that an anime will have on the list when
+// added or updated. Status is required.
 type AnimeEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Episode            int      `xml:"episode,omitempty"`
-	Status             string   `xml:"status,omitempty"`
+	Status             string   `xml:"status,omitempty"` // 1|watching, 2|completed, 3|onhold, 4|dropped, 6|plantowatch
 	Score              int      `xml:"score,omitempty"`
 	DownloadedEpisodes int      `xml:"downloaded_episodes,omitempty"`
 	StorageType        int      `xml:"storage_type,omitempty"`
 	StorageValue       float64  `xml:"storage_value,omitempty"`
 	TimesRewatched     int      `xml:"times_rewatched,omitempty"`
 	RewatchValue       int      `xml:"rewatch_value,omitempty"`
-	DateStart          string   `xml:"date_start,omitempty"`
-	DateFinish         string   `xml:"date_finish,omitempty"`
+	DateStart          string   `xml:"date_start,omitempty"`  // mmddyyyy
+	DateFinish         string   `xml:"date_finish,omitempty"` // mmddyyyy
 	Priority           int      `xml:"priority,omitempty"`
-	EnableDiscussion   int      `xml:"enable_discussion,omitempty"`
-	EnableRewatching   int      `xml:"enable_rewatching,omitempty"`
+	EnableDiscussion   int      `xml:"enable_discussion,omitempty"` // 1=enable, 0=disable
+	EnableRewatching   int      `xml:"enable_rewatching,omitempty"` // 1=enable, 0=disable
 	Comments           string   `xml:"comments,omitempty"`
 	FansubGroup        string   `xml:"fansub_group,omitempty"`
-	Tags               string   `xml:"tags,omitempty"`
+	Tags               string   `xml:"tags,omitempty"` // comma separated: test tag, 2nd tag
 }
 
+// AnimeService handles communication with the Anime List methods of the
+// MyAnimeList API.
+//
+// MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
 type AnimeService struct {
 	client         *Client
 	AddEndpoint    *url.URL
@@ -46,31 +41,31 @@ type AnimeService struct {
 	ListEndpoint   *url.URL
 }
 
+// Add allows an authenticated user to add an anime to their anime list.
 func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 
 	return s.client.post(s.AddEndpoint.String(), animeID, entry)
 }
 
+// Update allows an authenticated user to update an anime on their anime list.
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
 	return s.client.post(s.UpdateEndpoint.String(), animeID, entry)
 }
 
+// Delete allows an authenticated user to delete an anime from their anime list.
 func (s *AnimeService) Delete(animeID int) (*Response, error) {
 
 	return s.client.delete(s.DeleteEndpoint.String(), animeID)
 }
 
+// AnimeResult represents the result of an anime search.
 type AnimeResult struct {
 	Rows []AnimeRow `xml:"entry"`
 }
 
+// AnimeRow represents each row of an anime search result.
 type AnimeRow struct {
-	Row
-	Episodes int `xml:"episodes"`
-}
-
-type Row struct {
 	ID        int     `xml:"id"`
 	Title     string  `xml:"title"`
 	English   string  `xml:"english"`
@@ -82,8 +77,11 @@ type Row struct {
 	EndDate   string  `xml:"end_date"`
 	Synopsis  string  `xml:"synopsis"`
 	Image     string  `xml:"image"`
+	Episodes  int     `xml:"episodes"`
 }
 
+// Search allows an authenticated user to search anime titles. Upon failure it
+// will return ErrNoContent.
 func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 
 	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint.String(), url.QueryEscape(query))
@@ -96,13 +94,16 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 	return result, resp, nil
 }
 
+// AnimeList represents the anime list of a user.
 type AnimeList struct {
-	MyInfo MyAnimeInfo `xml:"myinfo"`
+	MyInfo AnimeMyInfo `xml:"myinfo"`
 	Anime  []Anime     `xml:"anime"`
 	Error  string      `xml:"error"`
 }
 
-type MyAnimeInfo struct {
+// AnimeMyInfo represents the user's info (like number of watching, completed etc)
+// that is returned when requesting his/her anime list.
+type AnimeMyInfo struct {
 	ID                int    `xml:"user_id"`
 	Name              string `xml:"user_name"`
 	Completed         int    `xml:"user_completed"`
@@ -113,6 +114,9 @@ type MyAnimeInfo struct {
 	PlanToWatch       int    `xml:"user_plantowatch"`
 }
 
+// Anime represents an anime from MyAnimeList with it's data contained in the
+// fields starting with Series. It also contains user specific fields
+// that start with My (for example the score the user has set for that anime).
 type Anime struct {
 	SeriesAnimeDBID   int    `xml:"series_animedb_id"`
 	SeriesEpisodes    int    `xml:"series_episodes"`
@@ -135,6 +139,7 @@ type Anime struct {
 	MyWatchedEpisodes int    `xml:"my_watched_episodes"`
 }
 
+// List allows an authenticated user to receive the anime list of a user.
 func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 
 	u := fmt.Sprintf("%s?status=all&type=anime&u=%s", s.ListEndpoint.String(), url.QueryEscape(username))
