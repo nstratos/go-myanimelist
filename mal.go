@@ -221,7 +221,7 @@ func (c *Client) delete(endpoint string, id int) (*Response, error) {
 	return resp, nil
 }
 
-func (c *Client) query(url string, result interface{}) (*Response, error) {
+func (c *Client) get(url string, result interface{}) (*Response, error) {
 
 	req, err := c.NewRequest("GET", url, nil)
 	if err != nil {

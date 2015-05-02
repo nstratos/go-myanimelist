@@ -33,7 +33,7 @@ type User struct {
 func (s *AccountService) Verify() (*User, *Response, error) {
 
 	user := new(User)
-	resp, err := s.client.query(s.Endpoint.String(), user)
+	resp, err := s.client.get(s.Endpoint.String(), user)
 	if err != nil {
 		return nil, resp, err
 	}

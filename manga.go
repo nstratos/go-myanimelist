@@ -76,7 +76,7 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint, url.QueryEscape(query))
 
 	result := new(MangaResult)
-	resp, err := s.client.query(u, result)
+	resp, err := s.client.get(u, result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -133,7 +133,7 @@ func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 	u := fmt.Sprintf("%s?status=all&type=manga&u=%s", s.ListEndpoint, url.QueryEscape(username))
 
 	list := new(MangaList)
-	resp, err := s.client.query(u, list)
+	resp, err := s.client.get(u, list)
 	if err != nil {
 		return nil, resp, err
 	}

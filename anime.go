@@ -89,7 +89,7 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint.String(), url.QueryEscape(query))
 
 	result := new(AnimeResult)
-	resp, err := s.client.query(u, result)
+	resp, err := s.client.get(u, result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -140,7 +140,7 @@ func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 	u := fmt.Sprintf("%s?status=all&type=anime&u=%s", s.ListEndpoint.String(), url.QueryEscape(username))
 
 	list := new(AnimeList)
-	resp, err := s.client.query(u, list)
+	resp, err := s.client.get(u, list)
 	if err != nil {
 		return nil, resp, err
 	}
