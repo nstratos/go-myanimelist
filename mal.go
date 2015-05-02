@@ -19,12 +19,16 @@ const (
 	AppleWebKit/537.36 (KHTML, like Gecko) 
 	Chrome/42.0.2311.90 Safari/537.36`
 
-	defaultListURL        = "malappinfo.php"
-	deleteMangaURL        = "api/mangalist/"
-	defaultAnimeURL       = "api/animelist/"
-	defaultAccountURL     = "api/account/verify_credentials.xml"
-	defaultSearchAnimeURL = "api/anime/search.xml"
-	defaultSearchMangaURL = "api/manga/search.xml"
+	defaultListEndpoint        = "malappinfo.php"
+	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
+	defaultAnimeAddEndpoint    = "api/animelist/add/"
+	defaultAnimeUpdateEndpoint = "api/animelist/update/"
+	defaultAnimeDeleteEndpoint = "api/animelist/delete/"
+	defaultAnimeSearchEndpoint = "api/anime/search.xml"
+	defaultMangaAddEndpoint    = "api/mangalist/add/"
+	defaultMangaUpdateEndpoint = "api/mangalist/update/"
+	defaultMangaDeleteEndpoint = "api/mangalist/delete/"
+	defaultMangaSearchEndpoint = "api/manga/search.xml"
 )
 
 type Client struct {
@@ -45,11 +49,47 @@ type Client struct {
 
 func NewClient() *Client {
 	httpClient := http.DefaultClient
+
 	baseURL, _ := url.Parse(defaultBaseURL)
-	c := &Client{client: httpClient, BaseURL: baseURL, UserAgent: defaultUserAgent}
-	c.Account = &AccountService{client: c}
-	c.Anime = &AnimeService{client: c}
-	c.Manga = &MangaService{client: c}
+	listEndpoint, _ := url.Parse(defaultListEndpoint)
+	accountEndpoint, _ := url.Parse(defaultAccountEndpoint)
+	animeAddEndpoint, _ := url.Parse(defaultAnimeAddEndpoint)
+	animeUpdateEndpoint, _ := url.Parse(defaultAnimeUpdateEndpoint)
+	animeDeleteEndpoint, _ := url.Parse(defaultAnimeDeleteEndpoint)
+	animeSearchEndpoint, _ := url.Parse(defaultAnimeSearchEndpoint)
+	mangaAddEndpoint, _ := url.Parse(defaultMangaAddEndpoint)
+	mangaUpdateEndpoint, _ := url.Parse(defaultMangaUpdateEndpoint)
+	mangaDeleteEndpoint, _ := url.Parse(defaultMangaDeleteEndpoint)
+	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
+
+	c := &Client{
+		client:    httpClient,
+		UserAgent: defaultUserAgent,
+		BaseURL:   baseURL,
+	}
+
+	c.Account = &AccountService{
+		client:   c,
+		Endpoint: accountEndpoint,
+	}
+
+	c.Anime = &AnimeService{
+		client:         c,
+		ListEndpoint:   listEndpoint,
+		AddEndpoint:    animeAddEndpoint,
+		UpdateEndpoint: animeUpdateEndpoint,
+		DeleteEndpoint: animeDeleteEndpoint,
+		SearchEndpoint: animeSearchEndpoint,
+	}
+
+	c.Manga = &MangaService{
+		client:         c,
+		ListEndpoint:   listEndpoint,
+		AddEndpoint:    mangaAddEndpoint,
+		UpdateEndpoint: mangaUpdateEndpoint,
+		DeleteEndpoint: mangaDeleteEndpoint,
+		SearchEndpoint: mangaSearchEndpoint,
+	}
 	return c
 }
 

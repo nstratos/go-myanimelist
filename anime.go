@@ -38,28 +38,27 @@ type AnimeEntry struct {
 }
 
 type AnimeService struct {
-	client *Client
+	client         *Client
+	AddEndpoint    *url.URL
+	UpdateEndpoint *url.URL
+	DeleteEndpoint *url.URL
+	SearchEndpoint *url.URL
+	ListEndpoint   *url.URL
 }
 
 func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 
-	const endpoint = "api/animelist/add/"
-
-	return s.client.post(endpoint, animeID, entry)
+	return s.client.post(s.AddEndpoint.String(), animeID, entry)
 }
 
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
-	const endpoint = "api/animelist/update/"
-
-	return s.client.post(endpoint, animeID, entry)
+	return s.client.post(s.UpdateEndpoint.String(), animeID, entry)
 }
 
 func (s *AnimeService) Delete(animeID int) (*Response, error) {
 
-	const endpoint = "api/animelist/delete/"
-
-	return s.client.delete(endpoint, animeID)
+	return s.client.delete(s.DeleteEndpoint.String(), animeID)
 }
 
 type AnimeResult struct {
@@ -87,8 +86,7 @@ type Row struct {
 
 func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 
-	const endpoint = "api/anime/search.xml?q="
-	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(query))
+	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint.String(), url.QueryEscape(query))
 
 	result := new(AnimeResult)
 	resp, err := s.client.query(u, result)
@@ -139,8 +137,7 @@ type Anime struct {
 
 func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 
-	const endpoint = "malappinfo.php?status=all&type=anime&u="
-	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(username))
+	u := fmt.Sprintf("%s?status=all&type=anime&u=%s", s.ListEndpoint.String(), url.QueryEscape(username))
 
 	list := new(AnimeList)
 	resp, err := s.client.query(u, list)

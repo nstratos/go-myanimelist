@@ -38,28 +38,27 @@ type MangaEntry struct {
 }
 
 type MangaService struct {
-	client *Client
+	client         *Client
+	AddEndpoint    *url.URL
+	UpdateEndpoint *url.URL
+	DeleteEndpoint *url.URL
+	SearchEndpoint *url.URL
+	ListEndpoint   *url.URL
 }
 
 func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
 
-	const endpoint = "api/mangalist/add/"
-
-	return s.client.post(endpoint, mangaID, entry)
+	return s.client.post(s.AddEndpoint.String(), mangaID, entry)
 }
 
 func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
 
-	const endpoint = "api/mangalist/update/"
-
-	return s.client.post(endpoint, mangaID, entry)
+	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry)
 }
 
 func (s *MangaService) Delete(mangaID int) (*Response, error) {
 
-	const endpoint = "api/mangalist/delete/"
-
-	return s.client.delete(endpoint, mangaID)
+	return s.client.delete(s.DeleteEndpoint.String(), mangaID)
 }
 
 type MangaResult struct {
@@ -74,8 +73,7 @@ type MangaRow struct {
 
 func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
-	const endpoint = "api/manga/search.xml?q="
-	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(query))
+	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint, url.QueryEscape(query))
 
 	result := new(MangaResult)
 	resp, err := s.client.query(u, result)
@@ -132,8 +130,7 @@ type Manga struct {
 
 func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 
-	const endpoint = "malappinfo.php?status=all&type=manga&u="
-	u := fmt.Sprintf("%s%s", endpoint, url.QueryEscape(username))
+	u := fmt.Sprintf("%s?status=all&type=manga&u=%s", s.ListEndpoint, url.QueryEscape(username))
 
 	list := new(MangaList)
 	resp, err := s.client.query(u, list)

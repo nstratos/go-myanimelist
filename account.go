@@ -1,9 +1,13 @@
 package mal
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"net/url"
+)
 
 type AccountService struct {
-	client *Client
+	client   *Client
+	Endpoint *url.URL
 }
 
 type User struct {
@@ -28,18 +32,10 @@ type User struct {
 //  </user>
 func (s *AccountService) Verify() (*User, *Response, error) {
 
-	const verifyURL = "api/account/verify_credentials.xml"
-
-	req, err := s.client.NewRequest("GET", verifyURL, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	user := new(User)
-	resp, err := s.client.Do(req, user)
+	resp, err := s.client.query(s.Endpoint.String(), user)
 	if err != nil {
 		return nil, resp, err
 	}
-
-	return user, resp, err
+	return user, resp, nil
 }

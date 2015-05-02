@@ -52,5 +52,4 @@ func TestAccountService_Verify_no_content(t *testing.T) {
 	if err != NoContentErr {
 		t.Errorf("Account.Verify for non existent user expected to return err %v", NoContentErr)
 	}
-
 }
