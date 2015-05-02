@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
+	"runtime"
 
 	"bitbucket.org/nstratos/mal"
 )
@@ -67,6 +69,21 @@ func main() {
 		//log.Fatalf("Anime.Search error: %v\n", err)
 	}
 	printMangaResult(result)
+}
+
+func startBrowser(url string) bool {
+	// try to start the browser
+	var args []string
+	switch runtime.GOOS {
+	case "darwin":
+		args = []string{"open"}
+	case "windows":
+		args = []string{"cmd", "/c", "start"}
+	default:
+		args = []string{"xdg-open"}
+	}
+	cmd := exec.Command(args[0], append(args[1:], url)...)
+	return cmd.Start() == nil
 }
 
 func printAnimeList(list mal.AnimeList) {

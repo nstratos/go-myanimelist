@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccountService_Verify_credentials(t *testing.T) {
+func TestAccountService_Verify(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -31,4 +31,25 @@ func TestAccountService_Verify_credentials(t *testing.T) {
 	if !reflect.DeepEqual(user, want) {
 		t.Errorf("Account.Verify returned %+v, want %+v", user, want)
 	}
+}
+
+func TestAccountService_Verify_no_content(t *testing.T) {
+	setup()
+	defer teardown()
+
+	client.SetCredentials("TestUser", "TestPass")
+	client.SetUserAgent("TestAgent")
+
+	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testUserAgent(t, r, "TestAgent")
+		http.Error(w, "no content", http.StatusNoContent)
+	})
+
+	_, _, err := client.Account.Verify()
+	if err == nil {
+		t.Errorf("Account.Verify for non existent user expected to return err")
+	}
+
 }
