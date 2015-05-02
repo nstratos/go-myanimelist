@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"bitbucket.org/nstratos/mal"
@@ -13,7 +14,6 @@ import (
 
 func main() {
 
-	//mal.Init("Leonteus", "001010100", "api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
 	//verify()
 	//searchManga("naruto")
 	//getAnime("Leonteus")
@@ -46,9 +46,13 @@ func main() {
 	//mal.AddManga(35733, data)
 	//mal.UpdateManga(35733, data)
 	//mal.DeleteManga(35733)
+	agent, err := ioutil.ReadFile("agent.txt")
+	if err != nil {
+		log.Fatalln("cannot read agent:", err)
+	}
 	client := mal.NewClient()
 	client.SetCredentials("Leonteus", "001010100")
-	client.SetUserAgent("api-indiv-2D4068FCF43349DA30D8D4E5667883C2")
+	client.SetUserAgent(string(agent))
 	// _, err := client.Anime.Delete(11933)
 	// if err != nil {
 	// 	log.Fatalf("Anime.Delete error: %v\n", err)
@@ -65,22 +69,8 @@ func main() {
 	printMangaResult(result)
 }
 
-func verify() {
-	user, err := mal.Verify()
-	if err != nil {
-		log.Fatalf("Error verifying: %s\n", err)
-	}
-	fmt.Printf("%+v\n", user)
-}
-
-func getAnime(username string) {
-	al, err := mal.UserAnimeList(username)
-	if err != nil {
-		log.Fatalf("getAnime: %s\n", err)
-		return
-	}
-
-	for _, anime := range al.Anime {
+func printAnimeList(list mal.AnimeList) {
+	for _, anime := range list.Anime {
 		fmt.Printf("----------------Anime-------------------\n")
 		fmt.Printf("| MyID: %v\n", anime.MyID)
 		fmt.Printf("| MyStartDate: %v\n", anime.MyStartDate)
@@ -92,7 +82,7 @@ func getAnime(username string) {
 		fmt.Printf("| MyLastUpdated: %v\n", anime.MyLastUpdated)
 		fmt.Printf("| MyTags: %v\n", anime.MyTags)
 		fmt.Printf("| MyWatchedEpisodes: %v\n", anime.MyWatchedEpisodes)
-		fmt.Printf("| SeriesAnimedbID: %v\n", anime.SeriesAnimedbID)
+		fmt.Printf("| SeriesAnimeDBID: %v\n", anime.SeriesAnimeDBID)
 		fmt.Printf("| SeriesEpisodes: %v\n", anime.SeriesEpisodes)
 		fmt.Printf("| SeriesTitle: %v\n", anime.SeriesTitle)
 		fmt.Printf("| SeriesSynonyms: %v\n", anime.SeriesSynonyms)
@@ -104,25 +94,18 @@ func getAnime(username string) {
 		fmt.Printf("\n")
 	}
 	fmt.Printf("----------------MyInfo------------------\n")
-	fmt.Printf("| ID: %v\n", al.MyInfo.ID)
-	fmt.Printf("| Name: %v\n", al.MyInfo.Name)
-	fmt.Printf("| Completed: %v\n", al.MyInfo.Completed)
-	fmt.Printf("| OnHold: %v\n", al.MyInfo.OnHold)
-	fmt.Printf("| Dropped: %v\n", al.MyInfo.Dropped)
-	fmt.Printf("| DaysSpentWatching: %v\n", al.MyInfo.DaysSpentWatching)
-	fmt.Printf("| Watching: %v\n", al.MyInfo.Watching)
-	fmt.Printf("| PlanToWatch: %v\n", al.MyInfo.PlanToWatch)
-
+	fmt.Printf("| ID: %v\n", list.MyInfo.ID)
+	fmt.Printf("| Name: %v\n", list.MyInfo.Name)
+	fmt.Printf("| Completed: %v\n", list.MyInfo.Completed)
+	fmt.Printf("| OnHold: %v\n", list.MyInfo.OnHold)
+	fmt.Printf("| Dropped: %v\n", list.MyInfo.Dropped)
+	fmt.Printf("| DaysSpentWatching: %v\n", list.MyInfo.DaysSpentWatching)
+	fmt.Printf("| Watching: %v\n", list.MyInfo.Watching)
+	fmt.Printf("| PlanToWatch: %v\n", list.MyInfo.PlanToWatch)
 }
 
-func getManga(username string) {
-	ml, err := mal.UserMangaList(username)
-	if err != nil {
-		log.Fatalf("getManga: %s\n", err)
-		return
-	}
-
-	for _, manga := range ml.Manga {
+func printMangaList(list mal.MangaList) {
+	for _, manga := range list.Manga {
 		fmt.Printf("----------------Manga-------------------\n")
 		fmt.Printf("| MyID: %v\n", manga.MyID)
 		fmt.Printf("| MyStartDate: %v\n", manga.MyStartDate)
@@ -135,7 +118,7 @@ func getManga(username string) {
 		fmt.Printf("| MyTags: %v\n", manga.MyTags)
 		fmt.Printf("| MyReadChapters: %v\n", manga.MyReadChapters)
 		fmt.Printf("| MyReadVolumes: %v\n", manga.MyReadVolumes)
-		fmt.Printf("| SeriesMangadbID: %v\n", manga.SeriesMangadbID)
+		fmt.Printf("| SeriesMangaDBID: %v\n", manga.SeriesMangaDBID)
 		fmt.Printf("| SeriesChapters: %v\n", manga.SeriesChapters)
 		fmt.Printf("| SeriesVolumes: %v\n", manga.SeriesVolumes)
 		fmt.Printf("| SeriesTitle: %v\n", manga.SeriesTitle)
@@ -148,24 +131,14 @@ func getManga(username string) {
 		fmt.Printf("\n")
 	}
 	fmt.Printf("----------------MyInfo------------------\n")
-	fmt.Printf("| ID: %v\n", ml.MyInfo.ID)
-	fmt.Printf("| Name: %v\n", ml.MyInfo.Name)
-	fmt.Printf("| Completed: %v\n", ml.MyInfo.Completed)
-	fmt.Printf("| OnHold: %v\n", ml.MyInfo.OnHold)
-	fmt.Printf("| Dropped: %v\n", ml.MyInfo.Dropped)
-	fmt.Printf("| DaysSpentWatching: %v\n", ml.MyInfo.DaysSpentWatching)
-	fmt.Printf("| Reading: %v\n", ml.MyInfo.Reading)
-	fmt.Printf("| PlanToRead: %v\n", ml.MyInfo.PlanToRead)
-
-}
-
-func searchAnime(query string) {
-	result, err := mal.SearchAnime(query)
-	if err != nil {
-		log.Fatalf("searchAnime: %s\n", err)
-		return
-	}
-	printAnimeResult(&result)
+	fmt.Printf("| ID: %v\n", list.MyInfo.ID)
+	fmt.Printf("| Name: %v\n", list.MyInfo.Name)
+	fmt.Printf("| Completed: %v\n", list.MyInfo.Completed)
+	fmt.Printf("| OnHold: %v\n", list.MyInfo.OnHold)
+	fmt.Printf("| Dropped: %v\n", list.MyInfo.Dropped)
+	fmt.Printf("| DaysSpentWatching: %v\n", list.MyInfo.DaysSpentWatching)
+	fmt.Printf("| Reading: %v\n", list.MyInfo.Reading)
+	fmt.Printf("| PlanToRead: %v\n", list.MyInfo.PlanToRead)
 }
 
 func printAnimeResult(result *mal.AnimeResult) {
@@ -180,15 +153,6 @@ func printAnimeResult(result *mal.AnimeResult) {
 		fmt.Printf("----------------------------------------\n")
 		fmt.Printf("\n")
 	}
-}
-
-func searchManga(query string) {
-	result, err := mal.SearchManga(query)
-	if err != nil {
-		log.Fatalf("Error searching: %s\n", err)
-		return
-	}
-	printMangaResult(&result)
 }
 
 func printMangaResult(result *mal.MangaResult) {

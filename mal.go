@@ -13,34 +13,18 @@ import (
 const (
 	defaultBaseURL = "http://myanimelist.net/"
 
-	defaultUserAgent = "api-indiv-2D4068FCF43349DA30D8D4E5667883C2"
+	defaultUserAgent = `
+	Mozilla/5.0 (X11; Linux x86_64) 
+	AppleWebKit/537.36 (KHTML, like Gecko) 
+	Chrome/42.0.2311.90 Safari/537.36`
 
-	animeListURL = "http://myanimelist.net/malappinfo.php?status=all&type=anime&u="
-	mangaListURL = "http://myanimelist.net/malappinfo.php?status=all&type=manga&u="
-
-	updateMangaURL = "http://myanimelist.net/api/mangalist/update/"
-	addMangaURL    = "http://myanimelist.net/api/mangalist/add/"
-	deleteMangaURL = "http://myanimelist.net/api/animelist/delete/"
-
-	updateAnimeURL = "http://myanimelist.net/api/animelist/update/"
-	addAnimeURL    = "http://myanimelist.net/api/animelist/add/"
-	deleteAnimeURL = "http://myanimelist.net/api/animelist/delete/"
-
-	searchAnimeURL = "http://myanimelist.net/api/anime/search.xml?q="
-	searchMangaURL = "http://myanimelist.net/api/manga/search.xml?q="
-
-	verifyURL = "http://myanimelist.net/api/account/verify_credentials.xml"
+	defaultListURL        = "malappinfo.php"
+	deleteMangaURL        = "api/mangalist/"
+	defaultAnimeURL       = "api/animelist/"
+	defaultAccountURL     = "api/account/verify_credentials.xml"
+	defaultSearchAnimeURL = "api/anime/search.xml"
+	defaultSearchMangaURL = "api/manga/search.xml"
 )
-
-var defaultClient = &http.Client{}
-
-var username, password, userAgent string
-
-func Init(uname, passwd, agent string) {
-	username = uname
-	password = passwd
-	userAgent = agent
-}
 
 type Client struct {
 	client *http.Client
@@ -82,7 +66,7 @@ type Response struct {
 	Body []byte
 }
 
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Request, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -91,12 +75,12 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	u := c.BaseURL.ResolveReference(rel)
 
 	v := url.Values{}
-	if body != nil {
-		data, err := xml.Marshal(body)
+	if data != nil {
+		d, err := xml.Marshal(data)
 		if err != nil {
 			return nil, err
 		}
-		v.Set("data", string(data))
+		v.Set("data", string(d))
 	}
 
 	req, err := http.NewRequest(method, u.String(), strings.NewReader(v.Encode()))

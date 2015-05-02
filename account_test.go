@@ -1,6 +1,7 @@
 package mal
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -16,7 +17,7 @@ func TestAccountService_Verify_credentials(t *testing.T) {
 
 	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		fmt.Fprint(w, `<user><id>1</id><username>TestUser</username></user>`)
 	})
@@ -26,7 +27,7 @@ func TestAccountService_Verify_credentials(t *testing.T) {
 		t.Errorf("Account.Verify returned error: %v", err)
 	}
 
-	want := &User{ID: 1, Username: "TestUser"}
+	want := &User{XMLName: xml.Name{Local: "user"}, ID: 1, Username: "TestUser"}
 	if !reflect.DeepEqual(user, want) {
 		t.Errorf("Account.Verify returned %+v, want %+v", user, want)
 	}

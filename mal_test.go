@@ -1,6 +1,7 @@
 package mal
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -39,16 +40,29 @@ func teardown() {
 	server.Close()
 }
 
-func testBasicAuth(t *testing.T, r *http.Request, uwant, pwant string) {
-	uname, pass, ok := r.BasicAuth()
-	if !ok {
-		t.Errorf("BasicAuth used = %v, want %v", ok, true)
+type urlValues map[string]string
+
+func testURLValues(t *testing.T, r *http.Request, values urlValues) {
+	want := url.Values{}
+	for k, v := range values {
+		want.Add(k, v)
 	}
-	if uname != uwant {
-		t.Errorf("BasicAuth username = %v, want %v", uname, uwant)
+	actual := r.URL.Query()
+	if !reflect.DeepEqual(want, actual) {
+		t.Errorf("URL Values = %v, want %v", actual, want)
 	}
-	if pass != pwant {
-		t.Errorf("BasicAuth password = %v, want %v", pass, pwant)
+}
+
+func testBasicAuth(t *testing.T, r *http.Request, usedWant bool, unameWant, passWant string) {
+	uname, pass, used := r.BasicAuth()
+	if used != usedWant {
+		t.Errorf("BasicAuth used = %v, want %v", used, usedWant)
+	}
+	if uname != unameWant {
+		t.Errorf("BasicAuth username = %v, want %v", uname, unameWant)
+	}
+	if pass != passWant {
+		t.Errorf("BasicAuth password = %v, want %v", pass, passWant)
 	}
 }
 
@@ -102,15 +116,116 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 	}
 }
 
-type urlValues map[string]string
+func TestClient_NewClient(t *testing.T) {
+	c := NewClient()
 
-func testURLValues(t *testing.T, r *http.Request, values urlValues) {
-	want := url.Values{}
-	for k, v := range values {
-		want.Add(k, v)
+	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
+		t.Errorf("NewClient.BaseURL = %v, want %v", got, want)
 	}
-	actual := r.URL.Query()
-	if !reflect.DeepEqual(want, actual) {
-		t.Errorf("URL Values = %v, want %v", actual, want)
+
+	if got, want := c.UserAgent, defaultUserAgent; got != want {
+		t.Errorf("NewClient.UserAgent = %v, want %v", got, want)
+	}
+}
+
+func TestClient_NewRequest(t *testing.T) {
+	c := NewClient()
+
+	inURL, outURL := "/foo", defaultBaseURL+"foo"
+
+	inData := &User{ID: 5, Username: "TestUser"}
+	v := url.Values{}
+	v.Set("data", "<user><id>5</id><username>TestUser</username></user>")
+	urlEncData, _ := url.Parse(v.Encode())
+	outData := urlEncData.Path
+
+	req, _ := c.NewRequest("GET", inURL, inData)
+
+	// test that the endpoint URL was correctly added to the base URL
+	if got, want := req.URL.String(), outURL; got != want {
+		t.Errorf("NewRequest(%q) URL =  %v, want %v", inURL, got, want)
+	}
+
+	// test that body was encoded to XML and then URL enconded as data=...
+	body, _ := ioutil.ReadAll(req.Body)
+	urlEncBody, _ := url.Parse(string(body)) // url.Path holds the URL decoded string
+	if got, want := urlEncBody.Path, outData; got != want {
+		t.Errorf("NewRequest(%+v) Body = '%v', want '%v'", inData, got, want)
+	}
+
+	testBasicAuth(t, req, false, "", "")
+	testUserAgent(t, req, defaultUserAgent)
+
+}
+
+func TestClient_Do(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type foo struct {
+		Bar string `xml:"bar"`
+	}
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if want := "GET"; r.Method != want {
+			t.Errorf("request method = %v, want %v", r.Method, want)
+		}
+		fmt.Fprint(w, `<foo><bar>&bull; foobar</bar></foo>`)
+	})
+
+	req, _ := client.NewRequest("GET", "/", nil)
+
+	body := new(foo)
+	response, _ := client.Do(req, body)
+
+	want := &foo{"&bull; foobar"}
+	if !reflect.DeepEqual(body, want) {
+		t.Errorf("Do() response body = %v, want %v", body, want)
+	}
+
+	if want, got := "<foo><bar>&bull; foobar</bar></foo>", string(response.Body); want != got {
+		t.Errorf("Do() mal.Response.Body = %v, want %v", got, want)
+	}
+}
+
+func TestClient_Do_404(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "not found", http.StatusNotFound)
+	})
+
+	req, _ := client.NewRequest("GET", "/", nil)
+
+	response, err := client.Do(req, nil)
+
+	if err == nil {
+		t.Errorf("expected 404 err")
+	}
+
+	// http.Error seems to be adding a new line to the message.
+	if want, got := "not found\n", string(response.Body); want != got {
+		t.Errorf("Do() mal.Response.Body = %v, want %v", got, want)
+	}
+}
+
+// consider deleting
+func TestClient_NewRequest_bad_endpoint(t *testing.T) {
+	c := NewClient()
+	inURL := "%foo"
+	_, err := c.NewRequest("GET", inURL, nil)
+	if err == nil {
+		t.Errorf("NewRequest(%q) should return parse err", inURL)
+	}
+}
+
+// consider deleting
+func TestClient_NewRequest_xml_encode_err(t *testing.T) {
+	c := NewClient()
+	in := func() {}
+	_, err := c.NewRequest("GET", "/foo", in)
+	if err == nil {
+		t.Errorf("NewRequest(%q) should return XML decode err", in)
 	}
 }

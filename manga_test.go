@@ -17,7 +17,7 @@ func TestMangaService_Delete(t *testing.T) {
 	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "55")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		fmt.Fprintf(w, "Deleted")
 	})
@@ -38,7 +38,7 @@ func TestMangaService_Add(t *testing.T) {
 	mux.HandleFunc("/api/mangalist/add/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		testFormValue(t, r, "data", "<entry><status>watching</status></entry>")
@@ -61,7 +61,7 @@ func TestMangaService_Update(t *testing.T) {
 	mux.HandleFunc("/api/mangalist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
@@ -83,7 +83,7 @@ func TestMangaService_Search(t *testing.T) {
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{"q": "query"})
 		fmt.Fprintf(w, `
@@ -123,7 +123,7 @@ func TestMangaService_List(t *testing.T) {
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, "TestUser", "TestPass")
+		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{
 			"status": "all",
