@@ -2,6 +2,8 @@
 
 go-myanimelist is a Go library for accessing the [MyAnimeList API](http://myanimelist.net/modules.php?go=api).
 
+[![GoDoc](https://godoc.org/github.com/nstratos/go-myanimelist/mal?status.svg)](https://godoc.org/github.com/nstratos/go-myanimelist/mal)
+
 ## Installation ##
 
 This package can be installed using:
