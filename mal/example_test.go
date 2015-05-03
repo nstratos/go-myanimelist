@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/nstratos/mal/mal"
+	"github.com/nstratos/go-myanimelist/mal"
 )
 
 // anime examples
