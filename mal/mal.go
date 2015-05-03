@@ -35,7 +35,7 @@ const (
 type Client struct {
 	client *http.Client
 
-	// User agent used when communicateing with the MyAnimeList API.
+	// User agent used when communicating with the MyAnimeList API.
 	UserAgent string
 	Username  string
 	Password  string
