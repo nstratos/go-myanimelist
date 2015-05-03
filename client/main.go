@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"bitbucket.org/nstratos/mal"
+	"bitbucket.org/nstratos/mal/mal"
 )
 
 func main() {
