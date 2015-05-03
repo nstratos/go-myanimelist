@@ -12,14 +12,15 @@ import (
 )
 
 var (
-	// mux is the HTTP request multiplexer used with the test server.
-	mux *http.ServeMux
-
 	// client is the MyAnimeList client being tested.
 	client *Client
 
 	// server is a test HTTP server used to provide mock API responses.
 	server *httptest.Server
+
+	// mux is the HTTP request multiplexer that the test HTTP server will use
+	// to mock API responses.
+	mux *http.ServeMux
 )
 
 // setup sets up a test HTTP server along with a mal.Client that is
