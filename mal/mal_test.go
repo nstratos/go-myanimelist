@@ -285,6 +285,14 @@ func TestClient_Do_404(t *testing.T) {
 	}
 }
 
+func TestClient_Do_connectionRefused(t *testing.T) {
+	req, _ := client.NewRequest("GET", "/", nil)
+	_, err := client.Do(req, nil)
+	if err == nil {
+		t.Error("Expected connection refused error.")
+	}
+}
+
 func TestClient_post_invalid_ID(t *testing.T) {
 	setup()
 	defer teardown()
