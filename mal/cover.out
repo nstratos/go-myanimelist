@@ -1,15 +1,4 @@
 mode: count
-github.com/nstratos/go-myanimelist/mal/manga.go:45.78,48.2 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:51.81,54.2 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:57.63,60.2 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:86.78,94.16 6 2
-github.com/nstratos/go-myanimelist/mal/manga.go:97.2,97.26 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:94.16,96.3 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:149.77,159.16 8 3
-github.com/nstratos/go-myanimelist/mal/manga.go:163.2,163.22 1 2
-github.com/nstratos/go-myanimelist/mal/manga.go:167.2,167.24 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:159.16,161.3 1 1
-github.com/nstratos/go-myanimelist/mal/manga.go:163.22,165.3 1 1
 github.com/nstratos/go-myanimelist/mal/account.go:27.61,31.16 3 2
 github.com/nstratos/go-myanimelist/mal/account.go:34.2,34.24 1 1
 github.com/nstratos/go-myanimelist/mal/account.go:31.16,33.3 1 1
@@ -70,3 +59,14 @@ github.com/nstratos/go-myanimelist/mal/mal.go:267.2,268.16 2 12
 github.com/nstratos/go-myanimelist/mal/mal.go:272.2,272.18 1 7
 github.com/nstratos/go-myanimelist/mal/mal.go:263.16,265.3 1 0
 github.com/nstratos/go-myanimelist/mal/mal.go:268.16,270.3 1 5
+github.com/nstratos/go-myanimelist/mal/manga.go:45.78,48.2 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:51.81,54.2 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:57.63,60.2 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:86.78,94.16 6 2
+github.com/nstratos/go-myanimelist/mal/manga.go:97.2,97.26 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:94.16,96.3 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:149.77,159.16 8 3
+github.com/nstratos/go-myanimelist/mal/manga.go:163.2,163.22 1 2
+github.com/nstratos/go-myanimelist/mal/manga.go:167.2,167.24 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:159.16,161.3 1 1
+github.com/nstratos/go-myanimelist/mal/manga.go:163.22,165.3 1 1

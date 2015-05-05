@@ -114,7 +114,7 @@ func TestMangaService_Search(t *testing.T) {
 	}
 }
 
-func TestMangaService_Search_no_content(t *testing.T) {
+func TestMangaService_Search_noContent(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -196,7 +196,7 @@ func TestMangaService_List(t *testing.T) {
 	}
 }
 
-func TestMangaService_List_invalid_username(t *testing.T) {
+func TestMangaService_List_invalidUsername(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -231,7 +231,7 @@ func TestMangaService_List_invalid_username(t *testing.T) {
 	}
 }
 
-func TestMangaService_List_server_error(t *testing.T) {
+func TestMangaService_List_httpError(t *testing.T) {
 	setup()
 	defer teardown()
 

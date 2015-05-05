@@ -74,7 +74,7 @@ func TestAnimeService_Update(t *testing.T) {
 	}
 }
 
-func TestAnimeService_Update_invalid_ID(t *testing.T) {
+func TestAnimeService_Update_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -142,7 +142,7 @@ func TestAnimeService_Search(t *testing.T) {
 	}
 }
 
-func TestAnimeService_Search_no_content(t *testing.T) {
+func TestAnimeService_Search_noContent(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -224,7 +224,7 @@ func TestAnimeService_List(t *testing.T) {
 	}
 }
 
-func TestAnimeService_List_invalid_username(t *testing.T) {
+func TestAnimeService_List_invalidUsername(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -259,7 +259,7 @@ func TestAnimeService_List_invalid_username(t *testing.T) {
 	}
 }
 
-func TestAnimeService_List_server_error(t *testing.T) {
+func TestAnimeService_List_httpError(t *testing.T) {
 	setup()
 	defer teardown()
 

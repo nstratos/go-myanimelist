@@ -117,7 +117,7 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 	}
 }
 
-func TestClient_NewClient(t *testing.T) {
+func TestNewClient(t *testing.T) {
 	c := NewClient()
 
 	// test default base URL
@@ -230,7 +230,7 @@ func TestClient_Do(t *testing.T) {
 	}
 }
 
-func TestClient_Do_XML_invalid_entity(t *testing.T) {
+func TestClient_Do_invalidXMLEntity(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -263,7 +263,7 @@ func TestClient_Do_XML_invalid_entity(t *testing.T) {
 	}
 }
 
-func TestClient_Do_404(t *testing.T) {
+func TestClient_Do_notFound(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -276,7 +276,7 @@ func TestClient_Do_404(t *testing.T) {
 	response, err := client.Do(req, nil)
 
 	if err == nil {
-		t.Errorf("expected 404 err")
+		t.Error("Expected HTTP 404 error.")
 	}
 
 	// http.Error seems to be adding a new line to the message.
@@ -293,7 +293,7 @@ func TestClient_Do_connectionRefused(t *testing.T) {
 	}
 }
 
-func TestClient_post_invalid_ID(t *testing.T) {
+func TestClient_post_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -321,7 +321,7 @@ func TestClient_post_invalid_ID(t *testing.T) {
 	}
 }
 
-func TestClient_delete_invalid_ID(t *testing.T) {
+func TestClient_delete_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -347,7 +347,7 @@ func TestClient_delete_invalid_ID(t *testing.T) {
 	}
 }
 
-func TestClient_NewRequest_bad_endpoint(t *testing.T) {
+func TestClient_NewRequest_badEndpoint(t *testing.T) {
 	c := NewClient()
 	inURL := "%foo"
 	_, err := c.NewRequest("GET", inURL, nil)
@@ -356,7 +356,7 @@ func TestClient_NewRequest_bad_endpoint(t *testing.T) {
 	}
 }
 
-func TestClient_NewRequest_xml_encode_err(t *testing.T) {
+func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
 	c := NewClient()
 	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)

@@ -33,7 +33,7 @@ func TestAccountService_Verify(t *testing.T) {
 	}
 }
 
-func TestAccountService_Verify_no_content(t *testing.T) {
+func TestAccountService_Verify_noContent(t *testing.T) {
 	setup()
 	defer teardown()
 
