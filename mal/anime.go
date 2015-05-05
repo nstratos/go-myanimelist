@@ -84,10 +84,12 @@ type AnimeRow struct {
 // will return ErrNoContent.
 func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 
-	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint.String(), url.QueryEscape(query))
+	v := s.SearchEndpoint.Query()
+	v.Set("q", query)
+	s.SearchEndpoint.RawQuery = v.Encode()
 
 	result := new(AnimeResult)
-	resp, err := s.client.get(u, result)
+	resp, err := s.client.get(s.SearchEndpoint.String(), result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -142,10 +144,14 @@ type Anime struct {
 // List allows an authenticated user to receive the anime list of a user.
 func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 
-	u := fmt.Sprintf("%s?status=all&type=anime&u=%s", s.ListEndpoint.String(), url.QueryEscape(username))
+	v := s.ListEndpoint.Query()
+	v.Set("status", "all")
+	v.Set("type", "anime")
+	v.Set("u", username)
+	s.ListEndpoint.RawQuery = v.Encode()
 
 	list := new(AnimeList)
-	resp, err := s.client.get(u, list)
+	resp, err := s.client.get(s.ListEndpoint.String(), list)
 	if err != nil {
 		return nil, resp, err
 	}

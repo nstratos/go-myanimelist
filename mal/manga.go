@@ -85,10 +85,12 @@ type MangaRow struct {
 // will return ErrNoContent.
 func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
-	u := fmt.Sprintf("%s?q=%s", s.SearchEndpoint, url.QueryEscape(query))
+	v := s.SearchEndpoint.Query()
+	v.Set("q", query)
+	s.SearchEndpoint.RawQuery = v.Encode()
 
 	result := new(MangaResult)
-	resp, err := s.client.get(u, result)
+	resp, err := s.client.get(s.SearchEndpoint.String(), result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -146,10 +148,14 @@ type Manga struct {
 // List allows an authenticated user to receive the manga list of a user.
 func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 
-	u := fmt.Sprintf("%s?status=all&type=manga&u=%s", s.ListEndpoint, url.QueryEscape(username))
+	v := s.ListEndpoint.Query()
+	v.Set("status", "all")
+	v.Set("type", "manga")
+	v.Set("u", username)
+	s.ListEndpoint.RawQuery = v.Encode()
 
 	list := new(MangaList)
-	resp, err := s.client.get(u, list)
+	resp, err := s.client.get(s.ListEndpoint.String(), list)
 	if err != nil {
 		return nil, resp, err
 	}
