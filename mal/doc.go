@@ -10,6 +10,8 @@ user "Xinil":
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
 	list, _, err := c.Anime.List("Xinil")
+	// handle err
 
+	// do something with list
 */
 package mal
