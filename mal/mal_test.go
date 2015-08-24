@@ -306,7 +306,8 @@ func TestClient_post_invalidID(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		// zeroEntry defined in anime_test.go
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 

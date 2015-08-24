@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+var zeroEntry = "<entry><episode>0</episode><status>%v</status><score>0</score><times_rewatched>0</times_rewatched><enable_rewatching>0</enable_rewatching><comments></comments></entry>"
+
 func TestAnimeService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
@@ -41,7 +43,7 @@ func TestAnimeService_Add(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>watching</status></entry>")
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "watching"))
 		fmt.Fprintf(w, "Created")
 	})
 
@@ -64,7 +66,7 @@ func TestAnimeService_Update(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
 		fmt.Fprintf(w, "Updated")
 	})
 
@@ -87,7 +89,7 @@ func TestAnimeService_Update_invalidID(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
