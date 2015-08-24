@@ -10,20 +10,20 @@ import (
 // added or updated. Status is required.
 type AnimeEntry struct {
 	XMLName            xml.Name `xml:"entry"`
-	Episode            int      `xml:"episode,omitempty"`
+	Episode            int      `xml:"episode"`
 	Status             string   `xml:"status,omitempty"` // 1|watching, 2|completed, 3|onhold, 4|dropped, 6|plantowatch
-	Score              int      `xml:"score,omitempty"`
+	Score              int      `xml:"score"`
 	DownloadedEpisodes int      `xml:"downloaded_episodes,omitempty"`
 	StorageType        int      `xml:"storage_type,omitempty"`
 	StorageValue       float64  `xml:"storage_value,omitempty"`
-	TimesRewatched     int      `xml:"times_rewatched,omitempty"`
+	TimesRewatched     int      `xml:"times_rewatched"`
 	RewatchValue       int      `xml:"rewatch_value,omitempty"`
 	DateStart          string   `xml:"date_start,omitempty"`  // mmddyyyy
 	DateFinish         string   `xml:"date_finish,omitempty"` // mmddyyyy
 	Priority           int      `xml:"priority,omitempty"`
 	EnableDiscussion   int      `xml:"enable_discussion,omitempty"` // 1=enable, 0=disable
-	EnableRewatching   int      `xml:"enable_rewatching,omitempty"` // 1=enable, 0=disable
-	Comments           string   `xml:"comments,omitempty"`
+	EnableRewatching   int      `xml:"enable_rewatching"`           // 1=enable, 0=disable
+	Comments           string   `xml:"comments"`
 	FansubGroup        string   `xml:"fansub_group,omitempty"`
 	Tags               string   `xml:"tags,omitempty"` // comma separated: test tag, 2nd tag
 }
