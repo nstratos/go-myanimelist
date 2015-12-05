@@ -48,6 +48,10 @@ func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 }
 
 // Update allows an authenticated user to update an anime on their anime list.
+//
+// Note: MyAnimeList.net updates the MyLastUpdated value of an Anime only if it
+// receives an Episode update. As a consequence, you should probably always
+// send an episode update in the AnimeEntry, even if it's the same as before.
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
 	return s.client.post(s.UpdateEndpoint.String(), animeID, entry)
