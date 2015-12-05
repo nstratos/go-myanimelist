@@ -24,8 +24,6 @@ func ExampleAnimeService_Update() {
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
-	// Make sure to provide the Episode otherwise MyAnimeList.net will not
-	// update the MyLastUpdated value of the Anime.
 	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: "completed", Score: 9, Episode: 2})
 	if err != nil {
 		log.Fatalf("Anime.Update error: %v, received: '%v'\n", err, string(resp.Body))
