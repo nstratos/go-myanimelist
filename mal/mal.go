@@ -120,7 +120,7 @@ func (c *Client) SetUserAgent(userAgent string) {
 // that communicate with the MyAnimeList API. Even if an error occurs the
 // response will always be returned along with the actual error so that the
 // caller can further inspect it if needed. For the same reason it also keeps
-// a copy of the http.Reponse.Body that was read when the response was first
+// a copy of the http.Response.Body that was read when the response was first
 // received.
 type Response struct {
 	*http.Response
