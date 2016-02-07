@@ -135,8 +135,8 @@ func TestAnimeService_Search(t *testing.T) {
 	}
 	want := &AnimeResult{
 		[]AnimeRow{
-			AnimeRow{ID: 55, Title: "title1"},
-			AnimeRow{ID: 56, Title: "title2"},
+			{ID: 55, Title: "title1"},
+			{ID: 56, Title: "title2"},
 		},
 	}
 	if !reflect.DeepEqual(result, want) {
@@ -213,7 +213,7 @@ func TestAnimeService_List(t *testing.T) {
 	want := &AnimeList{
 		MyInfo: AnimeMyInfo{ID: 56, Name: "AnotherTestUser"},
 		Anime: []Anime{
-			Anime{
+			{
 				SeriesAnimeDBID: 1,
 				SeriesTitle:     "series title",
 				MyID:            1234,
