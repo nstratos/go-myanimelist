@@ -199,7 +199,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	return response, nil
 }
 
-// ErrorNoContent is returned when a MyAnimeList API method returns error 204.
+// ErrNoContent is returned when a MyAnimeList API method returns error 204.
 var ErrNoContent = errors.New("no content")
 
 func readResponse(r *http.Response) (*Response, error) {
