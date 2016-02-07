@@ -105,8 +105,8 @@ func TestMangaService_Search(t *testing.T) {
 	}
 	want := &MangaResult{
 		[]MangaRow{
-			MangaRow{ID: 55, Title: "title1"},
-			MangaRow{ID: 56, Title: "title2"},
+			{ID: 55, Title: "title1"},
+			{ID: 56, Title: "title2"},
 		},
 	}
 	if !reflect.DeepEqual(result, want) {
@@ -183,7 +183,7 @@ func TestMangaService_List(t *testing.T) {
 	want := &MangaList{
 		MyInfo: MyMangaInfo{ID: 56, Name: "AnotherTestUser"},
 		Manga: []Manga{
-			Manga{
+			{
 				SeriesMangaDBID: 1,
 				SeriesTitle:     "series title",
 				MyID:            1234,
