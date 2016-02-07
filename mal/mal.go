@@ -146,9 +146,9 @@ func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Requ
 
 	v := url.Values{}
 	if data != nil {
-		d, err := xml.Marshal(data)
-		if err != nil {
-			return nil, err
+		d, merr := xml.Marshal(data)
+		if merr != nil {
+			return nil, merr
 		}
 		v.Set("data", string(d))
 	}
