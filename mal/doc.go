@@ -5,7 +5,7 @@ Construct a new client, then use one of the client's services to access the
 different MyAnimeList API methods. For example, to get the anime list of the
 user "Xinil":
 
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
