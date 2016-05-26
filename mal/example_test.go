@@ -9,7 +9,7 @@ import (
 
 // anime examples
 func ExampleAnimeService_Add() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -20,7 +20,7 @@ func ExampleAnimeService_Add() {
 }
 
 func ExampleAnimeService_Update() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -31,7 +31,7 @@ func ExampleAnimeService_Update() {
 }
 
 func ExampleAnimeService_Search() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -55,7 +55,7 @@ func ExampleAnimeService_Search() {
 }
 
 func ExampleAnimeService_List() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -102,7 +102,7 @@ func ExampleAnimeService_List() {
 
 // manga examples
 func ExampleMangaService_Add() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -113,7 +113,7 @@ func ExampleMangaService_Add() {
 }
 
 func ExampleMangaService_Update() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -124,7 +124,7 @@ func ExampleMangaService_Update() {
 }
 
 func ExampleMangaService_Search() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 
@@ -148,7 +148,7 @@ func ExampleMangaService_Search() {
 }
 
 func ExampleMangaService_List() {
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
 	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
 

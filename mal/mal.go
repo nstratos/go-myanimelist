@@ -49,8 +49,10 @@ type Client struct {
 }
 
 // NewClient returns a new MyAnimeList API client.
-func NewClient() *Client {
-	httpClient := http.DefaultClient
+func NewClient(httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
 
 	baseURL, _ := url.Parse(defaultBaseURL)
 	listEndpoint, _ := url.Parse(defaultListEndpoint)

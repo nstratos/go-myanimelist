@@ -32,7 +32,7 @@ func setup() {
 	server = httptest.NewServer(mux)
 
 	// mal client configured to use test server
-	client = NewClient()
+	client = NewClient(nil)
 	client.BaseURL, _ = url.Parse(server.URL)
 }
 
@@ -118,7 +118,7 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 }
 
 func TestNewClient(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 
 	// test default base URL
 	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
@@ -171,7 +171,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClient_NewRequest(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 
 	inURL, outURL := "/foo", defaultBaseURL+"foo"
 
@@ -349,7 +349,7 @@ func TestClient_delete_invalidID(t *testing.T) {
 }
 
 func TestClient_NewRequest_badEndpoint(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 	inURL := "%foo"
 	_, err := c.NewRequest("GET", inURL, nil)
 	if err == nil {
@@ -358,7 +358,7 @@ func TestClient_NewRequest_badEndpoint(t *testing.T) {
 }
 
 func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)
 	if err == nil {
