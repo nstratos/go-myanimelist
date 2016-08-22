@@ -218,11 +218,15 @@ func TestClient_Do(t *testing.T) {
 	req, _ := client.NewRequest("GET", "/", nil)
 
 	body := new(foo)
-	response, _ := client.Do(req, body)
+	response, err := client.Do(req, body)
 
 	want := &foo{"&bull; foobar"}
 	if !reflect.DeepEqual(body, want) {
 		t.Errorf("Do() response body = %v, want %v", body, want)
+	}
+
+	if err != nil {
+		t.Fatalf("Do() returned err = %v", err)
 	}
 
 	if want, got := "<foo><bar>&bull; foobar</bar></foo>", string(response.Body); want != got {
@@ -251,11 +255,11 @@ func TestClient_Do_invalidXMLEntity(t *testing.T) {
 	response, err := client.Do(req, body)
 
 	if err == nil {
-		t.Errorf("Do() receiving XML with invalid entity should return err")
+		t.Errorf("Do() receiving XML with invalid entity should return err.")
 	}
 
 	if response == nil {
-		t.Errorf("Do() receiving XML with invalid entity should also return response")
+		t.Fatal("Do() receiving XML with invalid entity should also return response.")
 	}
 
 	if want, got := "<foo><bar>&foo; bar</bar></foo>", string(response.Body); want != got {
@@ -277,6 +281,10 @@ func TestClient_Do_notFound(t *testing.T) {
 
 	if err == nil {
 		t.Error("Expected HTTP 404 error.")
+	}
+
+	if response == nil {
+		t.Fatal("Expected response with HTTP 404 error.")
 	}
 
 	// http.Error seems to be adding a new line to the message.
