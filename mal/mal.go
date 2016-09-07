@@ -110,6 +110,11 @@ func (c *Client) SetCredentials(username, password string) {
 //
 // To get your own whitelisted user agent, see:
 // http://myanimelist.net/forum/?topicid=692311
+//
+// UPDATE: User agent whitelisting has been removed. Usage of this method is no
+// longer necessary. Use it only if you intend to change the default user agent
+// of the package. See:
+// https://myanimelist.net/forum/?topicid=1419259#msg41682213
 func (c *Client) SetUserAgent(userAgent string) {
 	c.UserAgent = userAgent
 }
