@@ -197,7 +197,15 @@ func TestClient_NewRequest(t *testing.T) {
 
 	testBasicAuth(t, req, false, "", "")
 	testUserAgent(t, req, defaultUserAgent)
+}
 
+func TestClient_NewRequest_invalidMethod(t *testing.T) {
+	c := NewClient(nil)
+
+	_, err := c.NewRequest("invalid method", "/foo", nil)
+	if err == nil {
+		t.Error("NewRequest with invalid method expected to return err")
+	}
 }
 
 func TestClient_Do(t *testing.T) {
