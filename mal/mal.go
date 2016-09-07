@@ -231,41 +231,25 @@ func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, er
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := c.Do(req, nil)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return c.Do(req, nil)
 }
 
-// post sends a DELETE API request used by Delete.
+// delete sends a DELETE API request used by Delete.
 func (c *Client) delete(endpoint string, id int) (*Response, error) {
 	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.Do(req, nil)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return c.Do(req, nil)
 }
 
 // get sends a GET API request used by List and Search.
 func (c *Client) get(url string, result interface{}) (*Response, error) {
-
 	req, err := c.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.Do(req, result)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return c.Do(req, result)
 }
