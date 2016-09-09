@@ -14,7 +14,7 @@ import (
 const (
 	// This is not intended to reflect the actual version of this package.
 	defaultUserAgent           = "Go-myanimelist-client/0.5"
-	defaultBaseURL             = "http://myanimelist.net/"
+	defaultBaseURL             = "https://myanimelist.net/"
 	defaultListEndpoint        = "malappinfo.php"
 	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
 	defaultAnimeAddEndpoint    = "api/animelist/add/"

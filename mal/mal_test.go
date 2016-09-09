@@ -199,6 +199,18 @@ func TestClient_NewRequest(t *testing.T) {
 	testUserAgent(t, req, defaultUserAgent)
 }
 
+func TestClient_NewRequest_HTTPS(t *testing.T) {
+	c := NewClient(nil)
+
+	req, err := c.NewRequest("GET", "/foo", nil)
+	if err != nil {
+		t.Error("NewRequest returned err:", err)
+	}
+	if got, want := req.URL.Scheme, "https"; got != want {
+		t.Errorf("NewRequest scheme = %q, want %q", got, want)
+	}
+}
+
 func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	c := NewClient(nil)
 
