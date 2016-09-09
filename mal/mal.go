@@ -27,6 +27,18 @@ const (
 	defaultMangaSearchEndpoint = "api/manga/search.xml"
 )
 
+// Statuses for Anime and Manga. These make status usage and comparisons
+// easier.
+const (
+	StatusWatching    = 1
+	StatusReading     = 1
+	StatusCompleted   = 2
+	StatusOnHold      = 3
+	StatusDropped     = 4
+	StatusPlanToWatch = 6
+	StatusPlanToRead  = 6
+)
+
 // Client manages communication with the MyAnimeList API.
 type Client struct {
 	client *http.Client
