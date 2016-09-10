@@ -20,17 +20,22 @@ Usage
 
 Import the package using:
 
+```go
 	import "github.com/nstratos/go-myanimelist/mal"
+```
 
 First construct a new mal client:
 
+```go
 	c := mal.NewClient(nil)
+```
 
 Then use one of the client's services (Account, Anime or Manga) to access the
 different MyAnimeList API methods.
 
 For example, to get the anime and manga list of the user "Xinil":
 
+```go
 	c := mal.NewClient(nil)
 
 	list, _, err := c.Anime.List("Xinil")
@@ -38,13 +43,14 @@ For example, to get the anime and manga list of the user "Xinil":
 
 	list, _, err := c.Manga.List("Xinil")
 	// ...
-
+```
 
 If a method requires authentication, make sure to set your MyAnimeList username
 and password on the client.
 
 For example to search for anime and manga (needs authentication):
 
+```go
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")
 
@@ -53,6 +59,7 @@ For example to search for anime and manga (needs authentication):
 
 	result, _, err := c.Manga.Search("bebop")
 	// ...
+```
 
 If you need more control, when creating a new client you can pass an
 http.Client as an argument.
@@ -60,11 +67,13 @@ http.Client as an argument.
 For example this http.Client passed to the mal client will make sure to cancel
 any request that takes longer than 1 second:
 
+```go
 	httpcl := &http.Client{
 		Timeout: 1 * time.Second,
 	}
 	c := mal.NewClient(httpcl)
 	// ...
+```
 
 See more examples: https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
