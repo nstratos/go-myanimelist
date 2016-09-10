@@ -21,13 +21,13 @@ Usage
 Import the package using:
 
 ```go
-	import "github.com/nstratos/go-myanimelist/mal"
+import "github.com/nstratos/go-myanimelist/mal"
 ```
 
 First construct a new mal client:
 
 ```go
-	c := mal.NewClient(nil)
+c := mal.NewClient(nil)
 ```
 
 Then use one of the client's services (Account, Anime or Manga) to access the
@@ -36,13 +36,13 @@ different MyAnimeList API methods.
 For example, to get the anime and manga list of the user "Xinil":
 
 ```go
-	c := mal.NewClient(nil)
+c := mal.NewClient(nil)
 
-	list, _, err := c.Anime.List("Xinil")
-	// ...
+list, _, err := c.Anime.List("Xinil")
+// ...
 
-	list, _, err := c.Manga.List("Xinil")
-	// ...
+list, _, err := c.Manga.List("Xinil")
+// ...
 ```
 
 If a method requires authentication, make sure to set your MyAnimeList username
@@ -51,14 +51,14 @@ and password on the client.
 For example to search for anime and manga (needs authentication):
 
 ```go
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+c := mal.NewClient(nil)
+c.SetCredentials("<your username>", "<your password>")
 
-	result, _, err := c.Anime.Search("bebop")
-	// ...
+result, _, err := c.Anime.Search("bebop")
+// ...
 
-	result, _, err := c.Manga.Search("bebop")
-	// ...
+result, _, err := c.Manga.Search("bebop")
+// ...
 ```
 
 If you need more control, when creating a new client you can pass an
@@ -68,11 +68,11 @@ For example this http.Client passed to the mal client will make sure to cancel
 any request that takes longer than 1 second:
 
 ```go
-	httpcl := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-	c := mal.NewClient(httpcl)
-	// ...
+httpcl := &http.Client{
+	Timeout: 1 * time.Second,
+}
+c := mal.NewClient(httpcl)
+// ...
 ```
 
 See more examples: https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
