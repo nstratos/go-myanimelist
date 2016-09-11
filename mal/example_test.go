@@ -8,10 +8,10 @@ import (
 )
 
 // anime examples
+
 func ExampleAnimeService_Add() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	resp, err := c.Anime.Add(9989, mal.AnimeEntry{Status: "watching", Episode: 1})
 	if err != nil {
@@ -21,8 +21,7 @@ func ExampleAnimeService_Add() {
 
 func ExampleAnimeService_Update() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: "completed", Score: 9, Episode: 2})
 	if err != nil {
@@ -32,8 +31,7 @@ func ExampleAnimeService_Update() {
 
 func ExampleAnimeService_Search() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	result, resp, err := c.Anime.Search("anohana")
 	if err != nil {
@@ -56,8 +54,7 @@ func ExampleAnimeService_Search() {
 
 func ExampleAnimeService_List() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	list, resp, err := c.Anime.List("Xinil")
 	if err != nil {
@@ -101,10 +98,10 @@ func ExampleAnimeService_List() {
 }
 
 // manga examples
+
 func ExampleMangaService_Add() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	resp, err := c.Manga.Add(35733, mal.MangaEntry{Status: "reading", Chapter: 1, Volume: 1})
 	if err != nil {
@@ -114,8 +111,7 @@ func ExampleMangaService_Add() {
 
 func ExampleMangaService_Update() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	resp, err := c.Manga.Update(35733, mal.MangaEntry{Status: "completed", Score: 9})
 	if err != nil {
@@ -125,8 +121,7 @@ func ExampleMangaService_Update() {
 
 func ExampleMangaService_Search() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	result, resp, err := c.Manga.Search("anohana")
 	if err != nil {
@@ -149,8 +144,7 @@ func ExampleMangaService_Search() {
 
 func ExampleMangaService_List() {
 	c := mal.NewClient(nil)
-	c.SetCredentials("YOUR_MYANIMELIST_USERNAME", "YOUR_MYANIMELIST_PASSWORD")
-	c.SetUserAgent("YOUR_WHITELISTED_USER_AGENT")
+	c.SetCredentials("<your username>", "<your password>")
 
 	list, resp, err := c.Manga.List("Xinil")
 	if err != nil {
