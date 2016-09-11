@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -212,11 +213,14 @@ func TestClient_NewRequest_HTTPS(t *testing.T) {
 }
 
 func TestClient_NewRequest_invalidMethod(t *testing.T) {
-	c := NewClient(nil)
-
-	_, err := c.NewRequest("invalid method", "/foo", nil)
-	if err == nil {
-		t.Error("NewRequest with invalid method expected to return err")
+	s := strings.Split(runtime.Version(), ".")
+	// This test requires Go version 1.7 or higher.
+	if len(s) >= 2 && s[0] == "go1" && s[1] == "7" {
+		c := NewClient(nil)
+		_, err := c.NewRequest("invalid method", "/foo", nil)
+		if err == nil {
+			t.Error("NewRequest with invalid method expected to return err")
+		}
 	}
 }
 
