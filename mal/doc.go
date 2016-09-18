@@ -1,6 +1,6 @@
 /*
 Package mal provides a client for accessing the MyAnimeList API:
-https://myanimelist.net/modules.php?go=api
+https://myanimelist.net/modules.php?go=api.
 
 Installation
 
