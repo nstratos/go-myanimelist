@@ -24,17 +24,17 @@ func newTestServer() *httptest.Server {
 		list := mal.AnimeList{
 			MyInfo: mal.AnimeMyInfo{Name: "testgopher"},
 			Anime: []mal.Anime{
-				mal.Anime{
+				{
 					SeriesAnimeDBID: 1,
 					SeriesTitle:     "anime title 1",
 					MyStatus:        mal.StatusWatching,
 				},
-				mal.Anime{
+				{
 					SeriesAnimeDBID: 2,
 					SeriesTitle:     "anime title 2",
 					MyStatus:        mal.StatusPlanToWatch,
 				},
-				mal.Anime{
+				{
 					SeriesAnimeDBID: 3,
 					SeriesTitle:     "anime title 3",
 					MyStatus:        mal.StatusPlanToWatch,
