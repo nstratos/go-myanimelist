@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -159,16 +160,18 @@ func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Requ
 
 	u := c.BaseURL.ResolveReference(rel)
 
-	v := url.Values{}
+	var body io.Reader
 	if data != nil {
 		d, merr := xml.Marshal(data)
 		if merr != nil {
 			return nil, merr
 		}
+		v := url.Values{}
 		v.Set("data", string(d))
+		body = strings.NewReader(v.Encode())
 	}
 
-	req, err := http.NewRequest(method, u.String(), strings.NewReader(v.Encode()))
+	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
