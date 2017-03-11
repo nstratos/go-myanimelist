@@ -11,6 +11,9 @@ matrix:
     - go: master
   fast_finish: true
 
+before_install:
+  - go get github.com/mattn/goveralls
+
 install:
   - # Skip
 
@@ -19,3 +22,5 @@ script:
   - diff -u <(echo -n) <(gofmt -d -s .)
   - go tool vet .
   - go test -v -race ./...
+  - go test -v -covermode=count -coverprofile=coverage.out ./...
+  - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
