@@ -136,9 +136,9 @@ type Manga struct {
 	MyStartDate     string `xml:"my_start_date"`
 	MyFinishDate    string `xml:"my_finish_date"`
 	MyScore         int    `xml:"my_score"`
-	MyStatus        int    `xml:"my_status"`
-	MyRewatching    string `xml:"my_rewatching"`
-	MyRewatchingEp  int    `xml:"my_rewatching_ep"`
+	MyStatus        int    `xml:"my_status"`     // 1 = reading, 2 = completed, 3 = onhold, 4 = dropped, 6 = plantoread
+	MyRereading     int    `xml:"my_rereadingg"` // MyAnimeList spells it my_rereadingg. Possible values seem to be 1=true and 0=false.
+	MyRereadingChap int    `xml:"my_rereading_chap"`
 	MyLastUpdated   string `xml:"my_last_updated"`
 	MyTags          string `xml:"my_tags"`
 	MyReadChapters  int    `xml:"my_read_chapters"`

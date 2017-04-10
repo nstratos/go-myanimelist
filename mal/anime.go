@@ -146,8 +146,8 @@ type Anime struct {
 	MyStartDate       string `xml:"my_start_date"`
 	MyFinishDate      string `xml:"my_finish_date"`
 	MyScore           int    `xml:"my_score"`
-	MyStatus          int    `xml:"my_status"`
-	MyRewatching      string `xml:"my_rewatching"`
+	MyStatus          int    `xml:"my_status"`     // 1 = watching, 2 = completed, 3 = onhold, 4 = dropped, 6 = plantowatch
+	MyRewatching      int    `xml:"my_rewatching"` // Officially undocumented but it seems that 1=true and 0=false.
 	MyRewatchingEp    int    `xml:"my_rewatching_ep"`
 	MyLastUpdated     string `xml:"my_last_updated"`
 	MyTags            string `xml:"my_tags"`

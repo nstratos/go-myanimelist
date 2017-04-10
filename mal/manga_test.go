@@ -171,28 +171,32 @@ func TestMangaService_List(t *testing.T) {
 					<series_title>series title</series_title>
 					<my_id>1234</my_id>
 					<my_status>3</my_status>
+					<my_rereadingg>1</my_rereadingg>
+					<my_rereading_chap>2</my_rereading_chap>
 				</manga>
 			</mymangalist>
 			`)
 	})
 
-	result, _, err := client.Manga.List("AnotherTestUser")
+	got, _, err := client.Manga.List("AnotherTestUser")
 	if err != nil {
 		t.Errorf("Manga.List returned error %v", err)
 	}
 	want := &MangaList{
-		MyInfo: MyMangaInfo{ID: 56, Name: "AnotherTestUser"},
+		MyInfo: MangaMyInfo{ID: 56, Name: "AnotherTestUser"},
 		Manga: []Manga{
 			{
 				SeriesMangaDBID: 1,
 				SeriesTitle:     "series title",
 				MyID:            1234,
 				MyStatus:        3,
+				MyRereading:     1,
+				MyRereadingChap: 2,
 			},
 		},
 	}
-	if !reflect.DeepEqual(result, want) {
-		t.Errorf("Manga.List returned %+v, want %+v", result, want)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Manga.List \nhave: %#v\nwant: %#v", got, want)
 	}
 }
 
