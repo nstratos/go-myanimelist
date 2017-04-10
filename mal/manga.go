@@ -12,7 +12,7 @@ type MangaEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Volume             int      `xml:"volume,omitempty"`
 	Chapter            int      `xml:"chapter,omitempty"`
-	Status             string   `xml:"status,omitempty"` // // 1|reading, 2|completed, 3|onhold, 4|dropped, 6|plantoread
+	Status             int      `xml:"status,omitempty"` // Use the package constants: StatusReading, StatusCompleted, etc.
 	Score              int      `xml:"score,omitempty"`
 	DownloadedChapters int      `xml:"downloaded_chapters,omitempty"`
 	TimesReread        int      `xml:"times_reread,omitempty"`

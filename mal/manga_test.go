@@ -41,11 +41,11 @@ func TestMangaService_Add(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>watching</status></entry>")
+		testFormValue(t, r, "data", "<entry><status>1</status></entry>")
 		fmt.Fprintf(w, "Created")
 	})
 
-	_, err := client.Manga.Add(55, MangaEntry{Status: "watching"})
+	_, err := client.Manga.Add(55, MangaEntry{Status: StatusReading})
 	if err != nil {
 		t.Errorf("Manga.Add returned error %v", err)
 	}
@@ -64,11 +64,11 @@ func TestMangaService_Update(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>onhold</status></entry>")
+		testFormValue(t, r, "data", "<entry><status>3</status></entry>")
 		fmt.Fprintf(w, "Updated")
 	})
 
-	_, err := client.Manga.Update(55, MangaEntry{Status: "onhold"})
+	_, err := client.Manga.Update(55, MangaEntry{Status: StatusOnHold})
 	if err != nil {
 		t.Errorf("Manga.Update returned error %v", err)
 	}

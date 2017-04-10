@@ -339,11 +339,11 @@ func TestClient_post_invalidID(t *testing.T) {
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		// zeroEntry defined in anime_test.go
-		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: "onhold"})
+	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: StatusOnHold})
 
 	if err == nil {
 		t.Errorf("Anime.Update invalid ID should return err")

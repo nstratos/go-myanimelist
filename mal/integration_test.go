@@ -4,7 +4,6 @@ package mal_test
 
 import (
 	"flag"
-	"fmt"
 	"testing"
 
 	"github.com/nstratos/go-myanimelist/mal"
@@ -76,14 +75,14 @@ func TestAnimeServiceIntegration(t *testing.T) {
 
 	// Test adding all the anime.
 	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Add(id, mal.AnimeEntry{Status: fmt.Sprint(animeAddStatus)}); err != nil {
+		if _, err := client.Anime.Add(id, mal.AnimeEntry{Status: animeAddStatus}); err != nil {
 			t.Fatalf("client.Anime.Add(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Test updating all the anime.
 	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Update(id, mal.AnimeEntry{Status: fmt.Sprint(animeUpdateStatus)}); err != nil {
+		if _, err := client.Anime.Update(id, mal.AnimeEntry{Status: animeUpdateStatus}); err != nil {
 			t.Fatalf("client.Anime.Update(%d) returned err: %v", id, err)
 		}
 	}
@@ -137,14 +136,14 @@ func TestMangaServiceIntegration(t *testing.T) {
 
 	// Test adding all the manga.
 	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Add(id, mal.MangaEntry{Status: fmt.Sprint(mangaAddStatus)}); err != nil {
+		if _, err := client.Manga.Add(id, mal.MangaEntry{Status: mangaAddStatus}); err != nil {
 			t.Fatalf("client.Manga.Add(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Test updating all the manga.
 	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Update(id, mal.MangaEntry{Status: fmt.Sprint(mangaUpdateStatus)}); err != nil {
+		if _, err := client.Manga.Update(id, mal.MangaEntry{Status: mangaUpdateStatus}); err != nil {
 			t.Fatalf("client.Manga.Update(%d) returned err: %v", id, err)
 		}
 	}

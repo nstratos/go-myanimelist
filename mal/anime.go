@@ -11,7 +11,7 @@ import (
 type AnimeEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Episode            int      `xml:"episode"`
-	Status             string   `xml:"status,omitempty"` // 1|watching, 2|completed, 3|onhold, 4|dropped, 6|plantowatch
+	Status             int      `xml:"status,omitempty"` // Use the package constants: StatusWatching, StatusCompleted, etc.
 	Score              int      `xml:"score"`
 	DownloadedEpisodes int      `xml:"downloaded_episodes,omitempty"`
 	StorageType        int      `xml:"storage_type,omitempty"`

@@ -13,7 +13,7 @@ func ExampleAnimeService_Add() {
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")
 
-	resp, err := c.Anime.Add(9989, mal.AnimeEntry{Status: "watching", Episode: 1})
+	resp, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.StatusWatching, Episode: 1})
 	if err != nil {
 		log.Fatalf("Anime.Add error: %v, received: '%v'\n", err, string(resp.Body))
 	}
@@ -23,7 +23,7 @@ func ExampleAnimeService_Update() {
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")
 
-	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: "completed", Score: 9, Episode: 2})
+	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.StatusCompleted, Score: 9, Episode: 2})
 	if err != nil {
 		log.Fatalf("Anime.Update error: %v, received: '%v'\n", err, string(resp.Body))
 	}
@@ -103,7 +103,7 @@ func ExampleMangaService_Add() {
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")
 
-	resp, err := c.Manga.Add(35733, mal.MangaEntry{Status: "reading", Chapter: 1, Volume: 1})
+	resp, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.StatusReading, Chapter: 1, Volume: 1})
 	if err != nil {
 		log.Fatalf("Manga.Add error: %v, received: '%v'\n", err, string(resp.Body))
 	}
@@ -113,7 +113,7 @@ func ExampleMangaService_Update() {
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")
 
-	resp, err := c.Manga.Update(35733, mal.MangaEntry{Status: "completed", Score: 9})
+	resp, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.StatusCompleted, Score: 9})
 	if err != nil {
 		log.Fatalf("Manga.Update error: %v, received: '%v'\n", err, string(resp.Body))
 	}

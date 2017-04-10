@@ -43,11 +43,11 @@ func TestAnimeService_Add(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "watching"))
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 1))
 		fmt.Fprintf(w, "Created")
 	})
 
-	_, err := client.Anime.Add(55, AnimeEntry{Status: "watching"})
+	_, err := client.Anime.Add(55, AnimeEntry{Status: StatusWatching})
 	if err != nil {
 		t.Errorf("Anime.Add returned error %v", err)
 	}
@@ -66,11 +66,11 @@ func TestAnimeService_Update(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
 		fmt.Fprintf(w, "Updated")
 	})
 
-	_, err := client.Anime.Update(55, AnimeEntry{Status: "onhold"})
+	_, err := client.Anime.Update(55, AnimeEntry{Status: StatusOnHold})
 	if err != nil {
 		t.Errorf("Anime.Update returned error %v", err)
 	}
@@ -89,11 +89,11 @@ func TestAnimeService_Update_invalidID(t *testing.T) {
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
 		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, "onhold"))
+		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.Anime.Update(0, AnimeEntry{Status: "onhold"})
+	response, err := client.Anime.Update(0, AnimeEntry{Status: StatusOnHold})
 
 	if err == nil {
 		t.Errorf("Anime.Update invalid ID should return err")
