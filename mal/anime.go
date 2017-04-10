@@ -58,8 +58,8 @@ func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 //    Updating Rating  5 -> 8 will not update MyLastUpdated
 //
 // As a consequence, you might perform a number of updates on a certain anime
-// that will not affect it's MyLastUpdate unless one of the updates happens to
-// change the episode.  This behavior is important to know if your application
+// that will not affect its MyLastUpdate unless one of the updates happens to
+// change the episode. This behavior is important to know if your application
 // performs updates and cares about when an anime was last updated.
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
@@ -93,8 +93,8 @@ type AnimeRow struct {
 	Episodes  int     `xml:"episodes"`
 }
 
-// Search allows an authenticated user to search anime titles. Upon failure it
-// will return ErrNoContent.
+// Search allows an authenticated user to search anime titles. If nothing is
+// found, it will return an ErrNoContent error.
 func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 
 	v := s.SearchEndpoint.Query()
@@ -116,8 +116,10 @@ type AnimeList struct {
 	Error  string      `xml:"error"`
 }
 
-// AnimeMyInfo represents the user's info (like number of watching, completed etc)
-// that is returned when requesting his/her anime list.
+// AnimeMyInfo represents the user's info which contains stats about the anime
+// that exist in their anime list. For example how many anime they have
+// completed, how many anime they are currently watching etc. It is returned as
+// part of their AnimeList.
 type AnimeMyInfo struct {
 	ID                int    `xml:"user_id"`
 	Name              string `xml:"user_name"`
@@ -129,9 +131,10 @@ type AnimeMyInfo struct {
 	PlanToWatch       int    `xml:"user_plantowatch"`
 }
 
-// Anime represents an anime from MyAnimeList with it's data contained in the
-// fields starting with Series. It also contains user specific fields
-// that start with My (for example the score the user has set for that anime).
+// Anime represents a MyAnimeList anime. The data of the anime are stored in
+// the fields starting with Series. User specific data are stored in the fields
+// starting with My. For example, the score the user has set for that anime is
+// stored in the MyScore field.
 type Anime struct {
 	SeriesAnimeDBID   int    `xml:"series_animedb_id"`
 	SeriesEpisodes    int    `xml:"series_episodes"`

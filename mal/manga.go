@@ -81,8 +81,8 @@ type MangaRow struct {
 	Volumes   int     `xml:"volumes"`
 }
 
-// Search allows an authenticated user to search manga titles. Upon failure it
-// will return ErrNoContent.
+// Search allows an authenticated user to search manga titles. If nothing is
+// found, it will return an ErrNoContent error.
 func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
 	v := s.SearchEndpoint.Query()
@@ -99,14 +99,16 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
 // MangaList represents the manga list of a user.
 type MangaList struct {
-	MyInfo MyMangaInfo `xml:"myinfo"`
+	MyInfo MangaMyInfo `xml:"myinfo"`
 	Manga  []Manga     `xml:"manga"`
 	Error  string      `xml:"error"`
 }
 
-// MyMangaInfo represents the user's info (like number of watching, completed etc)
-// that is returned when requesting his/her manga list.
-type MyMangaInfo struct {
+// MangaMyInfo represents the user's info which contains stats about the manga
+// that exist in their manga list. For example how many manga they have
+// completed, how many manga they are currently reading etc. It is returned as
+// part of their MangaList.
+type MangaMyInfo struct {
 	ID                int    `xml:"user_id"`
 	Name              string `xml:"user_name"`
 	Completed         int    `xml:"user_completed"`
@@ -117,10 +119,10 @@ type MyMangaInfo struct {
 	PlanToRead        int    `xml:"user_plantoread"`
 }
 
-// Manga holds data for each manga entry. User specific data for each manga
-// are also held in the fields starting with My.
-//
-// MyStatus: 1 = watching, 2 = completed, 3 = on hold, 4 = dropped, 6 = plantowatch
+// Manga represents a MyAnimeList manga. The data of the manga are stored in
+// the fields starting with Series. User specific data are stored in the fields
+// starting with My. For example, the score the user has set for that manga is
+// stored in the MyScore field.
 type Manga struct {
 	SeriesMangaDBID int    `xml:"series_mangadb_id"`
 	SeriesChapters  int    `xml:"series_chapters"`
