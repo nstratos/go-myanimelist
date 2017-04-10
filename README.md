@@ -62,6 +62,18 @@ result, _, err := c.Manga.Search("bebop")
 // ...
 ```
 
+For more complex searches, you can provide the % operator which is escaped as
+%% in Go. Note: This is an undocumented API feature.
+
+```go
+c := mal.NewClient(nil)
+c.SetCredentials("<your username>", "<your password>")
+
+result, _, err := c.Anime.Search("fate%%heaven%%flower")
+// ...
+// Will return: Fate/stay night Movie: Heaven's Feel - I. presage flower
+```
+
 If you need more control, when creating a new client you can pass an
 http.Client as an argument.
 

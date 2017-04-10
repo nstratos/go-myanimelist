@@ -38,6 +38,14 @@ func ExampleAnimeService_Search() {
 		log.Fatalf("Anime.Search error: %v, received: '%v'\n", err, string(resp.Body))
 	}
 
+	// For more complex searches, you can provide the % operator which is
+	// escaped as %% in Go. Note: This is an undocumented API feature.
+	//
+	// As an example, if you search for "fate%%heaven%%flower" you can get one
+	// accurate result of the title:
+	//
+	// Fate/stay night Movie: Heaven's Feel - I. presage flower
+
 	// printing results
 	for _, entry := range result.Rows {
 		fmt.Printf("----------------------------------------\n")
