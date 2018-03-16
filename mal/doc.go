@@ -46,8 +46,8 @@ For example to search for anime and manga (needs authentication):
 	result, _, err := c.Manga.Search("bebop")
 	// ...
 
-For more complex searches, you can provide the % operator which is escaped as
-%% in Go. Note: This is an undocumented API feature.
+For more complex searches, you can provide the % operator which acts as a
+wildcard. It is escaped as %% in Go. Note: This is an undocumented API feature.
 
 	c := mal.NewClient(nil)
 	c.SetCredentials("<your username>", "<your password>")

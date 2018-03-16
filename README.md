@@ -62,8 +62,8 @@ result, _, err := c.Manga.Search("bebop")
 // ...
 ```
 
-For more complex searches, you can provide the % operator which is escaped as
-%% in Go. Note: This is an undocumented API feature.
+For more complex searches, you can provide the % operator which acts as a
+wildcard. It is escaped as %% in Go. Note: This is an undocumented API feature.
 
 ```go
 c := mal.NewClient(nil)
