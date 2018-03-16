@@ -68,13 +68,6 @@ func testBasicAuth(t *testing.T, r *http.Request, usedWant bool, unameWant, pass
 	}
 }
 
-func testUserAgent(t *testing.T, r *http.Request, want string) {
-	agent := r.Header.Get("User-Agent")
-	if want != agent {
-		t.Errorf("User-Agent = %v, want %v", agent, want)
-	}
-}
-
 func testMethod(t *testing.T, r *http.Request, want string) {
 	if want != r.Method {
 		t.Errorf("Request method = %v, want %v", r.Method, want)
@@ -124,11 +117,6 @@ func TestNewClient(t *testing.T) {
 	// test default base URL
 	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
 		t.Errorf("NewClient.BaseURL = %v, want %v", got, want)
-	}
-
-	// test default user agent
-	if got, want := c.UserAgent, defaultUserAgent; got != want {
-		t.Errorf("NewClient.UserAgent = %v, want %v", got, want)
 	}
 
 	// test account default endpoint
@@ -197,7 +185,6 @@ func TestClient_NewRequest(t *testing.T) {
 	}
 
 	testBasicAuth(t, req, false, "", "")
-	testUserAgent(t, req, defaultUserAgent)
 }
 
 func TestClient_NewRequest_HTTPS(t *testing.T) {
@@ -330,13 +317,11 @@ func TestClient_post_invalidID(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "0")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		// zeroEntry defined in anime_test.go
 		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
@@ -359,13 +344,11 @@ func TestClient_delete_invalidID(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "0")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 

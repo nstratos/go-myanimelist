@@ -12,13 +12,11 @@ func TestMangaService_Delete(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "55")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		fmt.Fprintf(w, "Deleted")
 	})
 
@@ -33,13 +31,11 @@ func TestMangaService_Add(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/mangalist/add/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		testFormValue(t, r, "data", "<entry><status>1</status></entry>")
 		fmt.Fprintf(w, "Created")
@@ -56,13 +52,11 @@ func TestMangaService_Update(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/mangalist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testContentType(t, r, "application/x-www-form-urlencoded")
 		testFormValue(t, r, "data", "<entry><status>3</status></entry>")
 		fmt.Fprintf(w, "Updated")
@@ -79,12 +73,10 @@ func TestMangaService_Search(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{"q": "query"})
 		fmt.Fprintf(w, `
 			<manga>
@@ -119,12 +111,10 @@ func TestMangaService_Search_noContent(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{"q": "foo"})
 		http.Error(w, "no content", http.StatusNoContent)
 	})
@@ -149,12 +139,10 @@ func TestMangaService_List(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",
@@ -205,12 +193,10 @@ func TestMangaService_List_invalidUsername(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",
@@ -240,12 +226,10 @@ func TestMangaService_List_httpError(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",

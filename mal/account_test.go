@@ -13,12 +13,10 @@ func TestAccountService_Verify(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		fmt.Fprint(w, `<user><id>1</id><username>TestUser</username></user>`)
 	})
 
@@ -38,12 +36,10 @@ func TestAccountService_Verify_noContent(t *testing.T) {
 	defer teardown()
 
 	client.SetCredentials("TestUser", "TestPass")
-	client.SetUserAgent("TestAgent")
 
 	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testUserAgent(t, r, "TestAgent")
 		http.Error(w, "no content", http.StatusNoContent)
 	})
 

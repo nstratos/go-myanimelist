@@ -12,7 +12,6 @@ import (
 var (
 	malUsername = flag.String("username", "testgopher", "MyAnimeList.net username to use for integration tests")
 	malPassword = flag.String("password", "", "MyAnimeList.net password to use for integration tests")
-	userAgent   = flag.String("agent", "", "User-Agent to use for integration tests")
 
 	testAnimeIDs = []int{1, 5, 6, 7}
 	testMangaIDs = []int{1, 2, 3, 4}
@@ -38,9 +37,6 @@ func setup(t *testing.T) {
 	// Create mal client for tests.
 	client = mal.NewClient(nil)
 	client.SetCredentials(*malUsername, *malPassword)
-	if *userAgent != "" {
-		client.SetUserAgent(*userAgent)
-	}
 }
 
 func TestAnimeServiceIntegration(t *testing.T) {

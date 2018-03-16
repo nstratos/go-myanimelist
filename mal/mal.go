@@ -30,8 +30,6 @@ const (
 )
 
 const (
-	// This is not intended to reflect the actual version of this package.
-	defaultUserAgent           = "Go-myanimelist-client/0.5"
 	defaultBaseURL             = "https://myanimelist.net/"
 	defaultListEndpoint        = "malappinfo.php"
 	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
@@ -49,10 +47,8 @@ const (
 type Client struct {
 	client *http.Client
 
-	// User agent used when communicating with the MyAnimeList API.
-	UserAgent string
-	Username  string
-	Password  string
+	Username string
+	Password string
 
 	// Base URL for MyAnimeList API requests.
 	BaseURL *url.URL
@@ -81,9 +77,8 @@ func NewClient(httpClient *http.Client) *Client {
 	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
 
 	c := &Client{
-		client:    httpClient,
-		UserAgent: defaultUserAgent,
-		BaseURL:   baseURL,
+		client:  httpClient,
+		BaseURL: baseURL,
 	}
 
 	c.Account = &AccountService{
@@ -116,25 +111,6 @@ func NewClient(httpClient *http.Client) *Client {
 func (c *Client) SetCredentials(username, password string) {
 	c.Username = username
 	c.Password = password
-}
-
-// SetUserAgent sets the user agent that will be used to communicate with the
-// MyAnimeList API. If no user agent is provided then a default one will be used.
-//
-// MyAnimeList uses the user agent as a token to identify applications. It is
-// important to get your own whitelisted user agent if you are planning to use
-// this library in your application. Otherwise your IP might get blocked due to
-// excessive requests.
-//
-// To get your own whitelisted user agent, see:
-// http://myanimelist.net/forum/?topicid=692311
-//
-// UPDATE: User agent whitelisting has been removed. Usage of this method is no
-// longer necessary. Use it only if you intend to change the default user agent
-// of the package. See:
-// https://myanimelist.net/forum/?topicid=1419259#msg41682213
-func (c *Client) SetUserAgent(userAgent string) {
-	c.UserAgent = userAgent
 }
 
 // Response wraps http.Response and is returned in all the library functions
@@ -179,10 +155,6 @@ func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Requ
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
-	}
-
-	if c.UserAgent != "" {
-		req.Header.Add("User-Agent", c.UserAgent)
 	}
 
 	if c.Username != "" {
