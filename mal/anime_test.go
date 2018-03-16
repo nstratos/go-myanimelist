@@ -47,7 +47,7 @@ func TestAnimeService_Add(t *testing.T) {
 		fmt.Fprintf(w, "Created")
 	})
 
-	_, err := client.Anime.Add(55, AnimeEntry{Status: StatusWatching})
+	_, err := client.Anime.Add(55, AnimeEntry{Status: Current})
 	if err != nil {
 		t.Errorf("Anime.Add returned error %v", err)
 	}
@@ -70,7 +70,7 @@ func TestAnimeService_Update(t *testing.T) {
 		fmt.Fprintf(w, "Updated")
 	})
 
-	_, err := client.Anime.Update(55, AnimeEntry{Status: StatusOnHold})
+	_, err := client.Anime.Update(55, AnimeEntry{Status: OnHold})
 	if err != nil {
 		t.Errorf("Anime.Update returned error %v", err)
 	}
@@ -93,7 +93,7 @@ func TestAnimeService_Update_invalidID(t *testing.T) {
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.Anime.Update(0, AnimeEntry{Status: StatusOnHold})
+	response, err := client.Anime.Update(0, AnimeEntry{Status: OnHold})
 
 	if err == nil {
 		t.Errorf("Anime.Update invalid ID should return err")

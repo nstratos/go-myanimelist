@@ -27,17 +27,17 @@ func newTestServer() *httptest.Server {
 				{
 					SeriesAnimeDBID: 1,
 					SeriesTitle:     "anime title 1",
-					MyStatus:        mal.StatusWatching,
+					MyStatus:        mal.Current,
 				},
 				{
 					SeriesAnimeDBID: 2,
 					SeriesTitle:     "anime title 2",
-					MyStatus:        mal.StatusPlanToWatch,
+					MyStatus:        mal.Planned,
 				},
 				{
 					SeriesAnimeDBID: 3,
 					SeriesTitle:     "anime title 3",
-					MyStatus:        mal.StatusPlanToWatch,
+					MyStatus:        mal.Planned,
 				},
 			},
 		}
@@ -69,9 +69,9 @@ func Example_testServer() {
 	fmt.Printf("%s's anime list:\n", user)
 	for _, anime := range list.Anime {
 		switch anime.MyStatus {
-		case mal.StatusWatching:
+		case mal.Current:
 			fmt.Printf("Watching: %q\n", anime.SeriesTitle)
-		case mal.StatusPlanToWatch:
+		case mal.Planned:
 			fmt.Printf("Plan to watch: %q\n", anime.SeriesTitle)
 		}
 	}

@@ -14,13 +14,11 @@ var (
 	malPassword = flag.String("password", "", "MyAnimeList.net password to use for integration tests")
 	userAgent   = flag.String("agent", "", "User-Agent to use for integration tests")
 
-	testAnimeIDs      = []int{1, 5, 6, 7}
-	animeAddStatus    = mal.StatusPlanToWatch
-	animeUpdateStatus = mal.StatusWatching
+	testAnimeIDs = []int{1, 5, 6, 7}
+	testMangaIDs = []int{1, 2, 3, 4}
 
-	testMangaIDs      = []int{1, 2, 3, 4}
-	mangaAddStatus    = mal.StatusPlanToRead
-	mangaUpdateStatus = mal.StatusReading
+	addedStatus   mal.Status = mal.Planned
+	updatedStatus            = mal.Current
 
 	// client is the MyAnimeList client being used for the integration tests.
 	client *mal.Client
@@ -75,14 +73,14 @@ func TestAnimeServiceIntegration(t *testing.T) {
 
 	// Test adding all the anime.
 	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Add(id, mal.AnimeEntry{Status: animeAddStatus}); err != nil {
+		if _, err := client.Anime.Add(id, mal.AnimeEntry{Status: addedStatus}); err != nil {
 			t.Fatalf("client.Anime.Add(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Test updating all the anime.
 	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Update(id, mal.AnimeEntry{Status: animeUpdateStatus}); err != nil {
+		if _, err := client.Anime.Update(id, mal.AnimeEntry{Status: updatedStatus}); err != nil {
 			t.Fatalf("client.Anime.Update(%d) returned err: %v", id, err)
 		}
 	}
@@ -100,7 +98,7 @@ func TestAnimeServiceIntegration(t *testing.T) {
 
 	// And that they all have been updated appropriately.
 	for _, anime := range list.Anime {
-		if got, want := anime.MyStatus, animeUpdateStatus; got != want {
+		if got, want := anime.MyStatus, updatedStatus; got != want {
 			t.Errorf("Anime ID: %d status = %d, want %d", anime.SeriesAnimeDBID, got, want)
 		}
 	}
@@ -136,14 +134,14 @@ func TestMangaServiceIntegration(t *testing.T) {
 
 	// Test adding all the manga.
 	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Add(id, mal.MangaEntry{Status: mangaAddStatus}); err != nil {
+		if _, err := client.Manga.Add(id, mal.MangaEntry{Status: addedStatus}); err != nil {
 			t.Fatalf("client.Manga.Add(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Test updating all the manga.
 	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Update(id, mal.MangaEntry{Status: mangaUpdateStatus}); err != nil {
+		if _, err := client.Manga.Update(id, mal.MangaEntry{Status: updatedStatus}); err != nil {
 			t.Fatalf("client.Manga.Update(%d) returned err: %v", id, err)
 		}
 	}
@@ -161,7 +159,7 @@ func TestMangaServiceIntegration(t *testing.T) {
 
 	// And that they all have been updated appropriately.
 	for _, manga := range list.Manga {
-		if got, want := manga.MyStatus, mangaUpdateStatus; got != want {
+		if got, want := manga.MyStatus, updatedStatus; got != want {
 			t.Errorf("Manga ID: %d status = %d, want %d", manga.SeriesMangaDBID, got, want)
 		}
 	}

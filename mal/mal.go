@@ -12,6 +12,23 @@ import (
 	"strings"
 )
 
+// Status specifies a status for anime and manga entries.
+type Status int
+
+// Anime and manga entries have a status such as completed, on hold and
+// dropped.
+//
+// Current is for entries marked as currently watching or reading.
+//
+// Planned is for entries marked as plan to watch or read.
+const (
+	Current   Status = 1
+	Completed        = 2
+	OnHold           = 3
+	Dropped          = 4
+	Planned          = 6
+)
+
 const (
 	// This is not intended to reflect the actual version of this package.
 	defaultUserAgent           = "Go-myanimelist-client/0.5"
@@ -26,18 +43,6 @@ const (
 	defaultMangaUpdateEndpoint = "api/mangalist/update/"
 	defaultMangaDeleteEndpoint = "api/mangalist/delete/"
 	defaultMangaSearchEndpoint = "api/manga/search.xml"
-)
-
-// Statuses for Anime and Manga. These make status usage and comparisons
-// easier.
-const (
-	StatusWatching    = 1
-	StatusReading     = 1
-	StatusCompleted   = 2
-	StatusOnHold      = 3
-	StatusDropped     = 4
-	StatusPlanToWatch = 6
-	StatusPlanToRead  = 6
 )
 
 // Client manages communication with the MyAnimeList API.

@@ -12,7 +12,7 @@ type MangaEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Volume             int      `xml:"volume,omitempty"`
 	Chapter            int      `xml:"chapter,omitempty"`
-	Status             int      `xml:"status,omitempty"` // Use the package constants: StatusReading, StatusCompleted, etc.
+	Status             Status   `xml:"status,omitempty"` // Use the package constants: mal.Current, mal.Completed, etc.
 	Score              int      `xml:"score,omitempty"`
 	DownloadedChapters int      `xml:"downloaded_chapters,omitempty"`
 	TimesReread        int      `xml:"times_reread,omitempty"`
@@ -24,7 +24,7 @@ type MangaEntry struct {
 	EnableRereading    int      `xml:"enable_rereading,omitempty"`  // 1=enable, 0=disable
 	Comments           string   `xml:"comments,omitempty"`
 	ScanGroup          string   `xml:"scan_group,omitempty"`
-	Tags               string   `xml:"tags,omitempty"` // comma separated: test tag, 2nd tag
+	Tags               string   `xml:"tags,omitempty"` // comma separated
 	RetailVolumes      int      `xml:"retail_volumes,omitempty"`
 }
 
@@ -138,8 +138,8 @@ type Manga struct {
 	MyStartDate     string `xml:"my_start_date"`
 	MyFinishDate    string `xml:"my_finish_date"`
 	MyScore         int    `xml:"my_score"`
-	MyStatus        int    `xml:"my_status"`     // 1 = reading, 2 = completed, 3 = onhold, 4 = dropped, 6 = plantoread
-	MyRereading     int    `xml:"my_rereadingg"` // MyAnimeList spells it my_rereadingg. Possible values seem to be 1=true and 0=false.
+	MyStatus        Status `xml:"my_status"`     // Use the package constants: mal.Current, mal.Completed, etc.
+	MyRereading     int    `xml:"my_rereadingg"` // Not a typo. MyAnimeList sends this as my_rereadingg.
 	MyRereadingChap int    `xml:"my_rereading_chap"`
 	MyLastUpdated   string `xml:"my_last_updated"`
 	MyTags          string `xml:"my_tags"`

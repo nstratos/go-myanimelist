@@ -13,8 +13,8 @@ func Example_printWatchingAnime() {
 		log.Fatal(err)
 	}
 	for _, anime := range list.Anime {
-		// If anime has status watching then print it.
-		if anime.MyStatus == mal.StatusWatching {
+		// If anime has its status set as currently watching then print it.
+		if anime.MyStatus == mal.Current {
 			fmt.Printf("%s\n", anime.SeriesTitle)
 		}
 	}

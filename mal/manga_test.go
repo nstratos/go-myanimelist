@@ -45,7 +45,7 @@ func TestMangaService_Add(t *testing.T) {
 		fmt.Fprintf(w, "Created")
 	})
 
-	_, err := client.Manga.Add(55, MangaEntry{Status: StatusReading})
+	_, err := client.Manga.Add(55, MangaEntry{Status: Current})
 	if err != nil {
 		t.Errorf("Manga.Add returned error %v", err)
 	}
@@ -68,7 +68,7 @@ func TestMangaService_Update(t *testing.T) {
 		fmt.Fprintf(w, "Updated")
 	})
 
-	_, err := client.Manga.Update(55, MangaEntry{Status: StatusOnHold})
+	_, err := client.Manga.Update(55, MangaEntry{Status: OnHold})
 	if err != nil {
 		t.Errorf("Manga.Update returned error %v", err)
 	}

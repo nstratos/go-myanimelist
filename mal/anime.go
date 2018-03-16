@@ -11,7 +11,7 @@ import (
 type AnimeEntry struct {
 	XMLName            xml.Name `xml:"entry"`
 	Episode            int      `xml:"episode"`
-	Status             int      `xml:"status,omitempty"` // Use the package constants: StatusWatching, StatusCompleted, etc.
+	Status             Status   `xml:"status,omitempty"` // Use the package constants: mal.Current, mal.Completed, etc.
 	Score              int      `xml:"score"`
 	DownloadedEpisodes int      `xml:"downloaded_episodes,omitempty"`
 	StorageType        int      `xml:"storage_type,omitempty"`
@@ -25,7 +25,7 @@ type AnimeEntry struct {
 	EnableRewatching   int      `xml:"enable_rewatching"`           // 1=enable, 0=disable
 	Comments           string   `xml:"comments"`
 	FansubGroup        string   `xml:"fansub_group,omitempty"`
-	Tags               string   `xml:"tags,omitempty"` // comma separated: test tag, 2nd tag
+	Tags               string   `xml:"tags,omitempty"` // comma separated
 }
 
 // AnimeService handles communication with the Anime List methods of the
@@ -149,8 +149,8 @@ type Anime struct {
 	MyStartDate       string `xml:"my_start_date"`
 	MyFinishDate      string `xml:"my_finish_date"`
 	MyScore           int    `xml:"my_score"`
-	MyStatus          int    `xml:"my_status"`     // 1 = watching, 2 = completed, 3 = onhold, 4 = dropped, 6 = plantowatch
-	MyRewatching      int    `xml:"my_rewatching"` // Officially undocumented but it seems that 1=true and 0=false.
+	MyStatus          Status `xml:"my_status"` // Use the package constants: mal.Current, mal.Completed, etc.
+	MyRewatching      int    `xml:"my_rewatching"`
 	MyRewatchingEp    int    `xml:"my_rewatching_ep"`
 	MyLastUpdated     string `xml:"my_last_updated"`
 	MyTags            string `xml:"my_tags"`

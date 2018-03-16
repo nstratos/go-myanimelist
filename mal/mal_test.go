@@ -343,7 +343,7 @@ func TestClient_post_invalidID(t *testing.T) {
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: StatusOnHold})
+	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold})
 
 	if err == nil {
 		t.Errorf("Anime.Update invalid ID should return err")
