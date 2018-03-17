@@ -44,7 +44,7 @@ type AnimeService struct {
 // Add allows an authenticated user to add an anime to their anime list.
 func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 
-	return s.client.post(s.AddEndpoint.String(), animeID, entry)
+	return s.client.post(s.AddEndpoint.String(), animeID, entry, true)
 }
 
 // Update allows an authenticated user to update an anime on their anime list.
@@ -63,13 +63,13 @@ func (s *AnimeService) Add(animeID int, entry AnimeEntry) (*Response, error) {
 // performs updates and cares about when an anime was last updated.
 func (s *AnimeService) Update(animeID int, entry AnimeEntry) (*Response, error) {
 
-	return s.client.post(s.UpdateEndpoint.String(), animeID, entry)
+	return s.client.post(s.UpdateEndpoint.String(), animeID, entry, true)
 }
 
 // Delete allows an authenticated user to delete an anime from their anime list.
 func (s *AnimeService) Delete(animeID int) (*Response, error) {
 
-	return s.client.delete(s.DeleteEndpoint.String(), animeID)
+	return s.client.delete(s.DeleteEndpoint.String(), animeID, true)
 }
 
 // AnimeResult represents the result of an anime search.
@@ -102,7 +102,7 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 	s.SearchEndpoint.RawQuery = v.Encode()
 
 	result := new(AnimeResult)
-	resp, err := s.client.get(s.SearchEndpoint.String(), result)
+	resp, err := s.client.get(s.SearchEndpoint.String(), result, true)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -167,7 +167,7 @@ func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
 	s.ListEndpoint.RawQuery = v.Encode()
 
 	list := new(AnimeList)
-	resp, err := s.client.get(s.ListEndpoint.String(), list)
+	resp, err := s.client.get(s.ListEndpoint.String(), list, false)
 	if err != nil {
 		return nil, resp, err
 	}

@@ -10,8 +10,7 @@ import (
 // anime examples
 
 func ExampleAnimeService_Add() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	resp, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.Current, Episode: 1})
 	if err != nil {
@@ -20,18 +19,16 @@ func ExampleAnimeService_Add() {
 }
 
 func ExampleAnimeService_Update() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
-	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9, Episode: 2})
+	resp, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9})
 	if err != nil {
 		log.Fatalf("Anime.Update error: %v, received: '%v'\n", err, string(resp.Body))
 	}
 }
 
 func ExampleAnimeService_Search() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	result, resp, err := c.Anime.Search("anohana")
 	if err != nil {
@@ -61,8 +58,7 @@ func ExampleAnimeService_Search() {
 }
 
 func ExampleAnimeService_List() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	list, resp, err := c.Anime.List("Xinil")
 	if err != nil {
@@ -108,8 +104,7 @@ func ExampleAnimeService_List() {
 // manga examples
 
 func ExampleMangaService_Add() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	resp, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.Current, Chapter: 1, Volume: 1})
 	if err != nil {
@@ -118,8 +113,7 @@ func ExampleMangaService_Add() {
 }
 
 func ExampleMangaService_Update() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	resp, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.Completed, Score: 9})
 	if err != nil {
@@ -128,8 +122,7 @@ func ExampleMangaService_Update() {
 }
 
 func ExampleMangaService_Search() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	result, resp, err := c.Manga.Search("anohana")
 	if err != nil {
@@ -151,8 +144,7 @@ func ExampleMangaService_Search() {
 }
 
 func ExampleMangaService_List() {
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	list, resp, err := c.Manga.List("Xinil")
 	if err != nil {
@@ -167,8 +159,8 @@ func ExampleMangaService_List() {
 		fmt.Printf("| MyFinishDate: %v\n", manga.MyFinishDate)
 		fmt.Printf("| MyScore: %v\n", manga.MyScore)
 		fmt.Printf("| MyStatus: %v\n", manga.MyStatus)
-		fmt.Printf("| MyRewatching: %v\n", manga.MyRereading)
-		fmt.Printf("| MyRewatchingEp: %v\n", manga.MyRereadingChap)
+		fmt.Printf("| MyRereading: %v\n", manga.MyRereading)
+		fmt.Printf("| MyRereadingChap: %v\n", manga.MyRereadingChap)
 		fmt.Printf("| MyLastUpdated: %v\n", manga.MyLastUpdated)
 		fmt.Printf("| MyTags: %v\n", manga.MyTags)
 		fmt.Printf("| MyReadChapters: %v\n", manga.MyReadChapters)

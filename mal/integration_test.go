@@ -30,13 +30,12 @@ func init() {
 func setup(t *testing.T) {
 	if *malPassword == "" {
 		t.Errorf("No password provided for user %q.", *malUsername)
-		t.Error("These tests are meant to be run with a dedicated test account.")
+		t.Error("These tests are meant to be run with a dedicated test account with empty lists.")
 		t.Fatal("You might want to use: go test -tags=integration -username '<your account>' -password '<your password>'")
 	}
 
 	// Create mal client for tests.
-	client = mal.NewClient(nil)
-	client.SetCredentials(*malUsername, *malPassword)
+	client = mal.NewClient(mal.Auth(*malUsername, *malPassword))
 }
 
 func TestAnimeServiceIntegration(t *testing.T) {

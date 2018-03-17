@@ -11,8 +11,6 @@ func TestMangaService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "55")
@@ -29,8 +27,6 @@ func TestMangaService_Delete(t *testing.T) {
 func TestMangaService_Add(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/mangalist/add/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
@@ -51,8 +47,6 @@ func TestMangaService_Update(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/mangalist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
@@ -71,8 +65,6 @@ func TestMangaService_Update(t *testing.T) {
 func TestMangaService_Search(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -110,8 +102,6 @@ func TestMangaService_Search_noContent(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
@@ -138,11 +128,9 @@ func TestMangaService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",
@@ -192,11 +180,9 @@ func TestMangaService_List_invalidUsername(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",
@@ -225,11 +211,9 @@ func TestMangaService_List_httpError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "manga",

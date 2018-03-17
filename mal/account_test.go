@@ -12,8 +12,6 @@ func TestAccountService_Verify(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
@@ -34,8 +32,6 @@ func TestAccountService_Verify(t *testing.T) {
 func TestAccountService_Verify_noContent(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/account/verify_credentials.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")

@@ -13,8 +13,6 @@ func TestAnimeService_Delete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "55")
@@ -31,8 +29,6 @@ func TestAnimeService_Delete(t *testing.T) {
 func TestAnimeService_Add(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/animelist/add/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
@@ -53,8 +49,6 @@ func TestAnimeService_Update(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "55")
@@ -73,8 +67,6 @@ func TestAnimeService_Update(t *testing.T) {
 func TestAnimeService_Update_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
@@ -99,8 +91,6 @@ func TestAnimeService_Update_invalidID(t *testing.T) {
 func TestAnimeService_Search(t *testing.T) {
 	setup()
 	defer teardown()
-
-	client.SetCredentials("TestUser", "TestPass")
 
 	mux.HandleFunc("/api/anime/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
@@ -138,8 +128,6 @@ func TestAnimeService_Search_noContent(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/anime/search.xml", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testBasicAuth(t, r, true, "TestUser", "TestPass")
@@ -166,11 +154,9 @@ func TestAnimeService_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "anime",
@@ -216,11 +202,9 @@ func TestAnimeService_List_invalidUsername(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "anime",
@@ -249,11 +233,9 @@ func TestAnimeService_List_httpError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
+		testBasicAuth(t, r, false, "", "")
 		testURLValues(t, r, urlValues{
 			"status": "all",
 			"type":   "anime",

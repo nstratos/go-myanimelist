@@ -44,19 +44,19 @@ type MangaService struct {
 // Add allows an authenticated user to add a manga to their manga list.
 func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
 
-	return s.client.post(s.AddEndpoint.String(), mangaID, entry)
+	return s.client.post(s.AddEndpoint.String(), mangaID, entry, true)
 }
 
 // Update allows an authenticated user to update an manga on their manga list.
 func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
 
-	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry)
+	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry, true)
 }
 
 // Delete allows an authenticated user to delete an manga from their manga list.
 func (s *MangaService) Delete(mangaID int) (*Response, error) {
 
-	return s.client.delete(s.DeleteEndpoint.String(), mangaID)
+	return s.client.delete(s.DeleteEndpoint.String(), mangaID, true)
 }
 
 // MangaResult represents the result of an manga search.
@@ -90,7 +90,7 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 	s.SearchEndpoint.RawQuery = v.Encode()
 
 	result := new(MangaResult)
-	resp, err := s.client.get(s.SearchEndpoint.String(), result)
+	resp, err := s.client.get(s.SearchEndpoint.String(), result, true)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -157,7 +157,7 @@ func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 	s.ListEndpoint.RawQuery = v.Encode()
 
 	list := new(MangaList)
-	resp, err := s.client.get(s.ListEndpoint.String(), list)
+	resp, err := s.client.get(s.ListEndpoint.String(), list, false)
 	if err != nil {
 		return nil, resp, err
 	}

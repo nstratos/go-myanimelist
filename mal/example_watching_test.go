@@ -8,7 +8,7 @@ import (
 )
 
 func Example_printWatchingAnime() {
-	list, _, err := mal.NewClient(nil).Anime.List("Xinil")
+	list, _, err := mal.NewClient().Anime.List("Xinil")
 	if err != nil {
 		log.Fatal(err)
 	}

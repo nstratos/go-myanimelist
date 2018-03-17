@@ -55,7 +55,7 @@ func Example_testServer() {
 	defer server.Close()
 
 	// Here starts code that you would normally write when using this package.
-	c := mal.NewClient(nil)
+	c := mal.NewClient()
 	// Except this line which makes the mal client contact our test server
 	// instead of the MyAnimeList API.
 	c.BaseURL, _ = url.Parse(server.URL)

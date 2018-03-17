@@ -33,7 +33,7 @@ func setup() {
 	server = httptest.NewServer(mux)
 
 	// mal client configured to use test server
-	client = NewClient(nil)
+	client = NewClient(Auth("TestUser", "TestPass"))
 	client.BaseURL, _ = url.Parse(server.URL)
 }
 
@@ -56,6 +56,7 @@ func testURLValues(t *testing.T, r *http.Request, values urlValues) {
 }
 
 func testBasicAuth(t *testing.T, r *http.Request, usedWant bool, unameWant, passWant string) {
+	t.Helper()
 	uname, pass, used := r.BasicAuth()
 	if used != usedWant {
 		t.Errorf("BasicAuth used = %v, want %v", used, usedWant)
@@ -112,7 +113,7 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 }
 
 func TestNewClient(t *testing.T) {
-	c := NewClient(nil)
+	c := NewClient()
 
 	// test default base URL
 	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
@@ -157,10 +158,39 @@ func TestNewClient(t *testing.T) {
 	if got, want := c.Manga.ListEndpoint.String(), defaultListEndpoint; got != want {
 		t.Errorf("NewClient.Manga.ListEndpoint = %v, want %v", got, want)
 	}
+
+	// test default username and password
+	if got, want := c.username, ""; got != want {
+		t.Errorf("NewClient.username = %v, want %v", got, want)
+	}
+	if got, want := c.password, ""; got != want {
+		t.Errorf("NewClient.password = %v, want %v", got, want)
+	}
+}
+
+func TestNewClient_options(t *testing.T) {
+	httpClient := &http.Client{}
+	c := NewClient(
+		Auth("TestUser", "TestPass"),
+		HTTPClient(httpClient),
+	)
+
+	// test passing username and password as option
+	if got, want := c.username, "TestUser"; got != want {
+		t.Errorf("NewClient.username = %v, want %v", got, want)
+	}
+	if got, want := c.password, "TestPass"; got != want {
+		t.Errorf("NewClient.password = %v, want %v", got, want)
+	}
+
+	// test passing http client as option
+	if got, want := c.client, httpClient; got != want {
+		t.Errorf("NewClient.client = %p, want %p", got, want)
+	}
 }
 
 func TestClient_NewRequest(t *testing.T) {
-	c := NewClient(nil)
+	c := NewClient()
 
 	inURL, outURL := "/foo", defaultBaseURL+"foo"
 
@@ -188,7 +218,7 @@ func TestClient_NewRequest(t *testing.T) {
 }
 
 func TestClient_NewRequest_HTTPS(t *testing.T) {
-	c := NewClient(nil)
+	c := NewClient()
 
 	req, err := c.NewRequest("GET", "/foo", nil)
 	if err != nil {
@@ -203,7 +233,7 @@ func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	s := strings.Split(runtime.Version(), ".")
 	// This test requires Go version 1.7 or higher.
 	if len(s) >= 2 && s[0] == "go1" && s[1] == "7" {
-		c := NewClient(nil)
+		c := NewClient()
 		_, err := c.NewRequest("invalid method", "/foo", nil)
 		if err == nil {
 			t.Error("NewRequest with invalid method expected to return err")
@@ -316,8 +346,6 @@ func TestClient_post_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testID(t, r, "0")
@@ -328,7 +356,7 @@ func TestClient_post_invalidID(t *testing.T) {
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold})
+	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold}, true)
 
 	if err == nil {
 		t.Errorf("Anime.Update invalid ID should return err")
@@ -343,8 +371,6 @@ func TestClient_delete_invalidID(t *testing.T) {
 	setup()
 	defer teardown()
 
-	client.SetCredentials("TestUser", "TestPass")
-
 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
 		testID(t, r, "0")
@@ -352,7 +378,7 @@ func TestClient_delete_invalidID(t *testing.T) {
 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
 	})
 
-	response, err := client.delete("api/animelist/delete/", 0)
+	response, err := client.delete("api/animelist/delete/", 0, true)
 
 	if err == nil {
 		t.Errorf("Anime.Delete invalid ID should return err")
@@ -364,7 +390,7 @@ func TestClient_delete_invalidID(t *testing.T) {
 }
 
 func TestClient_NewRequest_badEndpoint(t *testing.T) {
-	c := NewClient(nil)
+	c := NewClient()
 	inURL := "%foo"
 	_, err := c.NewRequest("GET", inURL, nil)
 	if err == nil {
@@ -373,7 +399,7 @@ func TestClient_NewRequest_badEndpoint(t *testing.T) {
 }
 
 func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
-	c := NewClient(nil)
+	c := NewClient()
 	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)
 	if err == nil {

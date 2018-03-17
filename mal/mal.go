@@ -47,8 +47,8 @@ const (
 type Client struct {
 	client *http.Client
 
-	Username string
-	Password string
+	username string
+	password string
 
 	// Base URL for MyAnimeList API requests.
 	BaseURL *url.URL
@@ -58,12 +58,36 @@ type Client struct {
 	Manga   *MangaService
 }
 
-// NewClient returns a new MyAnimeList API client.
-func NewClient(httpClient *http.Client) *Client {
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+// Auth is an option that can be passed to NewClient. It allows to specify the
+// username and password to be used for authenticating with the MyAnimeList
+// API. When this option is used, the client will use basic authentication on
+// the requests than need them.
+//
+// Most API methods require authentication so it is typical to pass this option
+// when creating a new client.
+func Auth(username, password string) func(*Client) {
+	return func(c *Client) {
+		c.username = username
+		c.password = password
 	}
+}
 
+// HTTPClient is an option that can be passed to NewClient. It allows to
+// specify the HTTP client that will be used to create the requests. If this
+// option is not set, a default HTTP client (http.DefaultClient) will be used
+// which is usually sufficient.
+//
+// This option can be set for less trivial cases, when more control over the
+// created HTTP requests is required. One such example is providing a timeout
+// to cancel requests that exceed it.
+func HTTPClient(httpClient *http.Client) func(*Client) {
+	return func(c *Client) {
+		c.client = httpClient
+	}
+}
+
+// NewClient returns a new MyAnimeList API client.
+func NewClient(options ...func(*Client)) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
 	listEndpoint, _ := url.Parse(defaultListEndpoint)
 	accountEndpoint, _ := url.Parse(defaultAccountEndpoint)
@@ -77,7 +101,6 @@ func NewClient(httpClient *http.Client) *Client {
 	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
 
 	c := &Client{
-		client:  httpClient,
 		BaseURL: baseURL,
 	}
 
@@ -103,14 +126,18 @@ func NewClient(httpClient *http.Client) *Client {
 		DeleteEndpoint: mangaDeleteEndpoint,
 		SearchEndpoint: mangaSearchEndpoint,
 	}
-	return c
-}
 
-// SetCredentials sets the username and password that will be used for basic
-// authentication.
-func (c *Client) SetCredentials(username, password string) {
-	c.Username = username
-	c.Password = password
+	for _, option := range options {
+		if option != nil {
+			option(c)
+		}
+	}
+
+	if c.client == nil {
+		c.client = http.DefaultClient
+	}
+
+	return c
 }
 
 // Response wraps http.Response and is returned in all the library functions
@@ -155,10 +182,6 @@ func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Requ
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
-	}
-
-	if c.Username != "" {
-		req.SetBasicAuth(c.Username, c.Password)
 	}
 
 	return req, nil
@@ -220,10 +243,13 @@ func readResponse(r *http.Response) (*Response, error) {
 }
 
 // post sends a POST API request used by Add and Update.
-func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, error) {
+func (c *Client) post(endpoint string, id int, entry interface{}, useAuth bool) (*Response, error) {
 	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
 	if err != nil {
 		return nil, err
+	}
+	if useAuth {
+		req.SetBasicAuth(c.username, c.password)
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -232,20 +258,26 @@ func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, er
 }
 
 // delete sends a DELETE API request used by Delete.
-func (c *Client) delete(endpoint string, id int) (*Response, error) {
+func (c *Client) delete(endpoint string, id int, useAuth bool) (*Response, error) {
 	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
 	if err != nil {
 		return nil, err
+	}
+	if useAuth {
+		req.SetBasicAuth(c.username, c.password)
 	}
 
 	return c.Do(req, nil)
 }
 
 // get sends a GET API request used by List and Search.
-func (c *Client) get(url string, result interface{}) (*Response, error) {
+func (c *Client) get(url string, result interface{}, useAuth bool) (*Response, error) {
 	req, err := c.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
+	}
+	if useAuth {
+		req.SetBasicAuth(c.username, c.password)
 	}
 
 	return c.Do(req, result)
