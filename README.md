@@ -1,5 +1,4 @@
-go-myanimelist
-==============
+# go-myanimelist
 
 go-myanimelist is a Go client library for accessing the [MyAnimeList API](http://myanimelist.net/modules.php?go=api).
 
@@ -9,15 +8,13 @@ go-myanimelist is a Go client library for accessing the [MyAnimeList API](http:/
 [![Coverage Status](https://coveralls.io/repos/github/nstratos/go-myanimelist/badge.svg?branch=master)](https://coveralls.io/github/nstratos/go-myanimelist?branch=master)
 [![Build Status](https://travis-ci.org/nstratos/go-myanimelist.svg?branch=master)](https://travis-ci.org/nstratos/go-myanimelist)
 
-Installation 
-------------
+## Installation
 
 This package can be installed using:
 
 	go get github.com/nstratos/go-myanimelist/mal
 
-Usage
------
+## Usage
 
 Import the package using:
 
@@ -28,16 +25,18 @@ import "github.com/nstratos/go-myanimelist/mal"
 First construct a new mal client:
 
 ```go
-c := mal.NewClient(nil)
+c := mal.NewClient()
 ```
 
 Then use one of the client's services (Account, Anime or Manga) to access the
 different MyAnimeList API methods.
 
-For example, to get the anime and manga list of the user "Xinil":
+## List
+
+To get the anime and manga list of a user:
 
 ```go
-c := mal.NewClient(nil)
+c := mal.NewClient()
 
 list, _, err := c.Anime.List("Xinil")
 // ...
@@ -46,14 +45,23 @@ list, _, err := c.Manga.List("Xinil")
 // ...
 ```
 
-If a method requires authentication, make sure to set your MyAnimeList username
-and password on the client.
+## Authentication
 
-For example to search for anime and manga (needs authentication):
+Beyond List, the rest of the methods require authentication so typically you
+will use an option to pass username and password to NewClient:
 
 ```go
-c := mal.NewClient(nil)
-c.SetCredentials("<your username>", "<your password>")
+c := mal.NewClient(
+	mal.Auth("<your username>", "<your password>"),
+)
+```
+
+## Search
+
+To search for anime and manga:
+
+```go
+c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 result, _, err := c.Anime.Search("bebop")
 // ...
@@ -63,35 +71,90 @@ result, _, err := c.Manga.Search("bebop")
 ```
 
 For more complex searches, you can provide the % operator which acts as a
-wildcard. It is escaped as %% in Go. Note: This is an undocumented API feature.
+wildcard and is escaped as %% in Go:
 
 ```go
-c := mal.NewClient(nil)
-c.SetCredentials("<your username>", "<your password>")
-
 result, _, err := c.Anime.Search("fate%%heaven%%flower")
 // ...
 // Will return: Fate/stay night Movie: Heaven's Feel - I. presage flower
 ```
 
-If you need more control, when creating a new client you can pass an
-http.Client as an argument.
+Note: This is an undocumented feature of the MyAnimeList Search method.
 
-For example this http.Client passed to the mal client will make sure to cancel
-any request that takes longer than 1 second:
+## Add
+
+To add anime and manga, you provide their IDs and values through AnimeEntry and
+MangaEntry:
+
+```go
+c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+_, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.Current, Episode: 1})
+// ...
+
+_, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.Planned, Chapter: 1, Volume: 1})
+// ...
+```
+
+Note that when adding entries, Status is required.
+
+## Update
+
+Similar to Add, Update also needs the ID of the entry and the values to be
+updated:
+
+```go
+c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+_, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9})
+// ...
+
+_, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.OnHold})
+// ...
+```
+
+## Delete
+
+To delete anime and manga, simply provide their IDs:
+
+```go
+c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+_, err := c.Anime.Delete(9989)
+// ...
+
+_, err := c.Manga.Delete(35733)
+// ...
+```
+
+## More Examples
+
+See package examples:
+https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
+
+## Advanced Control
+
+If you need more control over the created requests, you can use an option to
+pass a custom HTTP client to NewClient:
+
+```go
+c := mal.NewClient(
+	mal.HTTPClient(&http.Client{}),
+)
+```
+
+For example this http.Client will make sure to cancel any request that takes
+longer than 1 second:
 
 ```go
 httpcl := &http.Client{
 	Timeout: 1 * time.Second,
 }
-c := mal.NewClient(httpcl)
+c := mal.NewClient(mal.HTTPClient(httpcl))
 // ...
 ```
 
-See more examples: https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
-
-Unit Testing
-------------
+## Unit Testing
 
 To run all unit tests:
 
@@ -102,8 +165,7 @@ To see test coverage in your browser:
 
 	go test -covermode=count -coverprofile=count.out && go tool cover -html count.out
 
-Integration Testing
--------------------
+## Integration Testing
 
 The integration tests will exercise the entire package against the live
 MyAnimeList API. As a result, these tests take much longer to run and there is
@@ -119,7 +181,6 @@ To run the integration tests:
 	cd $GOPATH/src/github.com/nstratos/go-myanimelist/mal
 	go test -tags=integration -username '<test account username>' -password '<test account password>'
 
-License
--------
+## License
 
 MIT

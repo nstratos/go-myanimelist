@@ -16,14 +16,16 @@ Import the package using:
 
 First construct a new mal client:
 
-	c := mal.NewClient(nil)
+	c := mal.NewClient()
 
 Then use one of the client's services (Account, Anime or Manga) to access the
 different MyAnimeList API methods.
 
-For example, to get the anime and manga list of the user "Xinil":
+List
 
-	c := mal.NewClient(nil)
+To get the anime and manga list of a user:
+
+	c := mal.NewClient()
 
 	list, _, err := c.Anime.List("Xinil")
 	// ...
@@ -31,14 +33,20 @@ For example, to get the anime and manga list of the user "Xinil":
 	list, _, err := c.Manga.List("Xinil")
 	// ...
 
+Authentication
 
-If a method requires authentication, make sure to set your MyAnimeList username
-and password on the client.
+Beyond List, the rest of the methods require authentication so typically you
+will use an option to pass username and password to NewClient:
 
-For example to search for anime and manga (needs authentication):
+	c := mal.NewClient(
+		mal.Auth("<your username>", "<your password>"),
+	)
 
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+Search
+
+To search for anime and manga:
+
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
 
 	result, _, err := c.Anime.Search("bebop")
 	// ...
@@ -47,28 +55,76 @@ For example to search for anime and manga (needs authentication):
 	// ...
 
 For more complex searches, you can provide the % operator which acts as a
-wildcard. It is escaped as %% in Go. Note: This is an undocumented API feature.
-
-	c := mal.NewClient(nil)
-	c.SetCredentials("<your username>", "<your password>")
+wildcard and is escaped as %% in Go:
 
 	result, _, err := c.Anime.Search("fate%%heaven%%flower")
 	// ...
 	// Will return: Fate/stay night Movie: Heaven's Feel - I. presage flower
 
-If you need more control, when creating a new client you can pass an
-http.Client as an argument.
+Note: This is an undocumented feature of the MyAnimeList Search method.
 
-For example this http.Client passed to the mal client will make sure to cancel
-any request that takes longer than 1 second:
+Add
+
+To add anime and manga, you provide their IDs and values through AnimeEntry and
+MangaEntry:
+
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+	_, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.Current, Episode: 1})
+	// ...
+
+	_, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.Planned, Chapter: 1, Volume: 1})
+	// ...
+
+Note that when adding entries, Status is required.
+
+Update
+
+Similar to Add, Update also needs the ID of the entry and the values to be
+updated:
+
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+	_, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9})
+	// ...
+
+	_, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.OnHold})
+	// ...
+
+Delete
+
+To delete anime and manga, simply provide their IDs:
+
+	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+
+	_, err := c.Anime.Delete(9989)
+	// ...
+
+	_, err := c.Manga.Delete(35733)
+	// ...
+
+More Examples
+
+See package examples:
+https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
+
+Advanced Control
+
+If you need more control over the created requests, you can use an option to
+pass a custom HTTP client to NewClient:
+
+	c := mal.NewClient(
+		mal.HTTPClient(&http.Client{}),
+	)
+
+For example this http.Client will make sure to cancel any request that takes
+longer than 1 second:
 
 	httpcl := &http.Client{
 		Timeout: 1 * time.Second,
 	}
-	c := mal.NewClient(httpcl)
+	c := mal.NewClient(mal.HTTPClient(httpcl))
 	// ...
-
-See more examples: https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
 Unit Testing
 
