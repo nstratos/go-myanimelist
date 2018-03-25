@@ -75,17 +75,6 @@ func testMethod(t *testing.T, r *http.Request, want string) {
 	}
 }
 
-func testBody(t *testing.T, r *http.Request, want string) {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		t.Errorf("Unable to read body")
-	}
-	body := string(b)
-	if body != want {
-		t.Errorf("body = %v, want %v", body, want)
-	}
-}
-
 func testContentType(t *testing.T, r *http.Request, want string) {
 	ct := r.Header.Get("Content-Type")
 	if ct != want {
