@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: gofmt
-      run: "[ -z $(gofmt -s -l .) ]"
+      run: 'result=$(gofmt -s -l .) && [ -z "$result" ]'
       shell: bash
     - name: golint
       run: |
