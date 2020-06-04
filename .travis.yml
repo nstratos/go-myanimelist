@@ -2,8 +2,7 @@ language: go
 sudo: false
 
 go:
-  - 1.7.x
-  - 1.8.x
+  - 1.14.x
   - master
 
 matrix:
@@ -12,6 +11,7 @@ matrix:
   fast_finish: true
 
 before_install:
+  - go get golang.org/x/lint/golint
   - go get github.com/mattn/goveralls
 
 install:
@@ -20,7 +20,8 @@ install:
 script:
   - go get -t -v ./...
   - diff -u <(echo -n) <(gofmt -d -s .)
-  - go tool vet .
+  - golint `go list ./... | grep -v /vendor/`
+  - go vet ./...
   - go test -v -race ./...
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
+  - go test -covermode=count -coverprofile=coverage.out ./...
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
