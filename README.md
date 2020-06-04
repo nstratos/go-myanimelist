@@ -167,7 +167,6 @@ c := mal.NewClient(mal.HTTPClient(httpcl))
 
 To run all unit tests:
 
-	cd $GOPATH/src/github.com/nstratos/go-myanimelist/mal
 	go test -cover
 
 To see test coverage in your browser:
@@ -187,7 +186,6 @@ to be provided every time.
 
 To run the integration tests:
 
-	cd $GOPATH/src/github.com/nstratos/go-myanimelist/mal
 	go test -tags=integration -username '<test account username>' -password '<test account password>'
 
 ## License
