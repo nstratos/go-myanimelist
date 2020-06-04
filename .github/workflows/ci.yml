@@ -1,0 +1,33 @@
+on: [push, pull_request]
+name: CI
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.13.x, 1.14.x]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: gofmt
+      run: diff -u <(echo -n) <(gofmt -d -s .)
+    - name: golint
+      run: |
+        go get -u golang.org/x/lint/golint
+        golint `go list ./... | grep -v /vendor/`
+    - name: go vet
+      run: go vet ./...
+    - name: Run tests with the race detector
+      run: go test -v -race ./...
+    - name: Generate test coverage
+      run: go test -covermode=count -coverprofile=coverage.out ./...
+    - name: Upload test coverage to CodeCov
+        uses: codecov/codecov-action@v1.0.0
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: coverage.out
