@@ -23,10 +23,6 @@ var (
 	client *mal.Client
 )
 
-func init() {
-	flag.Parse()
-}
-
 func setup(t *testing.T) {
 	if *malPassword == "" {
 		t.Errorf("No password provided for user %q.", *malUsername)
