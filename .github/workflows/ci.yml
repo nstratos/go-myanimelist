@@ -27,7 +27,7 @@ jobs:
     - name: Generate test coverage
       run: go test -covermode=count -coverprofile=coverage.out ./...
     - name: Upload test coverage to CodeCov
-        uses: codecov/codecov-action@v1.0.0
+        uses: codecov/codecov-action@v1
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
+          token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.out
