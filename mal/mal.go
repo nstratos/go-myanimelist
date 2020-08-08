@@ -2,7 +2,8 @@ package mal
 
 import (
 	"bytes"
-	"encoding/xml"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,7 +14,7 @@ import (
 )
 
 // Status specifies a status for anime and manga entries.
-type Status int
+//type Status int
 
 // Anime and manga entries have a status such as completed, on hold and
 // dropped.
@@ -21,19 +22,19 @@ type Status int
 // Current is for entries marked as currently watching or reading.
 //
 // Planned is for entries marked as plan to watch or read.
-const (
-	Current   Status = 1
-	Completed        = 2
-	OnHold           = 3
-	Dropped          = 4
-	Planned          = 6
-)
+// const (
+// 	Current   Status = 1
+// 	Completed        = 2
+// 	OnHold           = 3
+// 	Dropped          = 4
+// 	Planned          = 6
+// )
 
 const (
-	defaultBaseURL             = "https://myanimelist.net/"
+	defaultBaseURL             = "https://api.myanimelist.net/v2/"
 	defaultListEndpoint        = "malappinfo.php"
 	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
-	defaultAnimeAddEndpoint    = "api/animelist/add/"
+	defaultAnimeAddEndpoint    = "anime/"
 	defaultAnimeUpdateEndpoint = "api/animelist/update/"
 	defaultAnimeDeleteEndpoint = "api/animelist/delete/"
 	defaultAnimeSearchEndpoint = "api/anime/search.xml"
@@ -86,8 +87,19 @@ func HTTPClient(httpClient *http.Client) func(*Client) {
 	}
 }
 
-// NewClient returns a new MyAnimeList API client.
-func NewClient(options ...func(*Client)) *Client {
+// NewClient returns a new MyAnimeList API client. The httpClient parameter
+// allows to specify the http.client that will be used for all API requests. If
+// a nil httpClient is provided, a new http.Client will be used.
+//
+// In the typical case, you will want to provide an http.Client that will
+// perform the authentication for you. Such a client is provided by the
+// golang.org/x/oauth2 package. Check out the example directory of the project
+// for a full authentication example.
+func NewClient(httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
+
 	baseURL, _ := url.Parse(defaultBaseURL)
 	listEndpoint, _ := url.Parse(defaultListEndpoint)
 	accountEndpoint, _ := url.Parse(defaultAccountEndpoint)
@@ -101,6 +113,7 @@ func NewClient(options ...func(*Client)) *Client {
 	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
 
 	c := &Client{
+		client:  httpClient,
 		BaseURL: baseURL,
 	}
 
@@ -127,16 +140,6 @@ func NewClient(options ...func(*Client)) *Client {
 		SearchEndpoint: mangaSearchEndpoint,
 	}
 
-	for _, option := range options {
-		if option != nil {
-			option(c)
-		}
-	}
-
-	if c.client == nil {
-		c.client = http.DefaultClient
-	}
-
 	return c
 }
 
@@ -160,86 +163,96 @@ type Response struct {
 // updating entries.
 //
 // MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
-func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+	if !strings.HasSuffix(c.BaseURL.Path, "/") {
+		return nil, fmt.Errorf("BaseURL must have a trailing slash, but %q does not", c.BaseURL)
+	}
+	u, err := c.BaseURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
 	}
 
-	u := c.BaseURL.ResolveReference(rel)
-
-	var body io.Reader
-	if data != nil {
-		d, merr := xml.Marshal(data)
-		if merr != nil {
-			return nil, merr
+	var buf io.ReadWriter
+	if body != nil {
+		buf = &bytes.Buffer{}
+		enc := json.NewEncoder(buf)
+		err := enc.Encode(body)
+		if err != nil {
+			return nil, err
 		}
-		v := url.Values{}
-		v.Set("data", string(d))
-		body = strings.NewReader(v.Encode())
 	}
 
-	req, err := http.NewRequest(method, u.String(), body)
+	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
 
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	return req, nil
-
 }
 
 // Do sends an API request and returns the API response. The API response is
 // XML decoded and stored in the value pointed to by v. If XML was unable to get
 // decoded, it will be returned in Response.Body along with the error so that
 // the caller can further inspect it if needed.
-func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
+func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	req = req.WithContext(ctx)
+
 	resp, err := c.client.Do(req)
 	if err != nil {
+		// If we got an error, and the context has been canceled, the context's
+		// error is probably more useful.
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	response, err := readResponse(resp)
-	if err != nil {
+	response := &Response{Response: resp}
+	if err := checkResponse(resp); err != nil {
 		return response, err
 	}
 
 	if v != nil {
-		b := response.Body
-		// enconding/xml cannot handle entity &bull;
-		b = bytes.Replace(b, []byte("&bull;"), []byte("<![CDATA[&bull;]]>"), -1)
-		err := xml.Unmarshal(b, v)
-		if err != nil {
-			return response, fmt.Errorf("cannot decode: %v", err)
+		if w, ok := v.(io.Writer); ok {
+			io.Copy(w, resp.Body)
+		} else {
+			decErr := json.NewDecoder(resp.Body).Decode(v)
+			// if decErr == io.EOF {
+			// 	decErr = nil // ignore EOF errors caused by empty response body
+			// }
+			if decErr != nil {
+				err = decErr
+			}
 		}
 	}
 
-	return response, nil
+	return response, err
 }
 
 // ErrNoContent is returned when a MyAnimeList API method returns error 204.
 var ErrNoContent = errors.New("no content")
 
-func readResponse(r *http.Response) (*Response, error) {
-	resp := &Response{Response: r}
+func checkResponse(r *http.Response) error {
+	if c := r.StatusCode; 200 <= c && c <= 299 {
+		return nil
+	}
+	//resp := &Response{Response: r}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return resp, fmt.Errorf("cannot read response body: %v", err)
-	}
-	resp.Body = data
-
-	if r.StatusCode == http.StatusNoContent {
-		return resp, ErrNoContent
+		return fmt.Errorf("cannot read error response body: %v", err)
 	}
 
-	if r.StatusCode < 200 || r.StatusCode > 299 {
-		return resp, fmt.Errorf("%v %v: %d %s",
-			r.Request.Method, r.Request.URL,
-			r.StatusCode, string(data))
-	}
-
-	return resp, nil
+	return fmt.Errorf("error response: %q", data)
 }
 
 // post sends a POST API request used by Add and Update.
@@ -253,8 +266,8 @@ func (c *Client) post(endpoint string, id int, entry interface{}, useAuth bool) 
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.Do(req, nil)
+	ctx := context.Background()
+	return c.Do(ctx, req, nil)
 }
 
 // delete sends a DELETE API request used by Delete.
@@ -266,8 +279,8 @@ func (c *Client) delete(endpoint string, id int, useAuth bool) (*Response, error
 	if useAuth {
 		req.SetBasicAuth(c.username, c.password)
 	}
-
-	return c.Do(req, nil)
+	ctx := context.Background()
+	return c.Do(ctx, req, nil)
 }
 
 // get sends a GET API request used by List and Search.
@@ -279,6 +292,6 @@ func (c *Client) get(url string, result interface{}, useAuth bool) (*Response, e
 	if useAuth {
 		req.SetBasicAuth(c.username, c.password)
 	}
-
-	return c.Do(req, result)
+	ctx := context.Background()
+	return c.Do(ctx, req, result)
 }

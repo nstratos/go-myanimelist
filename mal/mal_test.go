@@ -1,6 +1,7 @@
 package mal
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -33,7 +34,7 @@ func setup() {
 	server = httptest.NewServer(mux)
 
 	// mal client configured to use test server
-	client = NewClient(Auth("TestUser", "TestPass"))
+	client = NewClient(nil)
 	client.BaseURL, _ = url.Parse(server.URL)
 }
 
@@ -102,7 +103,7 @@ func testFormValue(t *testing.T, r *http.Request, value, want string) {
 }
 
 func TestNewClient(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 
 	// test default base URL
 	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
@@ -157,29 +158,29 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestNewClient_options(t *testing.T) {
-	httpClient := &http.Client{}
-	c := NewClient(
-		Auth("TestUser", "TestPass"),
-		HTTPClient(httpClient),
-	)
+// func TestNewClient_options(t *testing.T) {
+// 	httpClient := &http.Client{}
+// 	c := NewClient(
+// 		Auth("TestUser", "TestPass"),
+// 		HTTPClient(httpClient),
+// 	)
 
-	// test passing username and password as option
-	if got, want := c.username, "TestUser"; got != want {
-		t.Errorf("NewClient.username = %v, want %v", got, want)
-	}
-	if got, want := c.password, "TestPass"; got != want {
-		t.Errorf("NewClient.password = %v, want %v", got, want)
-	}
+// 	// test passing username and password as option
+// 	if got, want := c.username, "TestUser"; got != want {
+// 		t.Errorf("NewClient.username = %v, want %v", got, want)
+// 	}
+// 	if got, want := c.password, "TestPass"; got != want {
+// 		t.Errorf("NewClient.password = %v, want %v", got, want)
+// 	}
 
-	// test passing http client as option
-	if got, want := c.client, httpClient; got != want {
-		t.Errorf("NewClient.client = %p, want %p", got, want)
-	}
-}
+// 	// test passing http client as option
+// 	if got, want := c.client, httpClient; got != want {
+// 		t.Errorf("NewClient.client = %p, want %p", got, want)
+// 	}
+// }
 
 func TestClient_NewRequest(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 
 	inURL, outURL := "/foo", defaultBaseURL+"foo"
 
@@ -189,7 +190,10 @@ func TestClient_NewRequest(t *testing.T) {
 	urlEncData, _ := url.Parse(v.Encode())
 	outData := urlEncData.Path
 
-	req, _ := c.NewRequest("GET", inURL, inData)
+	req, err := c.NewRequest("GET", inURL, inData)
+	if err != nil {
+		t.Fatalf("NewRequest(%q) returned error: %v", inURL, err)
+	}
 
 	// test that the endpoint URL was correctly added to the base URL
 	if got, want := req.URL.String(), outURL; got != want {
@@ -207,7 +211,7 @@ func TestClient_NewRequest(t *testing.T) {
 }
 
 func TestClient_NewRequest_HTTPS(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 
 	req, err := c.NewRequest("GET", "/foo", nil)
 	if err != nil {
@@ -222,7 +226,7 @@ func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	s := strings.Split(runtime.Version(), ".")
 	// This test requires Go version 1.7 or higher.
 	if len(s) >= 2 && s[0] == "go1" && s[1] == "7" {
-		c := NewClient()
+		c := NewClient(nil)
 		_, err := c.NewRequest("invalid method", "/foo", nil)
 		if err == nil {
 			t.Error("NewRequest with invalid method expected to return err")
@@ -248,7 +252,8 @@ func TestClient_Do(t *testing.T) {
 	req, _ := client.NewRequest("GET", "/", nil)
 
 	body := new(foo)
-	response, err := client.Do(req, body)
+	ctx := context.Background()
+	response, err := client.Do(ctx, req, body)
 
 	want := &foo{"&bull; foobar"}
 	if !reflect.DeepEqual(body, want) {
@@ -282,7 +287,8 @@ func TestClient_Do_invalidXMLEntity(t *testing.T) {
 	req, _ := client.NewRequest("GET", "/", nil)
 
 	body := new(foo)
-	response, err := client.Do(req, body)
+	ctx := context.Background()
+	response, err := client.Do(ctx, req, body)
 
 	if err == nil {
 		t.Errorf("Do() receiving XML with invalid entity should return err.")
@@ -307,7 +313,8 @@ func TestClient_Do_notFound(t *testing.T) {
 
 	req, _ := client.NewRequest("GET", "/", nil)
 
-	response, err := client.Do(req, nil)
+	ctx := context.Background()
+	response, err := client.Do(ctx, req, nil)
 
 	if err == nil {
 		t.Error("Expected HTTP 404 error.")
@@ -325,36 +332,37 @@ func TestClient_Do_notFound(t *testing.T) {
 
 func TestClient_Do_connectionRefused(t *testing.T) {
 	req, _ := client.NewRequest("GET", "/", nil)
-	_, err := client.Do(req, nil)
+	ctx := context.Background()
+	_, err := client.Do(ctx, req, nil)
 	if err == nil {
 		t.Error("Expected connection refused error.")
 	}
 }
 
-func TestClient_post_invalidID(t *testing.T) {
-	setup()
-	defer teardown()
+// func TestClient_post_invalidID(t *testing.T) {
+// 	setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "POST")
-		testID(t, r, "0")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testContentType(t, r, "application/x-www-form-urlencoded")
-		// zeroEntry defined in anime_test.go
-		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
-		http.Error(w, "Invalid ID", http.StatusNotImplemented)
-	})
+// 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "POST")
+// 		testID(t, r, "0")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		testContentType(t, r, "application/x-www-form-urlencoded")
+// 		// zeroEntry defined in anime_test.go
+// 		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
+// 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
+// 	})
 
-	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold}, true)
+// 	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold}, true)
 
-	if err == nil {
-		t.Errorf("Anime.Update invalid ID should return err")
-	}
+// 	if err == nil {
+// 		t.Errorf("Anime.Update invalid ID should return err")
+// 	}
 
-	if response == nil {
-		t.Errorf("Anime.Update invalid ID should return also return response")
-	}
-}
+// 	if response == nil {
+// 		t.Errorf("Anime.Update invalid ID should return also return response")
+// 	}
+// }
 
 func TestClient_delete_invalidID(t *testing.T) {
 	setup()
@@ -379,7 +387,7 @@ func TestClient_delete_invalidID(t *testing.T) {
 }
 
 func TestClient_NewRequest_badEndpoint(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 	inURL := "%foo"
 	_, err := c.NewRequest("GET", inURL, nil)
 	if err == nil {
@@ -388,7 +396,7 @@ func TestClient_NewRequest_badEndpoint(t *testing.T) {
 }
 
 func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
-	c := NewClient()
+	c := NewClient(nil)
 	in := func() {} // xml.Marshal cannot encode a func
 	_, err := c.NewRequest("GET", "/foo", in)
 	if err == nil {

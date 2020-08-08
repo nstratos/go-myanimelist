@@ -1,9 +1,11 @@
 package mal
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"net/url"
+	"time"
 )
 
 // AnimeEntry represents the values that an anime will have on the list when
@@ -39,6 +41,150 @@ type AnimeService struct {
 	DeleteEndpoint *url.URL
 	SearchEndpoint *url.URL
 	ListEndpoint   *url.URL
+}
+
+type Anime struct {
+	ID                     int              `json:"id"`
+	Title                  string           `json:"title"`
+	MainPicture            Picture          `json:"main_picture"`
+	AlternativeTitles      Titles           `json:"alternative_titles"`
+	StartDate              string           `json:"start_date"`
+	EndDate                string           `json:"end_date"`
+	Synopsis               string           `json:"synopsis"`
+	Mean                   float64          `json:"mean"`
+	Rank                   int              `json:"rank"`
+	Popularity             int              `json:"popularity"`
+	NumListUsers           int              `json:"num_list_users"`
+	NumScoringUsers        int              `json:"num_scoring_users"`
+	NSFW                   string           `json:"nsfw"`
+	CreatedAt              time.Time        `json:"created_at"`
+	UpdatedAt              time.Time        `json:"updated_at"`
+	MediaType              string           `json:"media_type"`
+	Status                 string           `json:"status"`
+	Genres                 []Genre          `json:"genres"`
+	MyListStatus           MyListStatus     `json:"my_list_status"`
+	NumEpisodes            int              `json:"num_episodes"`
+	StartSeason            StartSeason      `json:"start_season"`
+	Broadcast              Broadcast        `json:"broadcast"`
+	Source                 string           `json:"source"`
+	AverageEpisodeDuration int              `json:"average_episode_duration"`
+	Rating                 string           `json:"rating"`
+	Pictures               []Picture        `json:"pictures"`
+	Background             string           `json:"background"`
+	RelatedAnime           []RelatedAnime   `json:"related_anime"`
+	RelatedManga           []interface{}    `json:"related_manga"`
+	Recommendations        []Recommendation `json:"recommendations"`
+	Studios                []Studio         `json:"studios"`
+	Statistics             Statistics       `json:"statistics"`
+}
+
+type Picture struct {
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
+}
+
+type Titles struct {
+	Synonyms []string `json:"synonyms"`
+	En       string   `json:"en"`
+	Ja       string   `json:"ja"`
+}
+
+type Genre struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type MyListStatus struct {
+	Status             string    `json:"status"`
+	Score              int       `json:"score"`
+	NumEpisodesWatched int       `json:"num_episodes_watched"`
+	IsRewatching       bool      `json:"is_rewatching"`
+	UpdatedAt          time.Time `json:"updated_at"`
+}
+
+type Studio struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type Status struct {
+	Watching    string `json:"watching"`
+	Completed   string `json:"completed"`
+	OnHold      string `json:"on_hold"`
+	Dropped     string `json:"dropped"`
+	PlanToWatch string `json:"plan_to_watch"`
+}
+
+type Statistics struct {
+	Status       Status `json:"status"`
+	NumListUsers int    `json:"num_list_users"`
+}
+
+type Recommendation struct {
+	Node               Node `json:"node"`
+	NumRecommendations int  `json:"num_recommendations"`
+}
+
+type Node struct {
+	ID          int     `json:"id"`
+	Title       string  `json:"title"`
+	MainPicture Picture `json:"main_picture"`
+}
+
+type RelatedAnime struct {
+	Node                  Node   `json:"node"`
+	RelationType          string `json:"relation_type"`
+	RelationTypeFormatted string `json:"relation_type_formatted"`
+}
+
+type StartSeason struct {
+	Year   int    `json:"year"`
+	Season string `json:"season"`
+}
+
+type Broadcast struct {
+	DayOfTheWeek string `json:"day_of_the_week"`
+	StartTime    string `json:"start_time"`
+}
+
+// Details returns details about an anime.
+func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response, error) {
+	var u string
+
+	u = fmt.Sprintf("anime/%d", id)
+
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(Anime)
+	resp, err := s.client.Do(ctx, req, a)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return a, resp, nil
+}
+
+// List2 returns an authenticated user's anime list.
+func (s *AnimeService) List2(ctx context.Context, query string) (*AnimeList, *Response, error) {
+	var u string
+
+	u = "anime"
+
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	list := new(AnimeList)
+	resp, err := s.client.Do(ctx, req, list)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return list, resp, nil
 }
 
 // Add allows an authenticated user to add an anime to their anime list.
@@ -112,7 +258,7 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 // AnimeList represents the anime list of a user.
 type AnimeList struct {
 	MyInfo AnimeMyInfo `xml:"myinfo"`
-	Anime  []Anime     `xml:"anime"`
+	Anime  []Anime2    `xml:"anime"`
 	Error  string      `xml:"error"`
 }
 
@@ -131,11 +277,11 @@ type AnimeMyInfo struct {
 	PlanToWatch       int    `xml:"user_plantowatch"`
 }
 
-// Anime represents a MyAnimeList anime. The data of the anime are stored in
+// Anime2 represents a MyAnimeList anime. The data of the anime are stored in
 // the fields starting with Series. User specific data are stored in the fields
 // starting with My. For example, the score the user has set for that anime is
 // stored in the MyScore field.
-type Anime struct {
+type Anime2 struct {
 	SeriesAnimeDBID   int    `xml:"series_animedb_id"`
 	SeriesEpisodes    int    `xml:"series_episodes"`
 	SeriesTitle       string `xml:"series_title"`

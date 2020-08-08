@@ -24,43 +24,43 @@ func TestMangaService_Delete(t *testing.T) {
 	}
 }
 
-func TestMangaService_Add(t *testing.T) {
-	setup()
-	defer teardown()
+// func TestMangaService_Add(t *testing.T) {
+// 	setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/mangalist/add/", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "POST")
-		testID(t, r, "55")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>1</status></entry>")
-		fmt.Fprintf(w, "Created")
-	})
+// 	mux.HandleFunc("/api/mangalist/add/", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "POST")
+// 		testID(t, r, "55")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		testContentType(t, r, "application/x-www-form-urlencoded")
+// 		testFormValue(t, r, "data", "<entry><status>1</status></entry>")
+// 		fmt.Fprintf(w, "Created")
+// 	})
 
-	_, err := client.Manga.Add(55, MangaEntry{Status: Current})
-	if err != nil {
-		t.Errorf("Manga.Add returned error %v", err)
-	}
-}
+// 	_, err := client.Manga.Add(55, MangaEntry{Status: Current})
+// 	if err != nil {
+// 		t.Errorf("Manga.Add returned error %v", err)
+// 	}
+// }
 
-func TestMangaService_Update(t *testing.T) {
-	setup()
-	defer teardown()
+// func TestMangaService_Update(t *testing.T) {
+// 	setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/mangalist/update/", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "POST")
-		testID(t, r, "55")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testContentType(t, r, "application/x-www-form-urlencoded")
-		testFormValue(t, r, "data", "<entry><status>3</status></entry>")
-		fmt.Fprintf(w, "Updated")
-	})
+// 	mux.HandleFunc("/api/mangalist/update/", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "POST")
+// 		testID(t, r, "55")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		testContentType(t, r, "application/x-www-form-urlencoded")
+// 		testFormValue(t, r, "data", "<entry><status>3</status></entry>")
+// 		fmt.Fprintf(w, "Updated")
+// 	})
 
-	_, err := client.Manga.Update(55, MangaEntry{Status: OnHold})
-	if err != nil {
-		t.Errorf("Manga.Update returned error %v", err)
-	}
-}
+// 	_, err := client.Manga.Update(55, MangaEntry{Status: OnHold})
+// 	if err != nil {
+// 		t.Errorf("Manga.Update returned error %v", err)
+// 	}
+// }
 
 func TestMangaService_Search(t *testing.T) {
 	setup()
@@ -124,57 +124,57 @@ func TestMangaService_Search_noContent(t *testing.T) {
 	}
 }
 
-func TestMangaService_List(t *testing.T) {
-	setup()
-	defer teardown()
+// func TestMangaService_List(t *testing.T) {
+// 	setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		testBasicAuth(t, r, false, "", "")
-		testURLValues(t, r, urlValues{
-			"status": "all",
-			"type":   "manga",
-			"u":      "AnotherTestUser",
-		})
-		fmt.Fprintf(w, `
-			<mymangalist>
-				<myinfo>
-					<user_id>56</user_id>
-					<user_name>AnotherTestUser</user_name>
-				</myinfo>
-				<manga>
-					<series_mangadb_id>1</series_mangadb_id>
-					<series_title>series title</series_title>
-					<my_id>1234</my_id>
-					<my_status>3</my_status>
-					<my_rereadingg>1</my_rereadingg>
-					<my_rereading_chap>2</my_rereading_chap>
-				</manga>
-			</mymangalist>
-			`)
-	})
+// 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "GET")
+// 		testBasicAuth(t, r, false, "", "")
+// 		testURLValues(t, r, urlValues{
+// 			"status": "all",
+// 			"type":   "manga",
+// 			"u":      "AnotherTestUser",
+// 		})
+// 		fmt.Fprintf(w, `
+// 			<mymangalist>
+// 				<myinfo>
+// 					<user_id>56</user_id>
+// 					<user_name>AnotherTestUser</user_name>
+// 				</myinfo>
+// 				<manga>
+// 					<series_mangadb_id>1</series_mangadb_id>
+// 					<series_title>series title</series_title>
+// 					<my_id>1234</my_id>
+// 					<my_status>3</my_status>
+// 					<my_rereadingg>1</my_rereadingg>
+// 					<my_rereading_chap>2</my_rereading_chap>
+// 				</manga>
+// 			</mymangalist>
+// 			`)
+// 	})
 
-	got, _, err := client.Manga.List("AnotherTestUser")
-	if err != nil {
-		t.Errorf("Manga.List returned error %v", err)
-	}
-	want := &MangaList{
-		MyInfo: MangaMyInfo{ID: 56, Name: "AnotherTestUser"},
-		Manga: []Manga{
-			{
-				SeriesMangaDBID: 1,
-				SeriesTitle:     "series title",
-				MyID:            1234,
-				MyStatus:        3,
-				MyRereading:     1,
-				MyRereadingChap: 2,
-			},
-		},
-	}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Manga.List \nhave: %#v\nwant: %#v", got, want)
-	}
-}
+// 	got, _, err := client.Manga.List("AnotherTestUser")
+// 	if err != nil {
+// 		t.Errorf("Manga.List returned error %v", err)
+// 	}
+// 	want := &MangaList{
+// 		MyInfo: MangaMyInfo{ID: 56, Name: "AnotherTestUser"},
+// 		Manga: []Manga{
+// 			{
+// 				SeriesMangaDBID: 1,
+// 				SeriesTitle:     "series title",
+// 				MyID:            1234,
+// 				MyStatus:        3,
+// 				MyRereading:     1,
+// 				MyRereadingChap: 2,
+// 			},
+// 		},
+// 	}
+// 	if !reflect.DeepEqual(got, want) {
+// 		t.Errorf("Manga.List \nhave: %#v\nwant: %#v", got, want)
+// 	}
+// }
 
 func TestMangaService_List_invalidUsername(t *testing.T) {
 	setup()
