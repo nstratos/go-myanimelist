@@ -33,6 +33,10 @@ const (
 	defaultClientSecret = ""
 )
 
+// Authorization Documentation:
+//
+// https://myanimelist.net/apiconfig/references/authorization
+
 func run() error {
 	var (
 		clientID     = flag.String("client-id", defaultClientID, "your application client ID")

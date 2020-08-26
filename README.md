@@ -1,6 +1,6 @@
 # go-myanimelist
 
-go-myanimelist is a Go client library for accessing the [MyAnimeList API](http://myanimelist.net/modules.php?go=api).
+go-myanimelist is a Go client library for accessing the [MyAnimeList API v2](https://myanimelist.net/apiconfig/references/api/v2).
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/nstratos/go-myanimelist/mal?status.svg)](https://godoc.org/github.com/nstratos/go-myanimelist/mal)
