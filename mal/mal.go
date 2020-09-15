@@ -152,6 +152,9 @@ func NewClient(httpClient *http.Client) *Client {
 type Response struct {
 	*http.Response
 	Body []byte
+
+	NextOffset int
+	PrevOffset int
 }
 
 // NewRequest creates an API request. A relative URL can be provided in urlStr,

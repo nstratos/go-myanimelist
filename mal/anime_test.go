@@ -1,6 +1,7 @@
 package mal
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -217,13 +218,14 @@ func TestAnimeService_List_invalidUsername(t *testing.T) {
 			`)
 	})
 
-	result, _, err := client.Anime.List("InvalidUser")
+	ctx := context.Background()
+	result, _, err := client.Anime.List(ctx, "InvalidUser")
 
 	if err == nil {
 		t.Errorf("Anime.List for invalid user expected to return err")
 	}
 
-	want := &AnimeList{Error: "Invalid username"}
+	want := &animeList{Error: "Invalid username"}
 	if !reflect.DeepEqual(want, result) {
 		t.Errorf("Anime.List for invalid user returned result = %v, want %v", result, want)
 	}
@@ -244,7 +246,8 @@ func TestAnimeService_List_httpError(t *testing.T) {
 		http.Error(w, "something broke", http.StatusInternalServerError)
 	})
 
-	result, _, err := client.Anime.List("TestUser")
+	ctx := context.Background()
+	result, _, err := client.Anime.List(ctx, "TestUser")
 
 	if err == nil {
 		t.Errorf("Anime.List for server error expected to return err")

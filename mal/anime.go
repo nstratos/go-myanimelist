@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -43,6 +46,7 @@ type AnimeService struct {
 	ListEndpoint   *url.URL
 }
 
+// Anime represents a MyAnimeList anime.
 type Anime struct {
 	ID                     int              `json:"id"`
 	Title                  string           `json:"title"`
@@ -153,7 +157,7 @@ func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response
 
 	u = fmt.Sprintf("anime/%d", id)
 
-	req, err := s.client.NewRequest("GET", u, nil)
+	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,24 +171,77 @@ func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response
 	return a, resp, nil
 }
 
-// List2 returns an authenticated user's anime list.
-func (s *AnimeService) List2(ctx context.Context, query string) (*AnimeList, *Response, error) {
-	var u string
+// AnimeList represents the anime list of a user.
+type animeList struct {
+	Data []struct {
+		Anime Anime `json:"node"`
+	}
+	Paging Paging `json:"paging"`
+}
 
-	u = "anime"
+type Paging struct {
+	Next     string `json:"next"`
+	Previous string `json:"previous"`
+}
 
-	req, err := s.client.NewRequest("GET", u, nil)
+// List allows an authenticated user to receive the anime list of a user.
+func (s *AnimeService) List(ctx context.Context, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, "anime", nil)
 	if err != nil {
 		return nil, nil, err
 	}
+	q := req.URL.Query()
+	q.Set("q", query)
+	if limit != 0 {
+		q.Set("limit", strconv.Itoa(limit))
+	}
+	if offset != 0 {
+		q.Set("offset", strconv.Itoa(offset))
+	}
+	if len(fields) != 0 {
+		q.Set("fields", strings.Join(fields, ","))
 
-	list := new(AnimeList)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	list := new(animeList)
 	resp, err := s.client.Do(ctx, req, list)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	return list, resp, nil
+	if list.Paging.Previous != "" {
+		offset, err := parseOffset(list.Paging.Previous)
+		if err != nil {
+			return nil, resp, fmt.Errorf("previous: %s", err)
+		}
+		resp.PrevOffset = offset
+	}
+	if list.Paging.Next != "" {
+		offset, err := parseOffset(list.Paging.Next)
+		if err != nil {
+			return nil, resp, fmt.Errorf("next: %s", err)
+		}
+		resp.NextOffset = offset
+	}
+	anime := []Anime{}
+	for _, d := range list.Data {
+		anime = append(anime, d.Anime)
+	}
+
+	return anime, resp, nil
+}
+
+func parseOffset(urlStr string) (int, error) {
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return 0, fmt.Errorf("parsing URL %q: %s", urlStr, err)
+	}
+	offset, err := strconv.Atoi(u.Query().Get("offset"))
+	if err != nil {
+		return 0, fmt.Errorf("parsing offset: %s", err)
+	}
+	return offset, nil
 }
 
 // Add allows an authenticated user to add an anime to their anime list.
@@ -255,13 +312,6 @@ func (s *AnimeService) Search(query string) (*AnimeResult, *Response, error) {
 	return result, resp, nil
 }
 
-// AnimeList represents the anime list of a user.
-type AnimeList struct {
-	MyInfo AnimeMyInfo `xml:"myinfo"`
-	Anime  []Anime2    `xml:"anime"`
-	Error  string      `xml:"error"`
-}
-
 // AnimeMyInfo represents the user's info which contains stats about the anime
 // that exist in their anime list. For example how many anime they have
 // completed, how many anime they are currently watching etc. It is returned as
@@ -301,26 +351,4 @@ type Anime2 struct {
 	MyLastUpdated     string `xml:"my_last_updated"`
 	MyTags            string `xml:"my_tags"`
 	MyWatchedEpisodes int    `xml:"my_watched_episodes"`
-}
-
-// List allows an authenticated user to receive the anime list of a user.
-func (s *AnimeService) List(username string) (*AnimeList, *Response, error) {
-
-	v := s.ListEndpoint.Query()
-	v.Set("status", "all")
-	v.Set("type", "anime")
-	v.Set("u", username)
-	s.ListEndpoint.RawQuery = v.Encode()
-
-	list := new(AnimeList)
-	resp, err := s.client.get(s.ListEndpoint.String(), list, false)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	if list.Error != "" {
-		return list, resp, fmt.Errorf("%v", list.Error)
-	}
-
-	return list, resp, nil
 }

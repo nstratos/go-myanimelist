@@ -62,11 +62,23 @@ func run() error {
 	}
 
 	c := mal.NewClient(tokenClient)
-	anime, _, err := c.Anime.Details(ctx, 30230)
-	if err != nil {
-		return err
+	offset := 0
+	count := 0
+	for {
+		anime, resp, err := c.Anime.List(ctx, "naruto", 100, offset)
+		if err != nil {
+			return err
+		}
+		for _, a := range anime {
+			count++
+			fmt.Printf("%5d %v\n", count, a.Title)
+		}
+		fmt.Printf("Next offset: %d\n", resp.NextOffset)
+		offset = resp.NextOffset
+		if offset == 0 {
+			break
+		}
 	}
-	fmt.Printf("%#v\n", anime)
 
 	return nil
 }
@@ -106,14 +118,15 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 
 	// Produce the authentication URL where the user needs to be redirected and
 	// allow your application to access their MyAnimeList data.
-	url := conf.AuthCodeURL(state,
+	authURL := conf.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", codeVerifier),
 	)
-	err = openBrowser(url)
+	err = openBrowser(authURL)
 	if err != nil {
-		fmt.Printf("Could not open browser. Visit this URL to authenticate: %v'n", url)
+		fmt.Println("Could not open browser.")
 	}
 
+	fmt.Printf("Your browser should open: %v\n", authURL)
 	fmt.Print("After authenticating, copy the code from the browser URL and paste it here: ")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
