@@ -206,6 +206,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 	}
 	req = req.WithContext(ctx)
 
+	dumpRequest(req)
 	resp, err := c.client.Do(req)
 	if err != nil {
 		// If we got an error, and the context has been canceled, the context's
@@ -218,6 +219,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 		return nil, err
 	}
 	defer resp.Body.Close()
+	dumpResponse(resp)
 
 	response := &Response{Response: resp}
 	if err := checkResponse(resp); err != nil {
