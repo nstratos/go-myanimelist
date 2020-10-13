@@ -82,22 +82,26 @@ type Anime struct {
 	Statistics             Statistics       `json:"statistics"`
 }
 
+// Picture is a representative picture from the show.
 type Picture struct {
 	Medium string `json:"medium"`
 	Large  string `json:"large"`
 }
 
+// Titles of the anime in English and Japanese.
 type Titles struct {
 	Synonyms []string `json:"synonyms"`
 	En       string   `json:"en"`
 	Ja       string   `json:"ja"`
 }
 
+// The Genre of the anime.
 type Genre struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
+// MyListStatus is the user's list status.
 type MyListStatus struct {
 	Status             string    `json:"status"`
 	Score              int       `json:"score"`
@@ -106,11 +110,13 @@ type MyListStatus struct {
 	UpdatedAt          time.Time `json:"updated_at"`
 }
 
+// The Studio that created the anime.
 type Studio struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
+// Status of the anime.
 type Status struct {
 	Watching    string `json:"watching"`
 	Completed   string `json:"completed"`
@@ -119,33 +125,32 @@ type Status struct {
 	PlanToWatch string `json:"plan_to_watch"`
 }
 
+// Statistics about the anime.
 type Statistics struct {
 	Status       Status `json:"status"`
 	NumListUsers int    `json:"num_list_users"`
 }
 
+// Recommendation is a recommended anime.
 type Recommendation struct {
-	Node               Node `json:"node"`
-	NumRecommendations int  `json:"num_recommendations"`
+	Node               Anime `json:"node"`
+	NumRecommendations int   `json:"num_recommendations"`
 }
 
-type Node struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	MainPicture Picture `json:"main_picture"`
-}
-
+// RelatedAnime contains a related anime.
 type RelatedAnime struct {
-	Node                  Node   `json:"node"`
+	Node                  Anime  `json:"node"`
 	RelationType          string `json:"relation_type"`
 	RelationTypeFormatted string `json:"relation_type_formatted"`
 }
 
+// StartSeason is the season an anime starts.
 type StartSeason struct {
 	Year   int    `json:"year"`
 	Season string `json:"season"`
 }
 
+// Broadcast is the day and time that the show broadcasts.
 type Broadcast struct {
 	DayOfTheWeek string `json:"day_of_the_week"`
 	StartTime    string `json:"start_time"`
@@ -171,7 +176,7 @@ func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response
 	return a, resp, nil
 }
 
-// AnimeList represents the anime list of a user.
+// animeList represents the anime list of a user.
 type animeList struct {
 	Data []struct {
 		Anime Anime `json:"node"`
@@ -179,6 +184,8 @@ type animeList struct {
 	Paging Paging `json:"paging"`
 }
 
+// Paging provides access to the next and previous page URLs when there are
+// pages of results.
 type Paging struct {
 	Next     string `json:"next"`
 	Previous string `json:"previous"`
