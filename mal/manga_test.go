@@ -8,7 +8,7 @@ import (
 )
 
 func TestMangaService_Delete(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func TestMangaService_Delete(t *testing.T) {
 // }
 
 func TestMangaService_Search(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +99,7 @@ func TestMangaService_Search(t *testing.T) {
 }
 
 func TestMangaService_Search_noContent(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
@@ -177,7 +177,7 @@ func TestMangaService_Search_noContent(t *testing.T) {
 // }
 
 func TestMangaService_List_invalidUsername(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
@@ -208,7 +208,7 @@ func TestMangaService_List_invalidUsername(t *testing.T) {
 }
 
 func TestMangaService_List_httpError(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {

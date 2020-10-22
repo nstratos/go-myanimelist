@@ -13,34 +13,23 @@ import (
 	"testing"
 )
 
-var (
-	// client is the MyAnimeList client being tested.
-	client *Client
-
-	// server is a test HTTP server used to provide mock API responses.
-	server *httptest.Server
-
-	// mux is the HTTP request multiplexer that the test HTTP server will use
-	// to mock API responses.
-	mux *http.ServeMux
-)
-
 // setup sets up a test HTTP server along with a mal.Client that is
 // configured to talk to that test server. Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
-func setup() {
-	// test server
+func setup() (client *Client, mux *http.ServeMux, teardown func()) {
+	// mux is the HTTP request multiplexer that the test HTTP server will use
+	// to mock API responses.
 	mux = http.NewServeMux()
-	server = httptest.NewServer(mux)
 
-	// mal client configured to use test server
+	// server is a test HTTP server used to provide mock API responses.
+	server := httptest.NewServer(mux)
+
+	// client is the MyAnimeList client being tested and is configured to use
+	// test server.
 	client = NewClient(nil)
-	client.BaseURL, _ = url.Parse(server.URL)
-}
+	client.BaseURL, _ = url.Parse(server.URL + "/")
 
-// teardown closes the test HTTP server.
-func teardown() {
-	server.Close()
+	return client, mux, server.Close
 }
 
 type urlValues map[string]string
@@ -179,35 +168,27 @@ func TestNewClient(t *testing.T) {
 // 	}
 // }
 
-func TestClient_NewRequest(t *testing.T) {
+func TestNewRequest(t *testing.T) {
 	c := NewClient(nil)
 
-	inURL, outURL := "/foo", defaultBaseURL+"foo"
+	inURL, outURL := "foo", defaultBaseURL+"foo"
+	inBody, outBody := &struct{ ID int }{ID: 1}, `{"ID":1}`+"\n"
 
-	inData := &User{ID: 5, Username: "TestUser"}
-	v := url.Values{}
-	v.Set("data", "<user><id>5</id><username>TestUser</username></user>")
-	urlEncData, _ := url.Parse(v.Encode())
-	outData := urlEncData.Path
-
-	req, err := c.NewRequest("GET", inURL, inData)
+	req, err := c.NewRequest("GET", inURL, inBody)
 	if err != nil {
 		t.Fatalf("NewRequest(%q) returned error: %v", inURL, err)
 	}
 
 	// test that the endpoint URL was correctly added to the base URL
 	if got, want := req.URL.String(), outURL; got != want {
-		t.Errorf("NewRequest(%q) URL =  %v, want %v", inURL, got, want)
+		t.Errorf("NewRequest(%q) URL = %v, want %v", inURL, got, want)
 	}
 
-	// test that body was encoded to XML and then URL enconded as data=...
+	// test that body was JSON encoded
 	body, _ := ioutil.ReadAll(req.Body)
-	urlEncBody, _ := url.Parse(string(body)) // url.Path holds the URL decoded string
-	if got, want := urlEncBody.Path, outData; got != want {
-		t.Errorf("NewRequest(%+v) Body = '%v', want '%v'", inData, got, want)
+	if got, want := string(body), outBody; got != want {
+		t.Errorf("NewRequest(%#v) Body \nhave: %q\nwant: %q", inBody, got, want)
 	}
-
-	testBasicAuth(t, req, false, "", "")
 }
 
 func TestClient_NewRequest_HTTPS(t *testing.T) {
@@ -235,7 +216,7 @@ func TestClient_NewRequest_invalidMethod(t *testing.T) {
 }
 
 func TestClient_Do(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	type foo struct {
@@ -270,7 +251,7 @@ func TestClient_Do(t *testing.T) {
 }
 
 func TestClient_Do_invalidXMLEntity(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	type foo struct {
@@ -304,7 +285,7 @@ func TestClient_Do_invalidXMLEntity(t *testing.T) {
 }
 
 func TestClient_Do_notFound(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -331,6 +312,9 @@ func TestClient_Do_notFound(t *testing.T) {
 }
 
 func TestClient_Do_connectionRefused(t *testing.T) {
+	client, _, teardown := setup()
+	teardown()
+
 	req, _ := client.NewRequest("GET", "/", nil)
 	ctx := context.Background()
 	_, err := client.Do(ctx, req, nil)
@@ -365,7 +349,7 @@ func TestClient_Do_connectionRefused(t *testing.T) {
 // }
 
 func TestClient_delete_invalidID(t *testing.T) {
-	setup()
+	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
