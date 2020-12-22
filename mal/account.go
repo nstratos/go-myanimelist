@@ -1,17 +1,13 @@
 package mal
 
-import (
-	"net/url"
-)
-
 // AccountService handles communication with the account methods of the
 // MyAnimeList API.
 //
 // MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
-type AccountService struct {
-	client   *Client
-	Endpoint *url.URL
-}
+// type AccountService struct {
+// 	client   *Client
+// 	Endpoint *url.URL
+// }
 
 // User represents a MyAnimeList user. It is returned as a success to Verify.
 // type User struct {

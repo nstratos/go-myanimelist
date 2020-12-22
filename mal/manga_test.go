@@ -1,10 +1,5 @@
 package mal
 
-import (
-	"net/http"
-	"testing"
-)
-
 // func TestMangaService_Delete(t *testing.T) {
 // 	client, mux, teardown := setup()
 // 	defer teardown()
@@ -205,28 +200,28 @@ import (
 // 	}
 // }
 
-func TestMangaService_List_httpError(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestMangaService_List_httpError(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		testBasicAuth(t, r, false, "", "")
-		testURLValues(t, r, urlValues{
-			"status": "all",
-			"type":   "manga",
-			"u":      "TestUser",
-		})
-		http.Error(w, "something broke", http.StatusInternalServerError)
-	})
+// 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "GET")
+// 		testBasicAuth(t, r, false, "", "")
+// 		testURLValues(t, r, urlValues{
+// 			"status": "all",
+// 			"type":   "manga",
+// 			"u":      "TestUser",
+// 		})
+// 		http.Error(w, "something broke", http.StatusInternalServerError)
+// 	})
 
-	result, _, err := client.Manga.List("TestUser")
+// 	result, _, err := client.Manga.List("TestUser")
 
-	if err == nil {
-		t.Errorf("Manga.List for server error expected to return err")
-	}
+// 	if err == nil {
+// 		t.Errorf("Manga.List for server error expected to return err")
+// 	}
 
-	if got := result; got != nil {
-		t.Errorf("Manga.List for server error returned result = %v, want %v", got, nil)
-	}
-}
+// 	if got := result; got != nil {
+// 		t.Errorf("Manga.List for server error returned result = %v, want %v", got, nil)
+// 	}
+// }

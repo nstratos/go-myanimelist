@@ -31,60 +31,19 @@ import (
 // )
 
 const (
-	defaultBaseURL             = "https://api.myanimelist.net/v2/"
-	defaultListEndpoint        = "malappinfo.php"
-	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
-	defaultAnimeAddEndpoint    = "anime/"
-	defaultAnimeUpdateEndpoint = "api/animelist/update/"
-	defaultAnimeDeleteEndpoint = "api/animelist/delete/"
-	defaultAnimeSearchEndpoint = "api/anime/search.xml"
-	defaultMangaAddEndpoint    = "api/mangalist/add/"
-	defaultMangaUpdateEndpoint = "api/mangalist/update/"
-	defaultMangaDeleteEndpoint = "api/mangalist/delete/"
-	defaultMangaSearchEndpoint = "api/manga/search.xml"
+	defaultBaseURL = "https://api.myanimelist.net/v2/"
 )
 
 // Client manages communication with the MyAnimeList API.
 type Client struct {
 	client *http.Client
 
-	username string
-	password string
-
 	// Base URL for MyAnimeList API requests.
 	BaseURL *url.URL
 
-	Account *AccountService
-	Anime   *AnimeService
-	Manga   *MangaService
-}
-
-// Auth is an option that can be passed to NewClient. It allows to specify the
-// username and password to be used for authenticating with the MyAnimeList
-// API. When this option is used, the client will use basic authentication on
-// the requests than need them.
-//
-// Most API methods require authentication so it is typical to pass this option
-// when creating a new client.
-func Auth(username, password string) func(*Client) {
-	return func(c *Client) {
-		c.username = username
-		c.password = password
-	}
-}
-
-// HTTPClient is an option that can be passed to NewClient. It allows to
-// specify the HTTP client that will be used to create the requests. If this
-// option is not set, a default HTTP client (http.DefaultClient) will be used
-// which is usually sufficient.
-//
-// This option can be set for less trivial cases, when more control over the
-// created HTTP requests is required. One such example is providing a timeout
-// to cancel requests that exceed it.
-func HTTPClient(httpClient *http.Client) func(*Client) {
-	return func(c *Client) {
-		c.client = httpClient
-	}
+	Anime *AnimeService
+	Manga *MangaService
+	User  *UserService
 }
 
 // NewClient returns a new MyAnimeList API client. The httpClient parameter
@@ -101,44 +60,15 @@ func NewClient(httpClient *http.Client) *Client {
 	}
 
 	baseURL, _ := url.Parse(defaultBaseURL)
-	listEndpoint, _ := url.Parse(defaultListEndpoint)
-	accountEndpoint, _ := url.Parse(defaultAccountEndpoint)
-	animeAddEndpoint, _ := url.Parse(defaultAnimeAddEndpoint)
-	animeUpdateEndpoint, _ := url.Parse(defaultAnimeUpdateEndpoint)
-	animeDeleteEndpoint, _ := url.Parse(defaultAnimeDeleteEndpoint)
-	animeSearchEndpoint, _ := url.Parse(defaultAnimeSearchEndpoint)
-	mangaAddEndpoint, _ := url.Parse(defaultMangaAddEndpoint)
-	mangaUpdateEndpoint, _ := url.Parse(defaultMangaUpdateEndpoint)
-	mangaDeleteEndpoint, _ := url.Parse(defaultMangaDeleteEndpoint)
-	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
 
 	c := &Client{
 		client:  httpClient,
 		BaseURL: baseURL,
 	}
 
-	c.Account = &AccountService{
-		client:   c,
-		Endpoint: accountEndpoint,
-	}
-
-	c.Anime = &AnimeService{
-		client:         c,
-		ListEndpoint:   listEndpoint,
-		AddEndpoint:    animeAddEndpoint,
-		UpdateEndpoint: animeUpdateEndpoint,
-		DeleteEndpoint: animeDeleteEndpoint,
-		SearchEndpoint: animeSearchEndpoint,
-	}
-
-	c.Manga = &MangaService{
-		client:         c,
-		ListEndpoint:   listEndpoint,
-		AddEndpoint:    mangaAddEndpoint,
-		UpdateEndpoint: mangaUpdateEndpoint,
-		DeleteEndpoint: mangaDeleteEndpoint,
-		SearchEndpoint: mangaSearchEndpoint,
-	}
+	c.User = &UserService{client: c}
+	c.Anime = &AnimeService{client: c}
+	c.Manga = &MangaService{client: c}
 
 	return c
 }
@@ -264,13 +194,10 @@ func checkResponse(r *http.Response) error {
 }
 
 // post sends a POST API request used by Add and Update.
-func (c *Client) post(endpoint string, id int, entry interface{}, useAuth bool) (*Response, error) {
+func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, error) {
 	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
 	if err != nil {
 		return nil, err
-	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -279,27 +206,23 @@ func (c *Client) post(endpoint string, id int, entry interface{}, useAuth bool) 
 }
 
 // delete sends a DELETE API request used by Delete.
-func (c *Client) delete(endpoint string, id int, useAuth bool) (*Response, error) {
+func (c *Client) delete(endpoint string, id int) (*Response, error) {
 	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
 	if err != nil {
 		return nil, err
 	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
-	}
+
 	ctx := context.Background()
 	return c.Do(ctx, req, nil)
 }
 
 // get sends a GET API request used by List and Search.
-func (c *Client) get(url string, result interface{}, useAuth bool) (*Response, error) {
+func (c *Client) get(url string, result interface{}) (*Response, error) {
 	req, err := c.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
-	}
+
 	ctx := context.Background()
 	return c.Do(ctx, req, result)
 }

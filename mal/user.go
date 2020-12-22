@@ -1,12 +1,28 @@
 package mal
 
-import "time"
+import (
+	"context"
+	"net/http"
+	"time"
+)
+
+// UserService handles communication with the user related methods of the
+// MyAnimeList API:
+//
+// https://myanimelist.net/apiconfig/references/api/v2#tag/user
+// https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_animelist_get
+// https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_mangalist_get
+type UserService struct {
+	client *Client
+}
 
 // User represents a MyAnimeList user.
 type User struct {
-	ID              int             `json:"id,omitempty"`
+	ID              int64           `json:"id,omitempty"`
 	Name            string          `json:"name,omitempty"`
+	Gender          string          `json:"gender,omitempty"`
 	Location        string          `json:"location,omitempty"`
+	Picture         string          `json:"picture,omitempty"`
 	JoinedAt        time.Time       `json:"joined_at,omitempty"`
 	AnimeStatistics AnimeStatistics `json:"anime_statistics,omitempty"`
 }

@@ -100,53 +100,6 @@ func TestNewClient(t *testing.T) {
 	if got, want := c.BaseURL.String(), defaultBaseURL; got != want {
 		t.Errorf("NewClient.BaseURL = %v, want %v", got, want)
 	}
-
-	// test account default endpoint
-	if got, want := c.Account.Endpoint.String(), defaultAccountEndpoint; got != want {
-		t.Errorf("NewClient.Account.Endpoint = %v, want %v", got, want)
-	}
-
-	// test anime default endpoints
-	if got, want := c.Anime.AddEndpoint.String(), defaultAnimeAddEndpoint; got != want {
-		t.Errorf("NewClient.Anime.Addpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Anime.UpdateEndpoint.String(), defaultAnimeUpdateEndpoint; got != want {
-		t.Errorf("NewClient.Anime.UpdateEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Anime.DeleteEndpoint.String(), defaultAnimeDeleteEndpoint; got != want {
-		t.Errorf("NewClient.Anime.DeleteEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Anime.SearchEndpoint.String(), defaultAnimeSearchEndpoint; got != want {
-		t.Errorf("NewClient.Anime.SearchEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Anime.ListEndpoint.String(), defaultListEndpoint; got != want {
-		t.Errorf("NewClient.Anime.ListEndpoint = %v, want %v", got, want)
-	}
-
-	// test manga default endpoints
-	if got, want := c.Manga.AddEndpoint.String(), defaultMangaAddEndpoint; got != want {
-		t.Errorf("NewClient.Manga.Addpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Manga.UpdateEndpoint.String(), defaultMangaUpdateEndpoint; got != want {
-		t.Errorf("NewClient.Manga.UpdateEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Manga.DeleteEndpoint.String(), defaultMangaDeleteEndpoint; got != want {
-		t.Errorf("NewClient.Manga.DeleteEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Manga.SearchEndpoint.String(), defaultMangaSearchEndpoint; got != want {
-		t.Errorf("NewClient.Manga.SearchEndpoint = %v, want %v", got, want)
-	}
-	if got, want := c.Manga.ListEndpoint.String(), defaultListEndpoint; got != want {
-		t.Errorf("NewClient.Manga.ListEndpoint = %v, want %v", got, want)
-	}
-
-	// test default username and password
-	if got, want := c.username, ""; got != want {
-		t.Errorf("NewClient.username = %v, want %v", got, want)
-	}
-	if got, want := c.password, ""; got != want {
-		t.Errorf("NewClient.password = %v, want %v", got, want)
-	}
 }
 
 // func TestNewClient_options(t *testing.T) {

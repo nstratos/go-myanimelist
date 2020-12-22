@@ -2,7 +2,6 @@ package mal
 
 import (
 	"encoding/xml"
-	"fmt"
 	"net/url"
 )
 
@@ -44,19 +43,19 @@ type MangaService struct {
 // Add allows an authenticated user to add a manga to their manga list.
 func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
 
-	return s.client.post(s.AddEndpoint.String(), mangaID, entry, true)
+	return s.client.post(s.AddEndpoint.String(), mangaID, entry)
 }
 
 // Update allows an authenticated user to update an manga on their manga list.
 func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
 
-	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry, true)
+	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry)
 }
 
 // Delete allows an authenticated user to delete an manga from their manga list.
 func (s *MangaService) Delete(mangaID int) (*Response, error) {
 
-	return s.client.delete(s.DeleteEndpoint.String(), mangaID, true)
+	return s.client.delete(s.DeleteEndpoint.String(), mangaID)
 }
 
 // MangaResult represents the result of an manga search.
@@ -90,7 +89,7 @@ func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 	s.SearchEndpoint.RawQuery = v.Encode()
 
 	result := new(MangaResult)
-	resp, err := s.client.get(s.SearchEndpoint.String(), result, true)
+	resp, err := s.client.get(s.SearchEndpoint.String(), result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -148,23 +147,23 @@ type Manga struct {
 }
 
 // List allows an authenticated user to receive the manga list of a user.
-func (s *MangaService) List(username string) (*MangaList, *Response, error) {
+// func (s *MangaService) List(username string) (*MangaList, *Response, error) {
 
-	v := s.ListEndpoint.Query()
-	v.Set("status", "all")
-	v.Set("type", "manga")
-	v.Set("u", username)
-	s.ListEndpoint.RawQuery = v.Encode()
+// 	v := s.ListEndpoint.Query()
+// 	v.Set("status", "all")
+// 	v.Set("type", "manga")
+// 	v.Set("u", username)
+// 	s.ListEndpoint.RawQuery = v.Encode()
 
-	list := new(MangaList)
-	resp, err := s.client.get(s.ListEndpoint.String(), list, false)
-	if err != nil {
-		return nil, resp, err
-	}
+// 	list := new(MangaList)
+// 	resp, err := s.client.get(s.ListEndpoint.String(), list)
+// 	if err != nil {
+// 		return nil, resp, err
+// 	}
 
-	if list.Error != "" {
-		return list, resp, fmt.Errorf("%v", list.Error)
-	}
+// 	if list.Error != "" {
+// 		return list, resp, fmt.Errorf("%v", list.Error)
+// 	}
 
-	return list, resp, nil
-}
+// 	return list, resp, nil
+// }

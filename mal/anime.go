@@ -10,17 +10,13 @@ import (
 	"time"
 )
 
-// AnimeService handles communication with the Anime List methods of the
-// MyAnimeList API.
+// AnimeService handles communication with the anime related methods of the
+// MyAnimeList API:
 //
-// MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
+// https://myanimelist.net/apiconfig/references/api/v2#tag/anime
+// https://myanimelist.net/apiconfig/references/api/v2#tag/user-animelist
 type AnimeService struct {
-	client         *Client
-	AddEndpoint    *url.URL
-	UpdateEndpoint *url.URL
-	DeleteEndpoint *url.URL
-	SearchEndpoint *url.URL
-	ListEndpoint   *url.URL
+	client *Client
 }
 
 // Anime represents a MyAnimeList anime.
