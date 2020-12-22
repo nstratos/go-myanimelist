@@ -2,7 +2,6 @@ package mal
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -100,11 +99,5 @@ func TestUserService_MyInfo_httpError(t *testing.T) {
 	if err == nil {
 		t.Fatal("User.MyInfo expected not found error, got no error.")
 	}
-	errResp := &ErrorResponse{}
-	if !errors.As(err, &errResp) {
-		t.Fatalf("User.MyInfo err is type %T, want type *ErrorResponse.", err)
-	}
-	if got, want := errResp.Err, "not_found"; got != want {
-		t.Errorf("User.MyInfo ErrorResponse.Err = %q, want %q", got, want)
-	}
+	testErrorResponse(t, err, ErrorResponse{Err: "not_found"})
 }

@@ -46,7 +46,7 @@ type AnimeStatistics struct {
 	MeanScore           float64 `json:"mean_score,omitempty"`
 }
 
-// MyInfo returns information about the authorized user.
+// MyInfo returns information about the authenticated user.
 func (s *UserService) MyInfo(ctx context.Context) (*User, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "users/@me", nil)
 	if err != nil {

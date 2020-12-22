@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -71,6 +72,20 @@ func testContentType(t *testing.T, r *http.Request, want string) {
 	ct := r.Header.Get("Content-Type")
 	if ct != want {
 		t.Errorf("Content-Type = %v, want %v", ct, want)
+	}
+}
+
+func testErrorResponse(t *testing.T, err error, want ErrorResponse) {
+	t.Helper()
+	errResp := &ErrorResponse{}
+	if !errors.As(err, &errResp) {
+		t.Fatalf("err is type %T, want type *ErrorResponse.", err)
+	}
+	if got, want := errResp.Message, want.Message; got != want {
+		t.Errorf("ErrorResponse.Message = %q, want %q", got, want)
+	}
+	if got, want := errResp.Err, want.Err; got != want {
+		t.Errorf("ErrorResponse.Err = %q, want %q", got, want)
 	}
 }
 

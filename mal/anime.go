@@ -131,10 +131,7 @@ type Broadcast struct {
 
 // Details returns details about an anime.
 func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response, error) {
-	var u string
-
-	u = fmt.Sprintf("anime/%d", id)
-
+	u := fmt.Sprintf("anime/%d", id)
 	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, nil, err
@@ -164,7 +161,7 @@ type Paging struct {
 	Previous string `json:"previous"`
 }
 
-// List allows an authenticated user to receive the anime list of a user.
+// List allows an authenticated user to receive their anime list.
 func (s *AnimeService) List(ctx context.Context, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "anime", nil)
 	if err != nil {

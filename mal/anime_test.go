@@ -28,6 +28,23 @@ func TestAnimeService_Details(t *testing.T) {
 	}
 }
 
+func TestAnimeService_Details_httpError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/anime/1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		http.Error(w, `{"message":"anime deleted","error":"not_found"}`, 404)
+	})
+
+	ctx := context.Background()
+	_, _, err := client.Anime.Details(ctx, 1)
+	if err == nil {
+		t.Fatal("Anime.Details expected not found error, got no error.")
+	}
+	testErrorResponse(t, err, ErrorResponse{Message: "anime deleted", Err: "not_found"})
+}
+
 // func TestAnimeService_Add(t *testing.T) {
 // 	setup()
 // 	defer teardown()
