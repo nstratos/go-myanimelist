@@ -176,21 +176,34 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 	return response, err
 }
 
-// ErrNoContent is returned when a MyAnimeList API method returns error 204.
-var ErrNoContent = errors.New("no content")
+// An ErrorResponse reports an error caused by an API request.
+//
+// https://myanimelist.net/apiconfig/references/api/v2#section/Common-formats
+type ErrorResponse struct {
+	Response *http.Response // HTTP response that caused this error
+	Message  string         `json:"message"`
+	Err      string         `json:"error"`
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d %v %v",
+		r.Response.Request.Method, r.Response.Request.URL,
+		r.Response.StatusCode, r.Message, r.Err)
+}
 
 func checkResponse(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
-	//resp := &Response{Response: r}
-
+	errorResponse := &ErrorResponse{Response: r}
 	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return fmt.Errorf("cannot read error response body: %v", err)
+	if err == nil && data != nil {
+		json.Unmarshal(data, errorResponse)
 	}
+	// Re-populate error response body in case JSON unmarshal fails.
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 
-	return fmt.Errorf("error response: %q", data)
+	return errorResponse
 }
 
 // post sends a POST API request used by Add and Update.

@@ -38,10 +38,26 @@ type AnimeStatistics struct {
 	NumDaysWatched      float64 `json:"num_days_watched,omitempty"`
 	NumDaysWatching     float64 `json:"num_days_watching,omitempty"`
 	NumDaysCompleted    float64 `json:"num_days_completed,omitempty"`
-	NumDaysOnHold       int     `json:"num_days_on_hold,omitempty"`
-	NumDaysDropped      int     `json:"num_days_dropped,omitempty"`
+	NumDaysOnHold       float64 `json:"num_days_on_hold,omitempty"`
+	NumDaysDropped      float64 `json:"num_days_dropped,omitempty"`
 	NumDays             float64 `json:"num_days,omitempty"`
 	NumEpisodes         int     `json:"num_episodes,omitempty"`
 	NumTimesRewatched   int     `json:"num_times_rewatched,omitempty"`
 	MeanScore           float64 `json:"mean_score,omitempty"`
+}
+
+// MyInfo returns information about the authorized user.
+func (s *UserService) MyInfo(ctx context.Context) (*User, *Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, "users/@me", nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	u := new(User)
+	resp, err := s.client.Do(ctx, req, u)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return u, resp, nil
 }
