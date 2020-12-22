@@ -1,28 +1,26 @@
 package mal
 
 import (
-	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
-func TestMangaService_Delete(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestMangaService_Delete(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "DELETE")
-		testID(t, r, "55")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		fmt.Fprintf(w, "Deleted")
-	})
+// 	mux.HandleFunc("/api/mangalist/delete/", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "DELETE")
+// 		testID(t, r, "55")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		fmt.Fprintf(w, "Deleted")
+// 	})
 
-	_, err := client.Manga.Delete(55)
-	if err != nil {
-		t.Errorf("Manga.Delete returned error %v", err)
-	}
-}
+// 	_, err := client.Manga.Delete(55)
+// 	if err != nil {
+// 		t.Errorf("Manga.Delete returned error %v", err)
+// 	}
+// }
 
 // func TestMangaService_Add(t *testing.T) {
 // 	setup()
@@ -62,67 +60,67 @@ func TestMangaService_Delete(t *testing.T) {
 // 	}
 // }
 
-func TestMangaService_Search(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestMangaService_Search(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testURLValues(t, r, urlValues{"q": "query"})
-		fmt.Fprintf(w, `
-			<manga>
-				<entry>
-					<title>title1</title>
-					<id>55</id>
-				</entry>
-				<entry>
-					<title>title2</title>
-					<id>56</id>
-				</entry>
-			</manga>`)
-	})
+// 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "GET")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		testURLValues(t, r, urlValues{"q": "query"})
+// 		fmt.Fprintf(w, `
+// 			<manga>
+// 				<entry>
+// 					<title>title1</title>
+// 					<id>55</id>
+// 				</entry>
+// 				<entry>
+// 					<title>title2</title>
+// 					<id>56</id>
+// 				</entry>
+// 			</manga>`)
+// 	})
 
-	result, _, err := client.Manga.Search("query")
-	if err != nil {
-		t.Errorf("Manga.Search returned error %v", err)
-	}
-	want := &MangaResult{
-		[]MangaRow{
-			{ID: 55, Title: "title1"},
-			{ID: 56, Title: "title2"},
-		},
-	}
-	if !reflect.DeepEqual(result, want) {
-		t.Errorf("Manga.Search returned %+v, want %+v", result, want)
-	}
-}
+// 	result, _, err := client.Manga.Search("query")
+// 	if err != nil {
+// 		t.Errorf("Manga.Search returned error %v", err)
+// 	}
+// 	want := &MangaResult{
+// 		[]MangaRow{
+// 			{ID: 55, Title: "title1"},
+// 			{ID: 56, Title: "title2"},
+// 		},
+// 	}
+// 	if !reflect.DeepEqual(result, want) {
+// 		t.Errorf("Manga.Search returned %+v, want %+v", result, want)
+// 	}
+// }
 
-func TestMangaService_Search_noContent(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestMangaService_Search_noContent(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		testURLValues(t, r, urlValues{"q": "foo"})
-		http.Error(w, "no content", http.StatusNoContent)
-	})
+// 	mux.HandleFunc("/api/manga/search.xml", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "GET")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		testURLValues(t, r, urlValues{"q": "foo"})
+// 		http.Error(w, "no content", http.StatusNoContent)
+// 	})
 
-	result, _, err := client.Manga.Search("foo")
+// 	result, _, err := client.Manga.Search("foo")
 
-	if err == nil {
-		t.Errorf("Manga.Search for non existent query expected to return err")
-	}
+// 	if err == nil {
+// 		t.Errorf("Manga.Search for non existent query expected to return err")
+// 	}
 
-	if got, want := err, ErrNoContent; got != want {
-		t.Errorf("Manga.Search for non existent query returned err %v, want %v", got, want)
-	}
+// 	if got, want := err, ErrNoContent; got != want {
+// 		t.Errorf("Manga.Search for non existent query returned err %v, want %v", got, want)
+// 	}
 
-	if got := result; got != nil {
-		t.Errorf("Manga.Search for non existent query returned result = %v, want %v", got, nil)
-	}
-}
+// 	if got := result; got != nil {
+// 		t.Errorf("Manga.Search for non existent query returned result = %v, want %v", got, nil)
+// 	}
+// }
 
 // func TestMangaService_List(t *testing.T) {
 // 	setup()
@@ -176,36 +174,36 @@ func TestMangaService_Search_noContent(t *testing.T) {
 // 	}
 // }
 
-func TestMangaService_List_invalidUsername(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestMangaService_List_invalidUsername(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
-		testBasicAuth(t, r, false, "", "")
-		testURLValues(t, r, urlValues{
-			"status": "all",
-			"type":   "manga",
-			"u":      "InvalidUser",
-		})
-		fmt.Fprintf(w, `
-			<myanimelist>
-				<error>Invalid username</error>
-			</myanimelist>
-			`)
-	})
+// 	mux.HandleFunc("/malappinfo.php", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "GET")
+// 		testBasicAuth(t, r, false, "", "")
+// 		testURLValues(t, r, urlValues{
+// 			"status": "all",
+// 			"type":   "manga",
+// 			"u":      "InvalidUser",
+// 		})
+// 		fmt.Fprintf(w, `
+// 			<myanimelist>
+// 				<error>Invalid username</error>
+// 			</myanimelist>
+// 			`)
+// 	})
 
-	result, _, err := client.Manga.List("InvalidUser")
+// 	result, _, err := client.Manga.List("InvalidUser")
 
-	if err == nil {
-		t.Errorf("Manga.List for invalid user expected to return err")
-	}
+// 	if err == nil {
+// 		t.Errorf("Manga.List for invalid user expected to return err")
+// 	}
 
-	want := &MangaList{Error: "Invalid username"}
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("Manga.List for invalid user returned result = %v, want %v", result, want)
-	}
-}
+// 	want := &MangaList{Error: "Invalid username"}
+// 	if !reflect.DeepEqual(want, result) {
+// 		t.Errorf("Manga.List for invalid user returned result = %v, want %v", result, want)
+// 	}
+// }
 
 func TestMangaService_List_httpError(t *testing.T) {
 	client, mux, teardown := setup()

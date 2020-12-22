@@ -197,12 +197,15 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 }
 
 // Do sends an API request and returns the API response. The API response is
-// XML decoded and stored in the value pointed to by v. If XML was unable to get
-// decoded, it will be returned in Response.Body along with the error so that
-// the caller can further inspect it if needed.
+// JSON decoded and stored in the value pointed to by v. If v implements the
+// io.Writer interface, the raw response body will be written to v, without
+// attempting to first decode it.
+//
+// The provided ctx must be non-nil, if it is nil an error is returned. If it is
+// canceled or times out, ctx.Err() will be returned.
 func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
 	if ctx == nil {
-		ctx = context.Background()
+		return nil, errors.New("context must be non-nil")
 	}
 	req = req.WithContext(ctx)
 
@@ -231,9 +234,9 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 			io.Copy(w, resp.Body)
 		} else {
 			decErr := json.NewDecoder(resp.Body).Decode(v)
-			// if decErr == io.EOF {
-			// 	decErr = nil // ignore EOF errors caused by empty response body
-			// }
+			if decErr == io.EOF {
+				decErr = nil // ignore EOF errors caused by empty response body
+			}
 			if decErr != nil {
 				err = decErr
 			}

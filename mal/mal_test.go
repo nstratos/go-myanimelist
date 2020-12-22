@@ -1,7 +1,9 @@
 package mal
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -215,103 +217,58 @@ func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	}
 }
 
-func TestClient_Do(t *testing.T) {
+func TestDo(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
 	type foo struct {
-		Bar string `xml:"bar"`
+		Bar string `json:"bar"`
 	}
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if want := "GET"; r.Method != want {
 			t.Errorf("request method = %v, want %v", r.Method, want)
 		}
-		fmt.Fprint(w, `<foo><bar>&bull; foobar</bar></foo>`)
+		fmt.Fprint(w, `{"bar":"&bull; foobar"}`)
 	})
 
 	req, _ := client.NewRequest("GET", "/", nil)
 
 	body := new(foo)
 	ctx := context.Background()
-	response, err := client.Do(ctx, req, body)
+	_, err := client.Do(ctx, req, body)
+	if err != nil {
+		t.Fatalf("Do() returned err = %v", err)
+	}
 
 	want := &foo{"&bull; foobar"}
 	if !reflect.DeepEqual(body, want) {
 		t.Errorf("Do() response body = %v, want %v", body, want)
 	}
-
-	if err != nil {
-		t.Fatalf("Do() returned err = %v", err)
-	}
-
-	if want, got := "<foo><bar>&bull; foobar</bar></foo>", string(response.Body); want != got {
-		t.Errorf("Do() mal.Response.Body = %v, want %v", got, want)
-	}
 }
 
-func TestClient_Do_invalidXMLEntity(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
-
-	type foo struct {
-		Bar string `xml:"bar"`
-	}
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if want := "GET"; r.Method != want {
-			t.Errorf("request method = %v, want %v", r.Method, want)
-		}
-		fmt.Fprint(w, `<foo><bar>&foo; bar</bar></foo>`)
-	})
-
-	req, _ := client.NewRequest("GET", "/", nil)
-
-	body := new(foo)
-	ctx := context.Background()
-	response, err := client.Do(ctx, req, body)
-
-	if err == nil {
-		t.Errorf("Do() receiving XML with invalid entity should return err.")
-	}
-
-	if response == nil {
-		t.Fatal("Do() receiving XML with invalid entity should also return response.")
-	}
-
-	if want, got := "<foo><bar>&foo; bar</bar></foo>", string(response.Body); want != got {
-		t.Errorf("Do() receiving XML with invalid entity mal.Response.Body = %v, want %v", got, want)
-	}
-}
-
-func TestClient_Do_notFound(t *testing.T) {
+func TestDo_httpError(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "not found", http.StatusNotFound)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 	})
 
 	req, _ := client.NewRequest("GET", "/", nil)
 
 	ctx := context.Background()
-	response, err := client.Do(ctx, req, nil)
-
+	resp, err := client.Do(ctx, req, nil)
 	if err == nil {
-		t.Error("Expected HTTP 404 error.")
+		t.Fatal("Expected HTTP 400 error, got no error.")
 	}
 
-	if response == nil {
-		t.Fatal("Expected response with HTTP 404 error.")
-	}
-
-	// http.Error seems to be adding a new line to the message.
-	if want, got := "not found\n", string(response.Body); want != got {
-		t.Errorf("Do() mal.Response.Body = %v, want %v", got, want)
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected HTTP 400 error, got %d status code.", resp.StatusCode)
 	}
 }
 
-func TestClient_Do_connectionRefused(t *testing.T) {
+func TestDo_connectionRefused(t *testing.T) {
 	client, _, teardown := setup()
 	teardown()
 
@@ -320,6 +277,93 @@ func TestClient_Do_connectionRefused(t *testing.T) {
 	_, err := client.Do(ctx, req, nil)
 	if err == nil {
 		t.Error("Expected connection refused error.")
+	}
+}
+
+func TestDo_noContent(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	var body json.RawMessage
+
+	req, _ := client.NewRequest("GET", ".", nil)
+	ctx := context.Background()
+	_, err := client.Do(ctx, req, &body)
+	if err != nil {
+		t.Fatalf("Do returned unexpected error: %v", err)
+	}
+}
+
+func TestDo_bodyImplementsIOWriter(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "foo bar")
+	})
+
+	var body bytes.Buffer
+
+	req, _ := client.NewRequest("GET", ".", nil)
+	ctx := context.Background()
+	_, err := client.Do(ctx, req, &body)
+	if err != nil {
+		t.Fatalf("Do returned unexpected error: %v", err)
+	}
+	if got, want := body.String(), "foo bar"; got != want {
+		t.Errorf("Response Body is %q, want %q", got, want)
+	}
+}
+
+func TestDo_decodeError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "this is not JSON")
+	})
+
+	var body json.RawMessage
+
+	req, _ := client.NewRequest("GET", ".", nil)
+	ctx := context.Background()
+	_, err := client.Do(ctx, req, &body)
+	if err == nil {
+		t.Fatal("Expected JSON decode error.")
+	}
+}
+
+func TestDo_contextCanceled(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req, _ := client.NewRequest("GET", ".", nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := client.Do(ctx, req, nil)
+	if err == nil {
+		t.Fatalf("Expected context canceled error.")
+	}
+}
+
+func TestDo_nilContext(t *testing.T) {
+	client, _, teardown := setup()
+	defer teardown()
+
+	req, _ := client.NewRequest("GET", ".", nil)
+	_, err := client.Do(nil, req, nil)
+	if err == nil {
+		t.Errorf("Expected context must be non-nil error")
 	}
 }
 
@@ -348,27 +392,27 @@ func TestClient_Do_connectionRefused(t *testing.T) {
 // 	}
 // }
 
-func TestClient_delete_invalidID(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
+// func TestClient_delete_invalidID(t *testing.T) {
+// 	client, mux, teardown := setup()
+// 	defer teardown()
 
-	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "DELETE")
-		testID(t, r, "0")
-		testBasicAuth(t, r, true, "TestUser", "TestPass")
-		http.Error(w, "Invalid ID", http.StatusNotImplemented)
-	})
+// 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
+// 		testMethod(t, r, "DELETE")
+// 		testID(t, r, "0")
+// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
+// 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
+// 	})
 
-	response, err := client.delete("api/animelist/delete/", 0, true)
+// 	response, err := client.delete("api/animelist/delete/", 0, true)
 
-	if err == nil {
-		t.Errorf("Anime.Delete invalid ID should return err")
-	}
+// 	if err == nil {
+// 		t.Errorf("Anime.Delete invalid ID should return err")
+// 	}
 
-	if response == nil {
-		t.Errorf("Anime.Delete invalid ID should return also return response")
-	}
-}
+// 	if response == nil {
+// 		t.Errorf("Anime.Delete invalid ID should return also return response")
+// 	}
+// }
 
 func TestClient_NewRequest_badEndpoint(t *testing.T) {
 	c := NewClient(nil)
