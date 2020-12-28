@@ -163,7 +163,32 @@ type Paging struct {
 
 // List allows an authenticated user to receive their anime list.
 func (s *AnimeService) List(ctx context.Context, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "anime", nil)
+	return s.list(ctx, "anime", query, limit, offset, fields...)
+}
+
+type Ranking string
+
+// Possible Ranking types.
+const (
+	RankingAll          Ranking = "all"          // Top Anime Series.
+	RankingAiring       Ranking = "airing"       // Top Airing Anime.
+	RankingUpcoming     Ranking = "upcoming"     // Top Upcoming Anime.
+	RankingTV           Ranking = "tv"           // Top Anime TV Series.
+	RankingOVA          Ranking = "ova"          // Top Anime OVA Series.
+	RankingMovie        Ranking = "movie"        // Top Anime Movies.
+	RankingSpecial      Ranking = "special"      // Top Anime Specials.
+	RankingByPopularity Ranking = "bypopularity" // Top Anime by Popularity.
+	RankingFavorite     Ranking = "favorite"     // Top Favorited Anime.
+)
+
+// Ranking allows an authenticated user to receive anime rankings based on year
+// and season.
+func (s *AnimeService) Ranking(ctx context.Context, ranking Ranking, limit, offset int, fields ...string) ([]Anime, *Response, error) {
+	return s.list(ctx, "anime/rankings", query, limit, offset, fields...)
+}
+
+func (s *AnimeService) list(ctx context.Context, path, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
