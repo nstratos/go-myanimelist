@@ -262,9 +262,22 @@ func TestDo_httpError(t *testing.T) {
 	}
 }
 
-func TestDo_connectionRefused(t *testing.T) {
-	client, _, teardown := setup()
-	teardown()
+type errTransport struct{}
+
+func (e errTransport) RoundTrip(*http.Request) (*http.Response, error) {
+	return nil, fmt.Errorf("connection refused")
+}
+
+func TestDo_returnsError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+	client.client = &http.Client{
+		Transport: &errTransport{},
+	}
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	})
 
 	req, _ := client.NewRequest("GET", "/", nil)
 	ctx := context.Background()
