@@ -270,3 +270,26 @@ func (s *AnimeService) Seasonal(ctx context.Context, year int, season AnimeSeaso
 	}
 	return s.client.animeList(ctx, fmt.Sprintf("anime/season/%d/%s", year, season), oo...)
 }
+
+// Suggested returns suggested anime for the authorized user. If the user is new
+// comer, this endpoint returns an empty list.
+//
+// Example:
+//
+//     anime, _, err := c.Anime.Suggested(ctx,
+//         mal.Limit(10),
+//         mal.Fields("rank", "popularity"),
+//     )
+//     if err != nil {
+//         return err
+//     }
+//     for _, a := range anime {
+//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+//     }
+func (s *AnimeService) Suggested(ctx context.Context, options ...func(q *url.Values)) ([]Anime, *Response, error) {
+	oo := make([]func(q *url.Values), len(options))
+	for i := range options {
+		oo[i] = options[i]
+	}
+	return s.client.animeList(ctx, "anime/suggestions", oo...)
+}

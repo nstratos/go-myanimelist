@@ -118,6 +118,20 @@ func SortUserAnimeList(sort SortUserAnimeListBy) UserAnimeListOption {
 // AnimeList gets the anime list of the user indicated by username (or use @me).
 // The anime can be sorted and filtered using the SortUserAnimeList and
 // FilterAnimeStatus options functions respectively.
+//
+// Example:
+//
+//     anime, _, err := c.User.AnimeList(ctx, "leonteus",
+//         mal.Limit(10),
+//         mal.Fields("rank", "popularity"),
+//         mal.SortUserAnimeList(mal.ByAnimeListScore),
+//     )
+//     if err != nil {
+//         return err
+//     }
+//     for _, a := range anime {
+//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+//     }
 func (s *UserService) AnimeList(ctx context.Context, username string, options ...UserAnimeListOption) ([]Anime, *Response, error) {
 	oo := make([]func(q *url.Values), len(options))
 	for i := range options {
