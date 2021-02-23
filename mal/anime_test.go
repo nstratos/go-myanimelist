@@ -45,6 +45,59 @@ func TestAnimeService_Details_httpError(t *testing.T) {
 	testErrorResponse(t, err, ErrorResponse{Message: "anime deleted", Err: "not_found"})
 }
 
+func TestAnimeService_List(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		const out = `
+		{
+			"data": [
+			  {
+				"node": {
+				  "id": 1
+				}
+			  },
+			  {
+				"node": {
+				  "id": 2
+				}
+			  }
+			],
+			"paging": {
+			  "next": "?offset=4",
+			  "previous": "?offset=2"
+			}
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, resp, err := client.Anime.List(ctx, "query")
+	if err != nil {
+		t.Errorf("Anime.List returned error: %v", err)
+	}
+	want := []Anime{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Anime.List returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+	testResponseOffset(t, resp, 4, 2, "Anime.List")
+}
+
+func testResponseOffset(t *testing.T, resp *Response, next, prev int, prefix string) {
+	t.Helper()
+	if resp == nil {
+		t.Fatalf("%s resp is nil, want NextOffset=%d and PrevOffset=%d", prefix, next, prev)
+	}
+	if got, want := resp.NextOffset, next; got != want {
+		t.Errorf("%s resp.NextOffset=%d, want %d", prefix, got, want)
+	}
+	if got, want := resp.PrevOffset, prev; got != want {
+		t.Errorf("%s resp.PrevOffset=%d, want %d", prefix, got, want)
+	}
+}
+
 // func TestAnimeService_Add(t *testing.T) {
 // 	setup()
 // 	defer teardown()
