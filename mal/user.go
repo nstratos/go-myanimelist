@@ -2,7 +2,9 @@ package mal
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -60,4 +62,66 @@ func (s *UserService) MyInfo(ctx context.Context) (*User, *Response, error) {
 	}
 
 	return u, resp, nil
+}
+
+// UserAnimeListOption are options specific to the UserService.AnimeList method.
+type UserAnimeListOption func(q *url.Values)
+
+// UserAnimeListStatus filters returned anime list by the status provided. To
+// return all anime, don't use this option.
+func UserAnimeListStatus(status AnimeStatus) UserAnimeListOption {
+	return func(q *url.Values) {
+		q.Set("status", string(status))
+	}
+}
+
+// AnimeStatus is the status of an anime list item.
+type AnimeStatus string
+
+// Possible statuses of an nime list item.
+const (
+	AnimeStatusWatching    AnimeStatus = "watching"
+	AnimeStatusCompleted   AnimeStatus = "completed"
+	AnimeStatusOnHold      AnimeStatus = "on_hold"
+	AnimeStatusDropped     AnimeStatus = "dropped"
+	AnimeStatusPlanToWatch AnimeStatus = "plan_to_watch"
+)
+
+// FilterAnimeStatus allows to filter the returned anime list by the specified
+// status when using the UserService.AnimeList method.
+func FilterAnimeStatus(status AnimeStatus) UserAnimeListOption {
+	return func(q *url.Values) {
+		q.Set("status", string(status))
+	}
+}
+
+// SortUserAnimeListBy shows the ways the anime results can be sorted.
+type SortUserAnimeListBy string
+
+// Possible SortUserAnimeListBy values.
+const (
+	ByAnimeListScore     SortUserAnimeListBy = "list_score"       // Descending
+	ByAnimeListUpdatedAt SortUserAnimeListBy = "list_updated_at"  // Descending
+	ByAnimeTitle         SortUserAnimeListBy = "anime_title"      // Ascending
+	ByAnimeStartDate     SortUserAnimeListBy = "anime_start_date" // Descending
+	ByAnimeID            SortUserAnimeListBy = "anime_id"         // (Under Development) Ascending
+)
+
+// SortUserAnimeList allows to choose how the results will be sorted when using
+// the UserService.AnimeList method.
+func SortUserAnimeList(sort SortUserAnimeListBy) UserAnimeListOption {
+	return func(q *url.Values) {
+		q.Set("sort", string(sort))
+	}
+}
+
+// AnimeList gets the anime list of the user indicated by username (or use @me).
+// The anime can be sorted and filtered using the SortUserAnimeList and
+// FilterAnimeStatus options functions respectively.
+func (s *UserService) AnimeList(ctx context.Context, username string, options ...UserAnimeListOption) ([]Anime, *Response, error) {
+	oo := make([]func(q *url.Values), len(options))
+	for i := range options {
+		oo[i] = options[i]
+	}
+	return s.client.animeList(ctx, fmt.Sprintf("users/%s/animelist", username), oo...)
 }

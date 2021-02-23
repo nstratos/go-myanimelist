@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -206,36 +207,54 @@ func checkResponse(r *http.Response) error {
 	return errorResponse
 }
 
-// post sends a POST API request used by Add and Update.
-func (c *Client) post(endpoint string, id int, entry interface{}) (*Response, error) {
-	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
+func (c *Client) animeList(ctx context.Context, path string, options ...func(q *url.Values)) ([]Anime, *Response, error) {
+	req, err := c.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	q := req.URL.Query()
+	for _, o := range options {
+		o(&q)
 	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	ctx := context.Background()
-	return c.Do(ctx, req, nil)
+	req.URL.RawQuery = q.Encode()
+
+	list := new(animeList)
+	resp, err := c.Do(ctx, req, list)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	if list.Paging.Previous != "" {
+		offset, err := parseOffset(list.Paging.Previous)
+		if err != nil {
+			return nil, resp, fmt.Errorf("previous: %s", err)
+		}
+		resp.PrevOffset = offset
+	}
+	if list.Paging.Next != "" {
+		offset, err := parseOffset(list.Paging.Next)
+		if err != nil {
+			return nil, resp, fmt.Errorf("next: %s", err)
+		}
+		resp.NextOffset = offset
+	}
+	anime := make([]Anime, len(list.Data))
+	for i := range list.Data {
+		anime[i] = list.Data[i].Anime
+	}
+
+	return anime, resp, nil
 }
 
-// delete sends a DELETE API request used by Delete.
-func (c *Client) delete(endpoint string, id int) (*Response, error) {
-	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
+func parseOffset(urlStr string) (int, error) {
+	u, err := url.Parse(urlStr)
 	if err != nil {
-		return nil, err
+		return 0, fmt.Errorf("parsing URL %q: %s", urlStr, err)
 	}
-
-	ctx := context.Background()
-	return c.Do(ctx, req, nil)
-}
-
-// get sends a GET API request used by List and Search.
-func (c *Client) get(url string, result interface{}) (*Response, error) {
-	req, err := c.NewRequest("GET", url, nil)
+	offset, err := strconv.Atoi(u.Query().Get("offset"))
 	if err != nil {
-		return nil, err
+		return 0, fmt.Errorf("parsing offset: %s", err)
 	}
-
-	ctx := context.Background()
-	return c.Do(ctx, req, result)
+	return offset, nil
 }

@@ -161,87 +161,112 @@ type Paging struct {
 	Previous string `json:"previous"`
 }
 
-// List allows an authenticated user to receive their anime list.
-func (s *AnimeService) List(ctx context.Context, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
-	return s.list(ctx, "anime", query, limit, offset, fields...)
-}
-
-type Ranking string
-
-// Possible Ranking types.
-const (
-	RankingAll          Ranking = "all"          // Top Anime Series.
-	RankingAiring       Ranking = "airing"       // Top Airing Anime.
-	RankingUpcoming     Ranking = "upcoming"     // Top Upcoming Anime.
-	RankingTV           Ranking = "tv"           // Top Anime TV Series.
-	RankingOVA          Ranking = "ova"          // Top Anime OVA Series.
-	RankingMovie        Ranking = "movie"        // Top Anime Movies.
-	RankingSpecial      Ranking = "special"      // Top Anime Specials.
-	RankingByPopularity Ranking = "bypopularity" // Top Anime by Popularity.
-	RankingFavorite     Ranking = "favorite"     // Top Favorited Anime.
-)
-
-// Ranking allows an authenticated user to receive anime rankings based on year
-// and season.
-func (s *AnimeService) Ranking(ctx context.Context, ranking Ranking, limit, offset int, fields ...string) ([]Anime, *Response, error) {
-	return s.list(ctx, "anime/rankings", query, limit, offset, fields...)
-}
-
-func (s *AnimeService) list(ctx context.Context, path, query string, limit, offset int, fields ...string) ([]Anime, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, path, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	q := req.URL.Query()
-	q.Set("q", query)
-	if limit != 0 {
+// Limit the results returned by a request.
+func Limit(limit int) func(q *url.Values) {
+	return func(q *url.Values) {
 		q.Set("limit", strconv.Itoa(limit))
 	}
-	if offset != 0 {
-		q.Set("offset", strconv.Itoa(offset))
-	}
-	if len(fields) != 0 {
-		q.Set("fields", strings.Join(fields, ","))
-
-	}
-	req.URL.RawQuery = q.Encode()
-
-	list := new(animeList)
-	resp, err := s.client.Do(ctx, req, list)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	if list.Paging.Previous != "" {
-		offset, err := parseOffset(list.Paging.Previous)
-		if err != nil {
-			return nil, resp, fmt.Errorf("previous: %s", err)
-		}
-		resp.PrevOffset = offset
-	}
-	if list.Paging.Next != "" {
-		offset, err := parseOffset(list.Paging.Next)
-		if err != nil {
-			return nil, resp, fmt.Errorf("next: %s", err)
-		}
-		resp.NextOffset = offset
-	}
-	anime := []Anime{}
-	for _, d := range list.Data {
-		anime = append(anime, d.Anime)
-	}
-
-	return anime, resp, nil
 }
 
-func parseOffset(urlStr string) (int, error) {
-	u, err := url.Parse(urlStr)
-	if err != nil {
-		return 0, fmt.Errorf("parsing URL %q: %s", urlStr, err)
+// Offset request results by an amount.
+func Offset(offset int) func(q *url.Values) {
+	return func(q *url.Values) {
+		q.Set("offset", strconv.Itoa(offset))
 	}
-	offset, err := strconv.Atoi(u.Query().Get("offset"))
-	if err != nil {
-		return 0, fmt.Errorf("parsing offset: %s", err)
+}
+
+// Fields allows to choose the fields that should be returned as by default, the
+// API doesn't return all fields.
+//
+// Example:
+//
+//     Fields("synopsis", "my_list_status{priority,comments}")
+func Fields(fields ...string) func(q *url.Values) {
+	return func(q *url.Values) {
+		if len(fields) != 0 {
+			q.Set("fields", strings.Join(fields, ","))
+		}
 	}
-	return offset, nil
+}
+
+// List allows an authenticated user to receive their anime list.
+func (s *AnimeService) List(ctx context.Context, search string, options ...func(q *url.Values)) ([]Anime, *Response, error) {
+	options = append(options, queryOpt(search))
+	return s.client.animeList(ctx, "anime", options...)
+}
+
+func queryOpt(query string) func(q *url.Values) {
+	return func(q *url.Values) {
+		q.Set("q", query)
+	}
+}
+
+// AnimeRanking allows to choose how the anime will be ranked.
+type AnimeRanking string
+
+// Possible AnimeRanking values.
+const (
+	RankingAll          AnimeRanking = "all"          // Top Anime Series.
+	RankingAiring       AnimeRanking = "airing"       // Top Airing Anime.
+	RankingUpcoming     AnimeRanking = "upcoming"     // Top Upcoming Anime.
+	RankingTV           AnimeRanking = "tv"           // Top Anime TV Series.
+	RankingOVA          AnimeRanking = "ova"          // Top Anime OVA Series.
+	RankingMovie        AnimeRanking = "movie"        // Top Anime Movies.
+	RankingSpecial      AnimeRanking = "special"      // Top Anime Specials.
+	RankingByPopularity AnimeRanking = "bypopularity" // Top Anime by Popularity.
+	RankingFavorite     AnimeRanking = "favorite"     // Top Favorited Anime.
+)
+
+// Ranking allows an authenticated user to receive the top anime based on a
+// certain ranking.
+func (s *AnimeService) Ranking(ctx context.Context, ranking AnimeRanking, options ...func(q *url.Values)) ([]Anime, *Response, error) {
+	options = append(options, rankingOpt(ranking))
+	return s.client.animeList(ctx, "anime/ranking", options...)
+}
+
+func rankingOpt(ranking AnimeRanking) func(q *url.Values) {
+	return func(q *url.Values) {
+		q.Set("ranking_type", string(ranking))
+	}
+}
+
+// AnimeSeason is the airing season of the anime.
+type AnimeSeason string
+
+// Possible AnimeSeason values.
+const (
+	AnimeSeasonWinter AnimeSeason = "winter" // January, February, March.
+	AnimeSeasonSpring AnimeSeason = "spring" // April, May, June.
+	AnimeSeasonSummer AnimeSeason = "summer" // July, August, September.
+	AnimeSeasonFall   AnimeSeason = "fall"   // October, November, December.
+)
+
+// SortSeasonalAnimeBy shows the ways the anime results can be sorted.
+type SortSeasonalAnimeBy string
+
+// Possible values for sorting seasonal anime.
+const (
+	ByAnimeScore        SortSeasonalAnimeBy = "anime_score"          // Descending
+	ByAnimeNumListUsers SortSeasonalAnimeBy = "anime_num_list_users" // Descending
+)
+
+// SeasonalAnimeOption are options specific to the AnimeService.Seasonal method.
+type SeasonalAnimeOption func(q *url.Values)
+
+// SortSeasonalAnime allows to choose how the anime results will be sorted when
+// using the AnimeService.Seasonal method.
+func SortSeasonalAnime(sort SortSeasonalAnimeBy) SeasonalAnimeOption {
+	return func(q *url.Values) {
+		q.Set("sort", string(sort))
+	}
+}
+
+// Seasonal allows an authenticated user to receive the seasonal anime by
+// providing the year and season.
+func (s *AnimeService) Seasonal(ctx context.Context, year int, season AnimeSeason, options ...SeasonalAnimeOption) ([]Anime, *Response, error) {
+	oo := make([]func(q *url.Values), len(options))
+	for i := range options {
+		oo[i] = options[i]
+	}
+	return s.client.animeList(ctx, fmt.Sprintf("anime/season/%d/%s", year, season), oo...)
 }

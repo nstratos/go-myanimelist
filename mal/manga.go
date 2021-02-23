@@ -40,24 +40,6 @@ type MangaService struct {
 	ListEndpoint   *url.URL
 }
 
-// Add allows an authenticated user to add a manga to their manga list.
-func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
-
-	return s.client.post(s.AddEndpoint.String(), mangaID, entry)
-}
-
-// Update allows an authenticated user to update an manga on their manga list.
-func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
-
-	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry)
-}
-
-// Delete allows an authenticated user to delete an manga from their manga list.
-func (s *MangaService) Delete(mangaID int) (*Response, error) {
-
-	return s.client.delete(s.DeleteEndpoint.String(), mangaID)
-}
-
 // MangaResult represents the result of an manga search.
 type MangaResult struct {
 	Rows []MangaRow `xml:"entry"`
@@ -82,19 +64,19 @@ type MangaRow struct {
 
 // Search allows an authenticated user to search manga titles. If nothing is
 // found, it will return an ErrNoContent error.
-func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
+// func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
 
-	v := s.SearchEndpoint.Query()
-	v.Set("q", query)
-	s.SearchEndpoint.RawQuery = v.Encode()
+// 	v := s.SearchEndpoint.Query()
+// 	v.Set("q", query)
+// 	s.SearchEndpoint.RawQuery = v.Encode()
 
-	result := new(MangaResult)
-	resp, err := s.client.get(s.SearchEndpoint.String(), result)
-	if err != nil {
-		return nil, resp, err
-	}
-	return result, resp, nil
-}
+// 	result := new(MangaResult)
+// 	resp, err := s.client.get(s.SearchEndpoint.String(), result)
+// 	if err != nil {
+// 		return nil, resp, err
+// 	}
+// 	return result, resp, nil
+// }
 
 // MangaList represents the manga list of a user.
 type MangaList struct {
