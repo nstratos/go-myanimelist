@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Status specifies a status for anime and manga entries.
@@ -207,14 +208,39 @@ func checkResponse(r *http.Response) error {
 	return errorResponse
 }
 
-func (c *Client) animeList(ctx context.Context, path string, options ...func(q *url.Values)) ([]Anime, *Response, error) {
+// animeList represents the anime list of a user.
+type animeList struct {
+	Data []struct {
+		Anime  Anime           `json:"node"`
+		Status AnimeListStatus `json:"list_status"`
+	}
+	Paging Paging `json:"paging"`
+}
+
+// Paging provides access to the next and previous page URLs when there are
+// pages of results.
+type Paging struct {
+	Next     string `json:"next"`
+	Previous string `json:"previous"`
+}
+
+// AnimeListStatus shows the status of each anime in a user anime list.
+type AnimeListStatus struct {
+	Status             string    `json:"status"`
+	Score              int       `json:"score"`
+	NumWatchedEpisodes int       `json:"num_watched_episodes"`
+	IsRewatching       bool      `json:"is_rewatching"`
+	UpdatedAt          time.Time `json:"updated_at"`
+}
+
+func (c *Client) animeList(ctx context.Context, path string, options ...Option) (*animeList, *Response, error) {
 	req, err := c.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	q := req.URL.Query()
 	for _, o := range options {
-		o(&q)
+		o.apply(&q)
 	}
 
 	req.URL.RawQuery = q.Encode()
@@ -228,23 +254,19 @@ func (c *Client) animeList(ctx context.Context, path string, options ...func(q *
 	if list.Paging.Previous != "" {
 		offset, err := parseOffset(list.Paging.Previous)
 		if err != nil {
-			return nil, resp, fmt.Errorf("previous: %s", err)
+			return nil, resp, fmt.Errorf("paging: previous: %s", err)
 		}
 		resp.PrevOffset = offset
 	}
 	if list.Paging.Next != "" {
 		offset, err := parseOffset(list.Paging.Next)
 		if err != nil {
-			return nil, resp, fmt.Errorf("next: %s", err)
+			return nil, resp, fmt.Errorf("paging: next: %s", err)
 		}
 		resp.NextOffset = offset
 	}
-	anime := make([]Anime, len(list.Data))
-	for i := range list.Data {
-		anime[i] = list.Data[i].Anime
-	}
 
-	return anime, resp, nil
+	return list, resp, nil
 }
 
 func parseOffset(urlStr string) (int, error) {

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestUser_marshal(t *testing.T) {
+func TestUserMarshal(t *testing.T) {
 	testJSONMarshal(t, &User{}, "{}")
 
 	u := &User{
@@ -65,7 +65,7 @@ func TestUser_marshal(t *testing.T) {
 	testJSONMarshal(t, u, want)
 }
 
-func TestUserService_MyInfo(t *testing.T) {
+func TestUserServiceMyInfo(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -85,7 +85,7 @@ func TestUserService_MyInfo(t *testing.T) {
 	}
 }
 
-func TestUserService_MyInfo_httpError(t *testing.T) {
+func TestUserServiceMyInfoError(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -100,4 +100,85 @@ func TestUserService_MyInfo_httpError(t *testing.T) {
 		t.Fatal("User.MyInfo expected not found error, got no error.")
 	}
 	testErrorResponse(t, err, ErrorResponse{Err: "not_found"})
+}
+
+func TestUserServiceAnimeList(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/users/foo/animelist", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		const out = `
+		{
+		  "data": [
+		    {
+		      "node": { "id": 1 },
+			  "list_status": {
+			    "status": "plan_to_watch"
+			  }
+		    },
+		    {
+		      "node": { "id": 2 },
+			  "list_status": {
+			    "status": "watching"
+			  }
+		    }
+		  ],
+		  "paging": {
+		    "next": "?offset=4",
+		    "previous": "?offset=2"
+		  }
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, resp, err := client.User.AnimeList(ctx, "foo",
+		AnimeStatusCompleted,
+		SortAnimeListByAnimeID,
+		Fields{"foo", "bar"},
+		Limit(10),
+		Offset(0),
+	)
+	if err != nil {
+		t.Errorf("User.AnimeList returned error: %v", err)
+	}
+	want := []AnimeWithStatus{
+		{
+			Anime:  Anime{ID: 1},
+			Status: AnimeListStatus{Status: "plan_to_watch"},
+		},
+		{
+			Anime:  Anime{ID: 2},
+			Status: AnimeListStatus{Status: "watching"},
+		},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("User.AnimeList returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+	testResponseOffset(t, resp, 4, 2, "User.AnimeList")
+}
+
+func TestUserServiceAnimeListError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/users/foo/animelist", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
+	})
+
+	ctx := context.Background()
+	_, resp, err := client.User.AnimeList(ctx, "foo",
+		AnimeStatusCompleted,
+		SortAnimeListByAnimeID,
+		Fields{"foo", "bar"},
+		Limit(10),
+		Offset(0),
+	)
+	if err == nil {
+		t.Fatal("User.AnimeList expected internal error, got no error.")
+	}
+	testResponseStatusCode(t, resp, http.StatusInternalServerError, "User.AnimeList")
+	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
 }

@@ -115,6 +115,29 @@ func testJSONMarshal(t *testing.T, v interface{}, want string) {
 	}
 }
 
+func testResponseOffset(t *testing.T, resp *Response, next, prev int, prefix string) {
+	t.Helper()
+	if resp == nil {
+		t.Fatalf("%s resp is nil, want NextOffset=%d and PrevOffset=%d", prefix, next, prev)
+	}
+	if got, want := resp.NextOffset, next; got != want {
+		t.Errorf("%s resp.NextOffset=%d, want %d", prefix, got, want)
+	}
+	if got, want := resp.PrevOffset, prev; got != want {
+		t.Errorf("%s resp.PrevOffset=%d, want %d", prefix, got, want)
+	}
+}
+
+func testResponseStatusCode(t *testing.T, resp *Response, code int, prefix string) {
+	t.Helper()
+	if resp == nil {
+		t.Fatalf("%s resp is nil, want StatusCode=%d", prefix, code)
+	}
+	if got, want := resp.StatusCode, code; got != want {
+		t.Errorf("%s resp.StatusCode=%d, want %d", prefix, got, want)
+	}
+}
+
 func testID(t *testing.T, r *http.Request, want string) {
 	idXML := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
 	xml := idXML[len(idXML)-4:]
@@ -163,6 +186,26 @@ func TestNewClient(t *testing.T) {
 // 		t.Errorf("NewClient.client = %p, want %p", got, want)
 // 	}
 // }
+
+func TestErrorResponse(t *testing.T) {
+	errResp := &ErrorResponse{
+		Response: &http.Response{
+			Request: &http.Request{
+				Method: http.MethodGet,
+				URL: &url.URL{
+					Scheme: "http",
+					Host:   "foo.com",
+				},
+			},
+			StatusCode: 500,
+		},
+		Message: "service gone",
+		Err:     "boom",
+	}
+	if got, want := errResp.Error(), "GET http://foo.com: 500 service gone boom"; got != want {
+		t.Errorf("ErrorResponse.Error() = %q, want %q", got, want)
+	}
+}
 
 func TestNewRequest(t *testing.T) {
 	c := NewClient(nil)
