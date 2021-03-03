@@ -75,7 +75,7 @@ type animeListOption interface {
 // specified status when using the UserService.AnimeList method.
 type AnimeStatus string
 
-// Possible statuses of an nime list item.
+// Possible statuses of an anime in the user's list.
 const (
 	AnimeStatusWatching    AnimeStatus = "watching"
 	AnimeStatusCompleted   AnimeStatus = "completed"
@@ -108,13 +108,13 @@ type AnimeWithStatus struct {
 	Status AnimeListStatus
 }
 
-// AnimeListStatus shows the status of each anime in a user anime list.
+// AnimeListStatus shows the status of each anime in a user's anime list.
 type AnimeListStatus struct {
 	Status             AnimeStatus `json:"status"`
 	Score              int         `json:"score"`
 	NumEpisodesWatched int         `json:"num_episodes_watched"`
 	IsRewatching       bool        `json:"is_rewatching"`
-	UpdatedAt          *time.Time  `json:"updated_at"`
+	UpdatedAt          time.Time   `json:"updated_at"`
 	Priority           int         `json:"priority"`
 	NumTimesRewatched  int         `json:"num_times_rewatched"`
 	RewatchValue       int         `json:"rewatch_value"`
@@ -205,45 +205,61 @@ func rawOptionFromUpdateMyAnimeListStatusOption(o UpdateMyAnimeListStatusOption)
 
 var itoa = strconv.Itoa
 
+// Score is an option that can update the anime and manga list scores with
+// values 0-10.
 type Score int
 
 func (s Score) updateMyAnimeListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
 func (s Score) updateMyMangaListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
 
+// NumWatchedEpisodes is an option that can update the number of episodes
+// watched of an anime in the user's list.
 type NumWatchedEpisodes int
 
 func (n NumWatchedEpisodes) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("num_watched_episodes", itoa(int(n)))
 }
 
+// NumTimesRewatched is an option that can update the number of times the user
+// has rewatched an anime in their list.
 type NumTimesRewatched int
 
 func (n NumTimesRewatched) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("num_times_rewatched", itoa(int(n)))
 }
 
+// IsRewatching is an option that can update if a user is rewatching an anime in
+// their list.
 type IsRewatching bool
 
 func (r IsRewatching) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("is_rewatching", strconv.FormatBool(bool(r)))
 }
 
+// RewatchValue is an option that can update the rewatch value of an anime in
+// the user's list with values 0-5.
 type RewatchValue int
 
 func (r RewatchValue) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("rewatch_value", itoa(int(r)))
 }
 
+// Priority is an option that allows to update the priority of an anime or manga
+// in the user's list with values 0=Low, 1=Medium, 2=High.
 type Priority int
 
 func (p Priority) updateMyAnimeListStatusApply(v *url.Values) { v.Set("priority", itoa(int(p))) }
 func (p Priority) updateMyMangaListStatusApply(v *url.Values) { v.Set("priority", itoa(int(p))) }
 
+// Tags is an option that allows to update the comma-separated tags of anime and
+// manga in the user's list.
 type Tags []string
 
 func (t Tags) updateMyAnimeListStatusApply(v *url.Values) { v.Set("tags", strings.Join(t, ",")) }
 func (t Tags) updateMyMangaListStatusApply(v *url.Values) { v.Set("tags", strings.Join(t, ",")) }
 
+// Comments is an option that allows to update the comment of anime and manga in
+// the user's list.
 type Comments string
 
 func (c Comments) updateMyAnimeListStatusApply(v *url.Values) { v.Set("comments", string(c)) }
@@ -277,7 +293,7 @@ func (s *AnimeService) UpdateMyListStatus(ctx context.Context, animeID int, opti
 }
 
 // UpdateMyMangaListStatusOption are options specific to the
-// AmangaService.UpdateMyListStatus method.
+// MangaService.UpdateMyListStatus method.
 type UpdateMyMangaListStatusOption interface {
 	updateMyMangaListStatusApply(v *url.Values)
 }
@@ -288,18 +304,19 @@ func rawOptionFromUpdateMyMangaListStatusOption(o UpdateMyMangaListStatusOption)
 	}
 }
 
+// MangaListStatus shows the status of each manga in a user's manga list.
 type MangaListStatus struct {
-	Status          string        `json:"status"`
-	IsRereading     bool          `json:"is_rereading"`
-	NumVolumesRead  int           `json:"num_volumes_read"`
-	NumChaptersRead int           `json:"num_chapters_read"`
-	Score           int           `json:"score"`
-	UpdatedAt       time.Time     `json:"updated_at"`
-	Priority        int           `json:"priority"`
-	NumTimesReread  int           `json:"num_times_reread"`
-	RereadValue     int           `json:"reread_value"`
-	Tags            []interface{} `json:"tags"`
-	Comments        string        `json:"comments"`
+	Status          string    `json:"status"`
+	IsRereading     bool      `json:"is_rereading"`
+	NumVolumesRead  int       `json:"num_volumes_read"`
+	NumChaptersRead int       `json:"num_chapters_read"`
+	Score           int       `json:"score"`
+	UpdatedAt       time.Time `json:"updated_at"`
+	Priority        int       `json:"priority"`
+	NumTimesReread  int       `json:"num_times_reread"`
+	RereadValue     int       `json:"reread_value"`
+	Tags            []string  `json:"tags"`
+	Comments        string    `json:"comments"`
 }
 
 // MangaStatus is an option that allows to filter the returned anime list by the
@@ -307,7 +324,7 @@ type MangaListStatus struct {
 // passed as an option when updating the manga list.
 type MangaStatus string
 
-// Possible statuses of an nime list item.
+// Possible statuses of a manga in the user's list.
 const (
 	MangaStatusReading    MangaStatus = "reading"
 	MangaStatusCompleted  MangaStatus = "completed"
@@ -319,30 +336,40 @@ const (
 func (s MangaStatus) mangaListApply(v *url.Values)               { v.Set("status", string(s)) }
 func (s MangaStatus) updateMyMangaListStatusApply(v *url.Values) { v.Set("status", string(s)) }
 
+// IsRereading is an option that can update if a user is rereading a manga in
+// their list.
 type IsRereading bool
 
 func (r IsRereading) updateMyMangaListStatusApply(v *url.Values) {
 	v.Set("is_rereading", strconv.FormatBool(bool(r)))
 }
 
+// NumVolumesRead is an option that can update the number of volumes read of a
+// manga in the user's list.
 type NumVolumesRead int
 
 func (n NumVolumesRead) updateMyMangaListStatusApply(v *url.Values) {
 	v.Set("num_volumes_read", itoa(int(n)))
 }
 
+// NumChaptersRead is an option that can update the number of chapters read of a
+// manga in the user's list.
 type NumChaptersRead int
 
 func (n NumChaptersRead) updateMyMangaListStatusApply(v *url.Values) {
 	v.Set("num_chapters_read", itoa(int(n)))
 }
 
+// NumTimesReread is an option that can update the number of times the user
+// has reread a manga in their list.
 type NumTimesReread int
 
 func (n NumTimesReread) updateMyMangaListStatusApply(v *url.Values) {
 	v.Set("num_times_reread", itoa(int(n)))
 }
 
+// RereadValue is an option that can update the reread value of a manga in the
+// user's list with values 0-5.
 type RereadValue int
 
 func (r RereadValue) updateMyMangaListStatusApply(v *url.Values) {
