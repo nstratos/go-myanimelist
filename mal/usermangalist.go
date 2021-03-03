@@ -122,3 +122,20 @@ func (s *MangaService) UpdateMyListStatus(ctx context.Context, mangaID int, opti
 
 	return m, resp, nil
 }
+
+// DeleteMyListItem deletes a manga from the user's list. If the manga does not
+// exist in the user's list, 404 Not Found error is returned.
+func (s *MangaService) DeleteMyListItem(ctx context.Context, mangaID int) (*Response, error) {
+	u := fmt.Sprintf("manga/%d/my_list_status", mangaID)
+	req, err := s.client.NewRequest(http.MethodDelete, u)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.client.Do(ctx, req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}

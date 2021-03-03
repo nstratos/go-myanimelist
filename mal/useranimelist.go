@@ -213,3 +213,20 @@ func (s *AnimeService) UpdateMyListStatus(ctx context.Context, animeID int, opti
 
 	return a, resp, nil
 }
+
+// DeleteMyListItem deletes an anime from the user's list. If the anime does not
+// exist in the user's list, 404 Not Found error is returned.
+func (s *AnimeService) DeleteMyListItem(ctx context.Context, animeID int) (*Response, error) {
+	u := fmt.Sprintf("anime/%d/my_list_status", animeID)
+	req, err := s.client.NewRequest(http.MethodDelete, u)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.client.Do(ctx, req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}
