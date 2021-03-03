@@ -50,7 +50,7 @@ func TestUserServiceAnimeList(t *testing.T) {
 	if err != nil {
 		t.Errorf("User.AnimeList returned error: %v", err)
 	}
-	want := []AnimeWithStatus{
+	want := []UserAnime{
 		{
 			Anime:  Anime{ID: 1},
 			Status: AnimeListStatus{Status: "plan_to_watch"},

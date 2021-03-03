@@ -21,38 +21,38 @@ type AnimeService struct {
 
 // Anime represents a MyAnimeList anime.
 type Anime struct {
-	ID                     int              `json:"id,omitempty"`
-	Title                  string           `json:"title,omitempty"`
-	MainPicture            Picture          `json:"main_picture,omitempty"`
-	AlternativeTitles      Titles           `json:"alternative_titles,omitempty"`
-	StartDate              string           `json:"start_date,omitempty"`
-	EndDate                string           `json:"end_date,omitempty"`
-	Synopsis               string           `json:"synopsis,omitempty"`
-	Mean                   float64          `json:"mean,omitempty"`
-	Rank                   int              `json:"rank,omitempty"`
-	Popularity             int              `json:"popularity,omitempty"`
-	NumListUsers           int              `json:"num_list_users,omitempty"`
-	NumScoringUsers        int              `json:"num_scoring_users,omitempty"`
-	NSFW                   string           `json:"nsfw,omitempty"`
-	CreatedAt              time.Time        `json:"created_at,omitempty"`
-	UpdatedAt              time.Time        `json:"updated_at,omitempty"`
-	MediaType              string           `json:"media_type,omitempty"`
-	Status                 string           `json:"status,omitempty"`
-	Genres                 []Genre          `json:"genres,omitempty"`
-	MyListStatus           MyListStatus     `json:"my_list_status,omitempty"`
-	NumEpisodes            int              `json:"num_episodes,omitempty"`
-	StartSeason            StartSeason      `json:"start_season,omitempty"`
-	Broadcast              Broadcast        `json:"broadcast,omitempty"`
-	Source                 string           `json:"source,omitempty"`
-	AverageEpisodeDuration int              `json:"average_episode_duration,omitempty"`
-	Rating                 string           `json:"rating,omitempty"`
-	Pictures               []Picture        `json:"pictures,omitempty"`
-	Background             string           `json:"background,omitempty"`
-	RelatedAnime           []RelatedAnime   `json:"related_anime,omitempty"`
-	RelatedManga           []interface{}    `json:"related_manga,omitempty"`
-	Recommendations        []Recommendation `json:"recommendations,omitempty"`
-	Studios                []Studio         `json:"studios,omitempty"`
-	Statistics             Statistics       `json:"statistics,omitempty"`
+	ID                     int                `json:"id,omitempty"`
+	Title                  string             `json:"title,omitempty"`
+	MainPicture            Picture            `json:"main_picture,omitempty"`
+	AlternativeTitles      Titles             `json:"alternative_titles,omitempty"`
+	StartDate              string             `json:"start_date,omitempty"`
+	EndDate                string             `json:"end_date,omitempty"`
+	Synopsis               string             `json:"synopsis,omitempty"`
+	Mean                   float64            `json:"mean,omitempty"`
+	Rank                   int                `json:"rank,omitempty"`
+	Popularity             int                `json:"popularity,omitempty"`
+	NumListUsers           int                `json:"num_list_users,omitempty"`
+	NumScoringUsers        int                `json:"num_scoring_users,omitempty"`
+	NSFW                   string             `json:"nsfw,omitempty"`
+	CreatedAt              time.Time          `json:"created_at,omitempty"`
+	UpdatedAt              time.Time          `json:"updated_at,omitempty"`
+	MediaType              string             `json:"media_type,omitempty"`
+	Status                 string             `json:"status,omitempty"`
+	Genres                 []Genre            `json:"genres,omitempty"`
+	MyListStatus           AnimeListStatus    `json:"my_list_status,omitempty"`
+	NumEpisodes            int                `json:"num_episodes,omitempty"`
+	StartSeason            StartSeason        `json:"start_season,omitempty"`
+	Broadcast              Broadcast          `json:"broadcast,omitempty"`
+	Source                 string             `json:"source,omitempty"`
+	AverageEpisodeDuration int                `json:"average_episode_duration,omitempty"`
+	Rating                 string             `json:"rating,omitempty"`
+	Pictures               []Picture          `json:"pictures,omitempty"`
+	Background             string             `json:"background,omitempty"`
+	RelatedAnime           []RelatedAnime     `json:"related_anime,omitempty"`
+	RelatedManga           []RelatedManga     `json:"related_manga,omitempty"`
+	Recommendations        []RecommendedAnime `json:"recommendations,omitempty"`
+	Studios                []Studio           `json:"studios,omitempty"`
+	Statistics             Statistics         `json:"statistics,omitempty"`
 }
 
 // Picture is a representative picture from the show.
@@ -74,22 +74,13 @@ type Genre struct {
 	Name string `json:"name,omitempty"`
 }
 
-// MyListStatus is the user's list status.
-type MyListStatus struct {
-	Status             string    `json:"status,omitempty"`
-	Score              int       `json:"score,omitempty"`
-	NumEpisodesWatched int       `json:"num_episodes_watched,omitempty"`
-	IsRewatching       bool      `json:"is_rewatching,omitempty"`
-	UpdatedAt          time.Time `json:"updated_at,omitempty"`
-}
-
 // The Studio that created the anime.
 type Studio struct {
 	ID   int    `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// Status of the anime.
+// Status of the user's anime list contained in statistics.
 type Status struct {
 	Watching    string `json:"watching,omitempty"`
 	Completed   string `json:"completed,omitempty"`
@@ -104,8 +95,8 @@ type Statistics struct {
 	NumListUsers int    `json:"num_list_users,omitempty"`
 }
 
-// Recommendation is a recommended anime.
-type Recommendation struct {
+// RecommendedAnime is a recommended anime.
+type RecommendedAnime struct {
 	Node               Anime `json:"node,omitempty"`
 	NumRecommendations int   `json:"num_recommendations,omitempty"`
 }
@@ -163,6 +154,7 @@ type Limit int
 
 func (l Limit) seasonalAnimeApply(v *url.Values) { l.apply(v) }
 func (l Limit) animeListApply(v *url.Values)     { l.apply(v) }
+func (l Limit) mangaListApply(v *url.Values)     { l.apply(v) }
 func (l Limit) apply(v *url.Values)              { v.Set("limit", strconv.Itoa(int(l))) }
 
 // Offset is an option that sets the offset of the results.
@@ -170,6 +162,7 @@ type Offset int
 
 func (o Offset) seasonalAnimeApply(v *url.Values) { o.apply(v) }
 func (o Offset) animeListApply(v *url.Values)     { o.apply(v) }
+func (o Offset) mangaListApply(v *url.Values)     { o.apply(v) }
 func (o Offset) apply(v *url.Values)              { v.Set("offset", strconv.Itoa(int(o))) }
 
 // Fields is an option that allows to choose the fields that should be returned
@@ -182,6 +175,7 @@ type Fields []string
 
 func (f Fields) seasonalAnimeApply(v *url.Values) { f.apply(v) }
 func (f Fields) animeListApply(v *url.Values)     { f.apply(v) }
+func (f Fields) mangaListApply(v *url.Values)     { f.apply(v) }
 func (f Fields) apply(v *url.Values) {
 	if len(f) != 0 {
 		v.Set("fields", strings.Join(f, ","))

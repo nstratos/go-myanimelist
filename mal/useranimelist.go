@@ -10,13 +10,14 @@ import (
 	"time"
 )
 
-// animeListOption are options specific to the UserService.AnimeList method.
-type animeListOption interface {
+// AnimeListOption are options specific to the UserService.AnimeList method.
+type AnimeListOption interface {
 	animeListApply(v *url.Values)
 }
 
 // AnimeStatus is an option that allows to filter the returned anime list by the
-// specified status when using the UserService.AnimeList method.
+// specified status when using the UserService.AnimeList method. It can also be
+// passed as an option when updating the anime list.
 type AnimeStatus string
 
 // Possible statuses of an anime in the user's list.
@@ -46,10 +47,10 @@ const (
 
 func (s SortAnimeList) animeListApply(v *url.Values) { v.Set("sort", string(s)) }
 
-// AnimeWithStatus contains an anime record along with its list status.
-type AnimeWithStatus struct {
-	Anime  Anime
-	Status AnimeListStatus
+// UserAnime contains an anime record along with its status on the user's list.
+type UserAnime struct {
+	Anime  Anime           `json:"node"`
+	Status AnimeListStatus `json:"list_status"`
 }
 
 // AnimeListStatus shows the status of each anime in a user's anime list.
@@ -83,31 +84,22 @@ type AnimeListStatus struct {
 //     for _, a := range anime {
 //         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
 //     }
-func (s *UserService) AnimeList(ctx context.Context, username string, options ...animeListOption) ([]AnimeWithStatus, *Response, error) {
+func (s *UserService) AnimeList(ctx context.Context, username string, options ...AnimeListOption) ([]UserAnime, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
 		oo[i] = optionFromAnimeListOption(options[i])
 	}
-	return s.animeListWithStatus(ctx, fmt.Sprintf("users/%s/animelist", username), oo...)
-}
-
-func optionFromAnimeListOption(o animeListOption) optionFunc {
-	return optionFunc(func(v *url.Values) {
-		o.animeListApply(v)
-	})
-}
-
-func (s *UserService) animeListWithStatus(ctx context.Context, path string, options ...Option) ([]AnimeWithStatus, *Response, error) {
-	list, resp, err := s.client.animeList(ctx, path, options...)
+	list, resp, err := s.client.animeList(ctx, fmt.Sprintf("users/%s/animelist", username), oo...)
 	if err != nil {
 		return nil, resp, err
 	}
-	anime := make([]AnimeWithStatus, len(list.Data))
-	for i := range list.Data {
-		anime[i].Anime = list.Data[i].Anime
-		anime[i].Status = list.Data[i].Status
-	}
-	return anime, resp, nil
+	return list.Data, resp, nil
+}
+
+func optionFromAnimeListOption(o AnimeListOption) optionFunc {
+	return optionFunc(func(v *url.Values) {
+		o.animeListApply(v)
+	})
 }
 
 // UpdateMyAnimeListStatusOption are options specific to the

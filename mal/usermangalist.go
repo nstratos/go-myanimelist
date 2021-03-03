@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// MangaListOption are options specific to the UserService.MangaList method.
+type MangaListOption interface {
+	mangaListApply(v *url.Values)
+}
+
 // UpdateMyMangaListStatusOption are options specific to the
 // MangaService.UpdateMyListStatus method.
 type UpdateMyMangaListStatusOption interface {
@@ -19,6 +24,12 @@ func rawOptionFromUpdateMyMangaListStatusOption(o UpdateMyMangaListStatusOption)
 	return func(v *url.Values) {
 		o.updateMyMangaListStatusApply(v)
 	}
+}
+
+// UserManga contains a manga record along with its status on the user's list.
+type UserManga struct {
+	Manga  Manga           `json:"node"`
+	Status AnimeListStatus `json:"list_status"`
 }
 
 // MangaListStatus shows the status of each manga in a user's manga list.
@@ -52,6 +63,24 @@ const (
 
 func (s MangaStatus) mangaListApply(v *url.Values)               { v.Set("status", string(s)) }
 func (s MangaStatus) updateMyMangaListStatusApply(v *url.Values) { v.Set("status", string(s)) }
+
+func (s *UserService) MangaList(ctx context.Context, username string, options ...MangaListOption) ([]UserManga, *Response, error) {
+	oo := make([]Option, len(options))
+	for i := range options {
+		oo[i] = optionFromMangaListOption(options[i])
+	}
+	list, resp, err := s.client.mangaList(ctx, fmt.Sprintf("users/%s/mangalist", username), oo...)
+	if err != nil {
+		return nil, resp, err
+	}
+	return list.Data, resp, nil
+}
+
+func optionFromMangaListOption(o MangaListOption) optionFunc {
+	return optionFunc(func(v *url.Values) {
+		o.mangaListApply(v)
+	})
+}
 
 // IsRereading is an option that can update if a user is rereading a manga in
 // their list.

@@ -208,11 +208,8 @@ func checkResponse(r *http.Response) error {
 
 // animeList represents the anime list of a user.
 type animeList struct {
-	Data []struct {
-		Anime  Anime           `json:"node"`
-		Status AnimeListStatus `json:"list_status"`
-	}
-	Paging Paging `json:"paging"`
+	Data   []UserAnime `json:"data"`
+	Paging Paging      `json:"paging"`
 }
 
 // Paging provides access to the next and previous page URLs when there are
@@ -268,4 +265,46 @@ func parseOffset(urlStr string) (int, error) {
 		return 0, fmt.Errorf("parsing offset: %s", err)
 	}
 	return offset, nil
+}
+
+// mangaList represents the anime list of a user.
+type mangaList struct {
+	Data   []UserManga `json:"data"`
+	Paging Paging      `json:"paging"`
+}
+
+func (c *Client) mangaList(ctx context.Context, path string, options ...Option) (*mangaList, *Response, error) {
+	req, err := c.NewRequest(http.MethodGet, path)
+	if err != nil {
+		return nil, nil, err
+	}
+	q := req.URL.Query()
+	for _, o := range options {
+		o.apply(&q)
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	list := new(mangaList)
+	resp, err := c.Do(ctx, req, list)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	if list.Paging.Previous != "" {
+		offset, err := parseOffset(list.Paging.Previous)
+		if err != nil {
+			return nil, resp, fmt.Errorf("paging: previous: %s", err)
+		}
+		resp.PrevOffset = offset
+	}
+	if list.Paging.Next != "" {
+		offset, err := parseOffset(list.Paging.Next)
+		if err != nil {
+			return nil, resp, fmt.Errorf("paging: next: %s", err)
+		}
+		resp.NextOffset = offset
+	}
+
+	return list, resp, nil
 }
