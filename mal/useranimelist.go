@@ -110,31 +110,6 @@ func (s *UserService) animeListWithStatus(ctx context.Context, path string, opti
 	return anime, resp, nil
 }
 
-// UpdateAnimeListStatus shows the status of each anime in a user anime list.
-type UpdateAnimeListStatus struct {
-	Status             *AnimeStatus
-	Score              *int
-	NumWatchedEpisodes *int
-	IsRewatching       *bool
-	UpdatedAt          *time.Time
-	Priority           *int
-	NumTimesRewatched  *int
-	RewatchValue       *int
-	Tags               []string
-	Comments           *string
-}
-
-func optionFromUpdateAnimeListStatus(u UpdateAnimeListStatus) optionFunc {
-	return optionFunc(func(v *url.Values) {
-		if u.Status != nil {
-			v.Set("status", string(*u.Status))
-		}
-		if u.NumWatchedEpisodes != nil {
-			v.Set("num_watched_episodes", strconv.Itoa(*u.NumWatchedEpisodes))
-		}
-	})
-}
-
 // UpdateMyAnimeListStatusOption are options specific to the
 // AnimeService.UpdateMyListStatus method.
 type UpdateMyAnimeListStatusOption interface {
@@ -156,11 +131,11 @@ type Score int
 func (s Score) updateMyAnimeListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
 func (s Score) updateMyMangaListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
 
-// NumWatchedEpisodes is an option that can update the number of episodes
+// NumEpisodesWatched is an option that can update the number of episodes
 // watched of an anime in the user's list.
-type NumWatchedEpisodes int
+type NumEpisodesWatched int
 
-func (n NumWatchedEpisodes) updateMyAnimeListStatusApply(v *url.Values) {
+func (n NumEpisodesWatched) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("num_watched_episodes", itoa(int(n)))
 }
 
@@ -181,7 +156,14 @@ func (r IsRewatching) updateMyAnimeListStatusApply(v *url.Values) {
 }
 
 // RewatchValue is an option that can update the rewatch value of an anime in
-// the user's list with values 0-5.
+// the user's list with values:
+//
+//     0 = No value
+//     1 = Very Low
+//     2 = Low
+//     3 = Medium
+//     4 = High
+//     5 = Very High
 type RewatchValue int
 
 func (r RewatchValue) updateMyAnimeListStatusApply(v *url.Values) {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestUserServiceAnimeList(t *testing.T) {
@@ -13,7 +14,7 @@ func TestUserServiceAnimeList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/users/foo/animelist", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		const out = `
 		{
 		  "data": [
@@ -70,7 +71,7 @@ func TestUserServiceAnimeListError(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/users/foo/animelist", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
 	})
 
@@ -86,5 +87,78 @@ func TestUserServiceAnimeListError(t *testing.T) {
 		t.Fatal("User.AnimeList expected internal error, got no error.")
 	}
 	testResponseStatusCode(t, resp, http.StatusInternalServerError, "User.AnimeList")
+	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
+}
+
+func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		const out = `
+		{
+		  "status": "completed",
+		  "score": 8,
+		  "num_episodes_watched": 3,
+		  "is_rewatching": true,
+		  "updated_at": "2018-04-25T15:59:52Z",
+		  "priority": 2,
+		  "num_times_rewatched": 2,
+		  "rewatch_value": 1,
+		  "tags": ["foo","bar"],
+		  "comments": "comments"
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, _, err := client.Anime.UpdateMyListStatus(ctx, 1,
+		AnimeStatusCompleted,
+		IsRewatching(true),
+		Score(8),
+		NumEpisodesWatched(3),
+		Priority(2),
+		NumTimesRewatched(2),
+		RewatchValue(1),
+		Tags{"foo", "bar"},
+		Comments("comments"),
+	)
+	if err != nil {
+		t.Errorf("Anime.UpdateMyListStatus returned error: %v", err)
+	}
+
+	want := &AnimeListStatus{
+		Status:             AnimeStatusCompleted,
+		IsRewatching:       true,
+		Score:              8,
+		NumEpisodesWatched: 3,
+		Priority:           2,
+		NumTimesRewatched:  2,
+		RewatchValue:       1,
+		Tags:               []string{"foo", "bar"},
+		Comments:           "comments",
+		UpdatedAt:          time.Date(2018, 04, 25, 15, 59, 52, 0, time.UTC),
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Anime.UpdateMyListStatus returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+}
+
+func TestAnimeServiceUpdateMyListStatusError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
+	})
+
+	ctx := context.Background()
+	_, resp, err := client.Anime.UpdateMyListStatus(ctx, 1)
+	if err == nil {
+		t.Fatal("Anime.UpdateMyListStatus expected internal error, got no error.")
+	}
+	testResponseStatusCode(t, resp, http.StatusInternalServerError, "Anime.UpdateMyListStatus")
 	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
 }

@@ -14,7 +14,7 @@ func TestAnimeServiceDetails(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime/1", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		fmt.Fprintf(w, `{"id":1}`)
 	})
 
@@ -34,7 +34,7 @@ func TestAnimeServiceDetailsError(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime/1", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		http.Error(w, `{"message":"anime deleted","error":"not_found"}`, 404)
 	})
 
@@ -51,7 +51,7 @@ func TestAnimeServiceList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		const out = `
 		{
 		  "data": [
@@ -127,7 +127,7 @@ func TestAnimeServiceListParsePagingError(t *testing.T) {
 			defer teardown()
 
 			mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
-				testMethod(t, r, "GET")
+				testMethod(t, r, http.MethodGet)
 				fmt.Fprintf(w, tt.out)
 			})
 
@@ -148,7 +148,7 @@ func TestAnimeServiceListError(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
 	})
 
@@ -170,7 +170,7 @@ func TestAnimeServiceRanking(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime/ranking", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		const out = `
 		{
 		  "data": [
@@ -211,7 +211,7 @@ func TestAnimeServiceSeasonal(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime/season/2020/summer", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		const out = `
 		{
 		  "data": [
@@ -255,7 +255,7 @@ func TestAnimeServiceSuggested(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/anime/suggestions", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		const out = `
 		{
 		  "data": [

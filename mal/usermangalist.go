@@ -23,17 +23,17 @@ func rawOptionFromUpdateMyMangaListStatusOption(o UpdateMyMangaListStatusOption)
 
 // MangaListStatus shows the status of each manga in a user's manga list.
 type MangaListStatus struct {
-	Status          string    `json:"status"`
-	IsRereading     bool      `json:"is_rereading"`
-	NumVolumesRead  int       `json:"num_volumes_read"`
-	NumChaptersRead int       `json:"num_chapters_read"`
-	Score           int       `json:"score"`
-	UpdatedAt       time.Time `json:"updated_at"`
-	Priority        int       `json:"priority"`
-	NumTimesReread  int       `json:"num_times_reread"`
-	RereadValue     int       `json:"reread_value"`
-	Tags            []string  `json:"tags"`
-	Comments        string    `json:"comments"`
+	Status          MangaStatus `json:"status"`
+	IsRereading     bool        `json:"is_rereading"`
+	NumVolumesRead  int         `json:"num_volumes_read"`
+	NumChaptersRead int         `json:"num_chapters_read"`
+	Score           int         `json:"score"`
+	UpdatedAt       time.Time   `json:"updated_at"`
+	Priority        int         `json:"priority"`
+	NumTimesReread  int         `json:"num_times_reread"`
+	RereadValue     int         `json:"reread_value"`
+	Tags            []string    `json:"tags"`
+	Comments        string      `json:"comments"`
 }
 
 // MangaStatus is an option that allows to filter the returned manga list by the
@@ -86,7 +86,14 @@ func (n NumTimesReread) updateMyMangaListStatusApply(v *url.Values) {
 }
 
 // RereadValue is an option that can update the reread value of a manga in the
-// user's list with values 0-5.
+// user's list with values:
+//
+//     0 = No value
+//     1 = Very Low
+//     2 = Low
+//     3 = Medium
+//     4 = High
+//     5 = Very High
 type RereadValue int
 
 func (r RereadValue) updateMyMangaListStatusApply(v *url.Values) {

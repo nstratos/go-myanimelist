@@ -70,7 +70,7 @@ func TestUserServiceMyInfo(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/users/@me", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		fmt.Fprintf(w, `{"id":1}`)
 	})
 
@@ -90,7 +90,7 @@ func TestUserServiceMyInfoError(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/users/@me", func(w http.ResponseWriter, r *http.Request) {
-		testMethod(t, r, "GET")
+		testMethod(t, r, http.MethodGet)
 		http.Error(w, `{"message":"","error":"not_found"}`, 404)
 	})
 
