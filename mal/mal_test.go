@@ -211,7 +211,7 @@ func TestNewRequest(t *testing.T) {
 	c := NewClient(nil)
 
 	inURL, outURL := "foo", defaultBaseURL+"foo"
-	inBody, outBody := &struct{ ID int }{ID: 1}, `{"ID":1}`+"\n"
+	inBody, outBody := func(v *url.Values) { v.Set("name", "bar") }, "name=bar"
 
 	req, err := c.NewRequest("GET", inURL, inBody)
 	if err != nil {
@@ -226,14 +226,19 @@ func TestNewRequest(t *testing.T) {
 	// test that body was JSON encoded
 	body, _ := ioutil.ReadAll(req.Body)
 	if got, want := string(body), outBody; got != want {
-		t.Errorf("NewRequest(%#v) Body \nhave: %q\nwant: %q", inBody, got, want)
+		t.Errorf("NewRequest("+`func(v *url.Values) { v.Set("name", "bar")`+") Body \nhave: %q\nwant: %q", got, want)
+	}
+
+	// test that Content-Type header is correctly set when body is set
+	if got, want := req.Header.Get("Content-Type"), "application/x-www-form-urlencoded"; got != want {
+		t.Errorf("NewRequest() Content-Type \nhave: %q\nwant: %q", got, want)
 	}
 }
 
 func TestClient_NewRequest_HTTPS(t *testing.T) {
 	c := NewClient(nil)
 
-	req, err := c.NewRequest("GET", "/foo", nil)
+	req, err := c.NewRequest("GET", "/foo")
 	if err != nil {
 		t.Error("NewRequest returned err:", err)
 	}
@@ -247,7 +252,7 @@ func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	// This test requires Go version 1.7 or higher.
 	if len(s) >= 2 && s[0] == "go1" && s[1] == "7" {
 		c := NewClient(nil)
-		_, err := c.NewRequest("invalid method", "/foo", nil)
+		_, err := c.NewRequest("invalid method", "/foo")
 		if err == nil {
 			t.Error("NewRequest with invalid method expected to return err")
 		}
@@ -269,7 +274,7 @@ func TestDo(t *testing.T) {
 		fmt.Fprint(w, `{"bar":"&bull; foobar"}`)
 	})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/")
 
 	body := new(foo)
 	ctx := context.Background()
@@ -292,7 +297,7 @@ func TestDo_httpError(t *testing.T) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/")
 
 	ctx := context.Background()
 	resp, err := client.Do(ctx, req, nil)
@@ -322,7 +327,7 @@ func TestDo_returnsError(t *testing.T) {
 		w.WriteHeader(200)
 	})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/")
 	ctx := context.Background()
 	_, err := client.Do(ctx, req, nil)
 	if err == nil {
@@ -340,7 +345,7 @@ func TestDo_noContent(t *testing.T) {
 
 	var body json.RawMessage
 
-	req, _ := client.NewRequest("GET", ".", nil)
+	req, _ := client.NewRequest("GET", ".")
 	ctx := context.Background()
 	_, err := client.Do(ctx, req, &body)
 	if err != nil {
@@ -359,7 +364,7 @@ func TestDo_bodyImplementsIOWriter(t *testing.T) {
 
 	var body bytes.Buffer
 
-	req, _ := client.NewRequest("GET", ".", nil)
+	req, _ := client.NewRequest("GET", ".")
 	ctx := context.Background()
 	_, err := client.Do(ctx, req, &body)
 	if err != nil {
@@ -381,7 +386,7 @@ func TestDo_decodeError(t *testing.T) {
 
 	var body json.RawMessage
 
-	req, _ := client.NewRequest("GET", ".", nil)
+	req, _ := client.NewRequest("GET", ".")
 	ctx := context.Background()
 	_, err := client.Do(ctx, req, &body)
 	if err == nil {
@@ -397,7 +402,7 @@ func TestDo_contextCanceled(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req, _ := client.NewRequest("GET", ".", nil)
+	req, _ := client.NewRequest("GET", ".")
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	_, err := client.Do(ctx, req, nil)
@@ -410,7 +415,7 @@ func TestDo_nilContext(t *testing.T) {
 	client, _, teardown := setup()
 	defer teardown()
 
-	req, _ := client.NewRequest("GET", ".", nil)
+	req, _ := client.NewRequest("GET", ".")
 	_, err := client.Do(nil, req, nil)
 	if err == nil {
 		t.Errorf("Expected context must be non-nil error")
@@ -467,17 +472,17 @@ func TestDo_nilContext(t *testing.T) {
 func TestClient_NewRequest_badEndpoint(t *testing.T) {
 	c := NewClient(nil)
 	inURL := "%foo"
-	_, err := c.NewRequest("GET", inURL, nil)
+	_, err := c.NewRequest("GET", inURL)
 	if err == nil {
 		t.Errorf("NewRequest(%q) should return parse err", inURL)
 	}
 }
 
-func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
-	c := NewClient(nil)
-	in := func() {} // xml.Marshal cannot encode a func
-	_, err := c.NewRequest("GET", "/foo", in)
-	if err == nil {
-		t.Errorf("NewRequest receiving a function as body should return XML encode err")
-	}
-}
+// func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
+// 	c := NewClient(nil)
+// 	in := func() {} // xml.Marshal cannot encode a func
+// 	_, err := c.NewRequest("GET", "/foo", in)
+// 	if err == nil {
+// 		t.Errorf("NewRequest receiving a function as body should return XML encode err")
+// 	}
+// }

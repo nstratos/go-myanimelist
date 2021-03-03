@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // Status specifies a status for anime and manga entries.
@@ -98,7 +97,7 @@ type Response struct {
 // updating entries.
 //
 // MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, urlStr string, urlOptions ...func(v *url.Values)) (*http.Request, error) {
 	if !strings.HasSuffix(c.BaseURL.Path, "/") {
 		return nil, fmt.Errorf("BaseURL must have a trailing slash, but %q does not", c.BaseURL)
 	}
@@ -107,23 +106,22 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	var buf io.ReadWriter
-	if body != nil {
-		buf = &bytes.Buffer{}
-		enc := json.NewEncoder(buf)
-		err := enc.Encode(body)
-		if err != nil {
-			return nil, err
+	var r io.Reader
+	if len(urlOptions) != 0 {
+		v := &url.Values{}
+		for _, o := range urlOptions {
+			o(v)
 		}
+		r = strings.NewReader(v.Encode())
 	}
 
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequest(method, u.String(), r)
 	if err != nil {
 		return nil, err
 	}
 
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+	if len(urlOptions) != 0 {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 	return req, nil
 }
@@ -224,17 +222,8 @@ type Paging struct {
 	Previous string `json:"previous"`
 }
 
-// AnimeListStatus shows the status of each anime in a user anime list.
-type AnimeListStatus struct {
-	Status             string    `json:"status"`
-	Score              int       `json:"score"`
-	NumWatchedEpisodes int       `json:"num_watched_episodes"`
-	IsRewatching       bool      `json:"is_rewatching"`
-	UpdatedAt          time.Time `json:"updated_at"`
-}
-
 func (c *Client) animeList(ctx context.Context, path string, options ...Option) (*animeList, *Response, error) {
-	req, err := c.NewRequest(http.MethodGet, path, nil)
+	req, err := c.NewRequest(http.MethodGet, path)
 	if err != nil {
 		return nil, nil, err
 	}

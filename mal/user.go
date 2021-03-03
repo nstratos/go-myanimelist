@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -50,7 +52,7 @@ type AnimeStatistics struct {
 
 // MyInfo returns information about the authenticated user.
 func (s *UserService) MyInfo(ctx context.Context) (*User, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "users/@me", nil)
+	req, err := s.client.NewRequest(http.MethodGet, "users/@me")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -82,7 +84,8 @@ const (
 	AnimeStatusPlanToWatch AnimeStatus = "plan_to_watch"
 )
 
-func (s AnimeStatus) animeListApply(v *url.Values) { v.Set("status", string(s)) }
+func (s AnimeStatus) animeListApply(v *url.Values)               { v.Set("status", string(s)) }
+func (s AnimeStatus) updateMyAnimeListStatusApply(v *url.Values) { v.Set("status", string(s)) }
 
 // SortAnimeList is an option that sorts the results returned by the
 // UserService.AnimeList method.
@@ -103,6 +106,20 @@ func (s SortAnimeList) animeListApply(v *url.Values) { v.Set("sort", string(s)) 
 type AnimeWithStatus struct {
 	Anime  Anime
 	Status AnimeListStatus
+}
+
+// AnimeListStatus shows the status of each anime in a user anime list.
+type AnimeListStatus struct {
+	Status             AnimeStatus `json:"status"`
+	Score              int         `json:"score"`
+	NumEpisodesWatched int         `json:"num_episodes_watched"`
+	IsRewatching       bool        `json:"is_rewatching"`
+	UpdatedAt          *time.Time  `json:"updated_at"`
+	Priority           int         `json:"priority"`
+	NumTimesRewatched  int         `json:"num_times_rewatched"`
+	RewatchValue       int         `json:"rewatch_value"`
+	Tags               []string    `json:"tags"`
+	Comments           string      `json:"comments"`
 }
 
 // AnimeList gets the anime list of the user indicated by username (or use @me).
@@ -147,4 +164,212 @@ func (s *UserService) animeListWithStatus(ctx context.Context, path string, opti
 		anime[i].Status = list.Data[i].Status
 	}
 	return anime, resp, nil
+}
+
+// UpdateAnimeListStatus shows the status of each anime in a user anime list.
+type UpdateAnimeListStatus struct {
+	Status             *AnimeStatus
+	Score              *int
+	NumWatchedEpisodes *int
+	IsRewatching       *bool
+	UpdatedAt          *time.Time
+	Priority           *int
+	NumTimesRewatched  *int
+	RewatchValue       *int
+	Tags               []string
+	Comments           *string
+}
+
+func optionFromUpdateAnimeListStatus(u UpdateAnimeListStatus) optionFunc {
+	return optionFunc(func(v *url.Values) {
+		if u.Status != nil {
+			v.Set("status", string(*u.Status))
+		}
+		if u.NumWatchedEpisodes != nil {
+			v.Set("num_watched_episodes", strconv.Itoa(*u.NumWatchedEpisodes))
+		}
+	})
+}
+
+// UpdateMyAnimeListStatusOption are options specific to the
+// AnimeService.UpdateMyListStatus method.
+type UpdateMyAnimeListStatusOption interface {
+	updateMyAnimeListStatusApply(v *url.Values)
+}
+
+func rawOptionFromUpdateMyAnimeListStatusOption(o UpdateMyAnimeListStatusOption) func(v *url.Values) {
+	return func(v *url.Values) {
+		o.updateMyAnimeListStatusApply(v)
+	}
+}
+
+var itoa = strconv.Itoa
+
+type Score int
+
+func (s Score) updateMyAnimeListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
+func (s Score) updateMyMangaListStatusApply(v *url.Values) { v.Set("score", itoa(int(s))) }
+
+type NumWatchedEpisodes int
+
+func (n NumWatchedEpisodes) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("num_watched_episodes", itoa(int(n)))
+}
+
+type NumTimesRewatched int
+
+func (n NumTimesRewatched) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("num_times_rewatched", itoa(int(n)))
+}
+
+type IsRewatching bool
+
+func (r IsRewatching) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("is_rewatching", strconv.FormatBool(bool(r)))
+}
+
+type RewatchValue int
+
+func (r RewatchValue) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("rewatch_value", itoa(int(r)))
+}
+
+type Priority int
+
+func (p Priority) updateMyAnimeListStatusApply(v *url.Values) { v.Set("priority", itoa(int(p))) }
+func (p Priority) updateMyMangaListStatusApply(v *url.Values) { v.Set("priority", itoa(int(p))) }
+
+type Tags []string
+
+func (t Tags) updateMyAnimeListStatusApply(v *url.Values) { v.Set("tags", strings.Join(t, ",")) }
+func (t Tags) updateMyMangaListStatusApply(v *url.Values) { v.Set("tags", strings.Join(t, ",")) }
+
+type Comments string
+
+func (c Comments) updateMyAnimeListStatusApply(v *url.Values) { v.Set("comments", string(c)) }
+func (c Comments) updateMyMangaListStatusApply(v *url.Values) { v.Set("comments", string(c)) }
+
+// UpdateMyListStatus adds anime specified by the animeID to the users anime
+// list with the status specified by animeStatus. If the anime already exists in
+// the list, only the status is updated.
+//
+// This endpoint updates only values specified by the parameter.
+//
+// TODO(nstratos): How does it work with Go's default values?
+func (s *AnimeService) UpdateMyListStatus(ctx context.Context, animeID int, options ...UpdateMyAnimeListStatusOption) (*AnimeListStatus, *Response, error) {
+	u := fmt.Sprintf("anime/%d/my_list_status", animeID)
+	rawOptions := make([]func(v *url.Values), len(options))
+	for i := range options {
+		rawOptions[i] = rawOptionFromUpdateMyAnimeListStatusOption(options[i])
+	}
+	req, err := s.client.NewRequest(http.MethodPatch, u, rawOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(AnimeListStatus)
+	resp, err := s.client.Do(ctx, req, a)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return a, resp, nil
+}
+
+// UpdateMyMangaListStatusOption are options specific to the
+// AmangaService.UpdateMyListStatus method.
+type UpdateMyMangaListStatusOption interface {
+	updateMyMangaListStatusApply(v *url.Values)
+}
+
+func rawOptionFromUpdateMyMangaListStatusOption(o UpdateMyMangaListStatusOption) func(v *url.Values) {
+	return func(v *url.Values) {
+		o.updateMyMangaListStatusApply(v)
+	}
+}
+
+type MangaListStatus struct {
+	Status          string        `json:"status"`
+	IsRereading     bool          `json:"is_rereading"`
+	NumVolumesRead  int           `json:"num_volumes_read"`
+	NumChaptersRead int           `json:"num_chapters_read"`
+	Score           int           `json:"score"`
+	UpdatedAt       time.Time     `json:"updated_at"`
+	Priority        int           `json:"priority"`
+	NumTimesReread  int           `json:"num_times_reread"`
+	RereadValue     int           `json:"reread_value"`
+	Tags            []interface{} `json:"tags"`
+	Comments        string        `json:"comments"`
+}
+
+// MangaStatus is an option that allows to filter the returned anime list by the
+// specified status when using the UserService.MangaList method. It can also be
+// passed as an option when updating the manga list.
+type MangaStatus string
+
+// Possible statuses of an nime list item.
+const (
+	MangaStatusReading    MangaStatus = "reading"
+	MangaStatusCompleted  MangaStatus = "completed"
+	MangaStatusOnHold     MangaStatus = "on_hold"
+	MangaStatusDropped    MangaStatus = "dropped"
+	MangaStatusPlanToRead MangaStatus = "plan_to_read"
+)
+
+func (s MangaStatus) mangaListApply(v *url.Values)               { v.Set("status", string(s)) }
+func (s MangaStatus) updateMyMangaListStatusApply(v *url.Values) { v.Set("status", string(s)) }
+
+type IsRereading bool
+
+func (r IsRereading) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("is_rereading", strconv.FormatBool(bool(r)))
+}
+
+type NumVolumesRead int
+
+func (n NumVolumesRead) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("num_volumes_read", itoa(int(n)))
+}
+
+type NumChaptersRead int
+
+func (n NumChaptersRead) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("num_chapters_read", itoa(int(n)))
+}
+
+type NumTimesReread int
+
+func (n NumTimesReread) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("num_times_reread", itoa(int(n)))
+}
+
+type RereadValue int
+
+func (r RereadValue) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("reread_value", itoa(int(r)))
+}
+
+// UpdateMyListStatus adds manga specified by the mangaID to the users anime
+// list with the status specified by animeStatus. If the anime already exists in
+// the list, only the status is updated.
+//
+// This endpoint updates only values specified by the parameter.
+func (s *MangaService) UpdateMyListStatus(ctx context.Context, mangaID int, options ...UpdateMyMangaListStatusOption) (*MangaListStatus, *Response, error) {
+	u := fmt.Sprintf("manga/%d/my_list_status", mangaID)
+	rawOptions := make([]func(v *url.Values), len(options))
+	for i := range options {
+		rawOptions[i] = rawOptionFromUpdateMyMangaListStatusOption(options[i])
+	}
+	req, err := s.client.NewRequest(http.MethodPatch, u, rawOptions...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	m := new(MangaListStatus)
+	resp, err := s.client.Do(ctx, req, m)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return m, resp, nil
 }

@@ -132,7 +132,7 @@ type Broadcast struct {
 // Details returns details about an anime.
 func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response, error) {
 	u := fmt.Sprintf("anime/%d", id)
-	req, err := s.client.NewRequest(http.MethodGet, u, nil)
+	req, err := s.client.NewRequest(http.MethodGet, u)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -288,6 +288,21 @@ func optionFromSeasonalAnimeOption(o SeasonalAnimeOption) optionFunc {
 
 // Seasonal allows an authenticated user to receive the seasonal anime by
 // providing the year and season. The results can be sorted using an option.
+//
+// Example:
+//
+//     anime, _, err := c.Anime.Seasonal(ctx, 2020, mal.AnimeSeasonFall,
+//         mal.Fields{"rank", "popularity"},
+//         mal.SortSeasonalByAnimeNumListUsers,
+//         mal.Limit(10),
+//         mal.Offset(0),
+//     )
+//     if err != nil {
+//         return err
+//     }
+//     for _, a := range anime {
+//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+//     }
 func (s *AnimeService) Seasonal(ctx context.Context, year int, season AnimeSeason, options ...SeasonalAnimeOption) ([]Anime, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
