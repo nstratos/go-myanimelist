@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -49,17 +49,14 @@ func testURLValues(t *testing.T, r *http.Request, values urlValues) {
 	}
 }
 
-func testBasicAuth(t *testing.T, r *http.Request, usedWant bool, unameWant, passWant string) {
+func testBody(t *testing.T, r *http.Request, want string) {
 	t.Helper()
-	uname, pass, used := r.BasicAuth()
-	if used != usedWant {
-		t.Errorf("BasicAuth used = %v, want %v", used, usedWant)
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		t.Fatalf("Error reading request body: %v", err)
 	}
-	if uname != unameWant {
-		t.Errorf("BasicAuth username = %v, want %v", uname, unameWant)
-	}
-	if pass != passWant {
-		t.Errorf("BasicAuth password = %v, want %v", pass, passWant)
+	if got := string(b); got != want {
+		t.Errorf("request body\nhave: %q\nwant: %q", got, want)
 	}
 }
 
@@ -225,7 +222,7 @@ func TestNewRequest(t *testing.T) {
 	}
 
 	// test that body was JSON encoded
-	body, _ := ioutil.ReadAll(req.Body)
+	body, _ := io.ReadAll(req.Body)
 	if got, want := string(body), outBody; got != want {
 		t.Errorf("NewRequest("+`func(v *url.Values) { v.Set("name", "bar")`+") Body \nhave: %q\nwant: %q", got, want)
 	}

@@ -53,9 +53,7 @@ type mangaList struct {
 	Paging Paging      `json:"paging"`
 }
 
-func (m mangaList) pagination() Paging {
-	return m.Paging
-}
+func (m mangaList) pagination() Paging { return m.Paging }
 
 // MangaStatus is an option that allows to filter the returned manga list by the
 // specified status when using the UserService.MangaList method. It can also be

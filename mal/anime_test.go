@@ -15,11 +15,15 @@ func TestAnimeServiceDetails(t *testing.T) {
 
 	mux.HandleFunc("/anime/1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"fields": "foo,bar",
+		})
+		testBody(t, r, "")
 		fmt.Fprintf(w, `{"id":1}`)
 	})
 
 	ctx := context.Background()
-	a, _, err := client.Anime.Details(ctx, 1)
+	a, _, err := client.Anime.Details(ctx, 1, Fields{"foo,bar"})
 	if err != nil {
 		t.Errorf("Anime.Details returned error: %v", err)
 	}
@@ -52,6 +56,12 @@ func TestAnimeServiceList(t *testing.T) {
 
 	mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"q":      "query",
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
 		const out = `
 		{
 		  "data": [
@@ -153,11 +163,7 @@ func TestAnimeServiceListError(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	_, resp, err := client.Anime.List(ctx, "query",
-		Fields{"foo", "bar"},
-		Limit(10),
-		Offset(0),
-	)
+	_, resp, err := client.Anime.List(ctx, "query")
 	if err == nil {
 		t.Fatal("Anime.List expected internal error, got no error.")
 	}
@@ -171,6 +177,12 @@ func TestAnimeServiceRanking(t *testing.T) {
 
 	mux.HandleFunc("/anime/ranking", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"ranking_type": "airing",
+			"fields":       "foo,bar",
+			"limit":        "10",
+			"offset":       "0",
+		})
 		const out = `
 		{
 		  "data": [
@@ -212,6 +224,12 @@ func TestAnimeServiceSeasonal(t *testing.T) {
 
 	mux.HandleFunc("/anime/season/2020/summer", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"sort":   "anime_num_list_users",
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
 		const out = `
 		{
 		  "data": [
@@ -256,6 +274,11 @@ func TestAnimeServiceSuggested(t *testing.T) {
 
 	mux.HandleFunc("/anime/suggestions", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
 		const out = `
 		{
 		  "data": [

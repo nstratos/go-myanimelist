@@ -120,13 +120,23 @@ type Broadcast struct {
 	StartTime    string `json:"start_time,omitempty"`
 }
 
+// DetailsOption is an option specific for the anime and manga details methods.
+type DetailsOption interface {
+	detailsApply(v *url.Values)
+}
+
 // Details returns details about an anime.
-func (s *AnimeService) Details(ctx context.Context, id int64) (*Anime, *Response, error) {
+func (s *AnimeService) Details(ctx context.Context, id int64, options ...DetailsOption) (*Anime, *Response, error) {
 	u := fmt.Sprintf("anime/%d", id)
 	req, err := s.client.NewRequest(http.MethodGet, u)
 	if err != nil {
 		return nil, nil, err
 	}
+	q := req.URL.Query()
+	for _, o := range options {
+		o.detailsApply(&q)
+	}
+	req.URL.RawQuery = q.Encode()
 
 	a := new(Anime)
 	resp, err := s.client.Do(ctx, req, a)
@@ -176,6 +186,7 @@ type Fields []string
 func (f Fields) seasonalAnimeApply(v *url.Values) { f.apply(v) }
 func (f Fields) animeListApply(v *url.Values)     { f.apply(v) }
 func (f Fields) mangaListApply(v *url.Values)     { f.apply(v) }
+func (f Fields) detailsApply(v *url.Values)       { f.apply(v) }
 func (f Fields) apply(v *url.Values) {
 	if len(f) != 0 {
 		v.Set("fields", strings.Join(f, ","))

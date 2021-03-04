@@ -73,9 +73,7 @@ type animeList struct {
 	Paging Paging      `json:"paging"`
 }
 
-func (a animeList) pagination() Paging {
-	return a.Paging
-}
+func (a animeList) pagination() Paging { return a.Paging }
 
 // AnimeList gets the anime list of the user indicated by username (or use @me).
 // The anime can be sorted and filtered using the AnimeStatus and SortAnimeList

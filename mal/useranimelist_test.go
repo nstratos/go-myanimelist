@@ -103,7 +103,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 
 	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
-		// TODO(nstratos): Test body
+		testBody(t, r, "comments=comments&is_rewatching=true&num_times_rewatched=2&num_watched_episodes=3&priority=2&rewatch_value=1&score=8&status=completed&tags=foo%2Cbar")
 		const out = `
 		{
 		  "status": "completed",
