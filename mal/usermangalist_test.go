@@ -9,6 +9,81 @@ import (
 	"time"
 )
 
+func TestUserServiceMangaList(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/users/foo/mangalist", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		// TODO(nstratos): Test URL params.
+		const out = `
+		{
+		  "data": [
+		    {
+		      "node": { "id": 1 },
+			  "list_status": {
+			    "status": "plan_to_read"
+			  }
+		    },
+		    {
+		      "node": { "id": 2 },
+			  "list_status": {
+			    "status": "reading"
+			  }
+		    }
+		  ],
+		  "paging": {
+		    "next": "?offset=4",
+		    "previous": "?offset=2"
+		  }
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, resp, err := client.User.MangaList(ctx, "foo",
+		MangaStatusCompleted,
+		SortMangaListByMangaID,
+		Fields{"foo", "bar"},
+		Limit(10),
+		Offset(0),
+	)
+	if err != nil {
+		t.Errorf("User.MangaList returned error: %v", err)
+	}
+	want := []UserManga{
+		{
+			Manga:  Manga{ID: 1},
+			Status: MangaListStatus{Status: "plan_to_read"},
+		},
+		{
+			Manga:  Manga{ID: 2},
+			Status: MangaListStatus{Status: "reading"},
+		},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("User.MangaList returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+	testResponseOffset(t, resp, 4, 2, "User.MangaList")
+}
+
+func TestUserServiceMangaListError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/users/foo/mangalist", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
+	})
+
+	ctx := context.Background()
+	_, resp, err := client.User.MangaList(ctx, "foo")
+	if err == nil {
+		t.Fatal("User.MangaList expected internal error, got no error.")
+	}
+	testResponseStatusCode(t, resp, http.StatusInternalServerError, "User.MangaList")
+	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
+}
 func TestMangaServiceUpdateMyListStatus(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()

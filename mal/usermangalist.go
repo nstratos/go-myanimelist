@@ -29,7 +29,7 @@ func rawOptionFromUpdateMyMangaListStatusOption(o UpdateMyMangaListStatusOption)
 // UserManga contains a manga record along with its status on the user's list.
 type UserManga struct {
 	Manga  Manga           `json:"node"`
-	Status AnimeListStatus `json:"list_status"`
+	Status MangaListStatus `json:"list_status"`
 }
 
 // MangaListStatus shows the status of each manga in a user's manga list.
