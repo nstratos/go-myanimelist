@@ -32,17 +32,17 @@ const (
 func (s AnimeStatus) animeListApply(v *url.Values)               { v.Set("status", string(s)) }
 func (s AnimeStatus) updateMyAnimeListStatusApply(v *url.Values) { v.Set("status", string(s)) }
 
-// SortAnimeList is an option that sorts the results returned by the
-// UserService.AnimeList method.
+// SortAnimeList is an option that sorts the results when getting the user's
+// anime list.
 type SortAnimeList string
 
 // Possible sorting values.
 const (
-	SortAnimeListByAnimeListScore     SortAnimeList = "list_score"       // Descending
-	SortAnimeListByAnimeListUpdatedAt SortAnimeList = "list_updated_at"  // Descending
-	SortAnimeListByAnimeTitle         SortAnimeList = "anime_title"      // Ascending
-	SortAnimeListByAnimeStartDate     SortAnimeList = "anime_start_date" // Descending
-	SortAnimeListByAnimeID            SortAnimeList = "anime_id"         // (Under Development) Ascending
+	SortAnimeListByListScore      SortAnimeList = "list_score"       // Descending
+	SortAnimeListByListUpdatedAt  SortAnimeList = "list_updated_at"  // Descending
+	SortAnimeListByAnimeTitle     SortAnimeList = "anime_title"      // Ascending
+	SortAnimeListByAnimeStartDate SortAnimeList = "anime_start_date" // Descending
+	SortAnimeListByAnimeID        SortAnimeList = "anime_id"         // (Under Development) Ascending
 )
 
 func (s SortAnimeList) animeListApply(v *url.Values) { v.Set("sort", string(s)) }
@@ -67,9 +67,19 @@ type AnimeListStatus struct {
 	Comments           string      `json:"comments"`
 }
 
+// animeList represents the anime list of a user.
+type animeList struct {
+	Data   []UserAnime `json:"data"`
+	Paging Paging      `json:"paging"`
+}
+
+func (a animeList) pagination() Paging {
+	return a.Paging
+}
+
 // AnimeList gets the anime list of the user indicated by username (or use @me).
 // The anime can be sorted and filtered using the AnimeStatus and SortAnimeList
-// options functions respectively.
+// option functions respectively.
 //
 // Example:
 //
@@ -89,7 +99,8 @@ func (s *UserService) AnimeList(ctx context.Context, username string, options ..
 	for i := range options {
 		oo[i] = optionFromAnimeListOption(options[i])
 	}
-	list, resp, err := s.client.animeList(ctx, fmt.Sprintf("users/%s/animelist", username), oo...)
+	list := new(animeList)
+	resp, err := s.client.list(ctx, fmt.Sprintf("users/%s/animelist", username), list, oo...)
 	if err != nil {
 		return nil, resp, err
 	}

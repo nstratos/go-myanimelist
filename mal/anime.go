@@ -200,7 +200,8 @@ func (s *AnimeService) List(ctx context.Context, search string, options ...Optio
 }
 
 func (s *AnimeService) list(ctx context.Context, path string, options ...Option) ([]Anime, *Response, error) {
-	list, resp, err := s.client.animeList(ctx, path, options...)
+	list := new(animeList)
+	resp, err := s.client.list(ctx, path, list, options...)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -208,7 +209,6 @@ func (s *AnimeService) list(ctx context.Context, path string, options ...Option)
 	for i := range list.Data {
 		anime[i] = list.Data[i].Anime
 	}
-
 	return anime, resp, nil
 }
 

@@ -47,6 +47,16 @@ type MangaListStatus struct {
 	Comments        string      `json:"comments"`
 }
 
+// mangaList represents the anime list of a user.
+type mangaList struct {
+	Data   []UserManga `json:"data"`
+	Paging Paging      `json:"paging"`
+}
+
+func (m mangaList) pagination() Paging {
+	return m.Paging
+}
+
 // MangaStatus is an option that allows to filter the returned manga list by the
 // specified status when using the UserService.MangaList method. It can also be
 // passed as an option when updating the manga list.
@@ -64,12 +74,31 @@ const (
 func (s MangaStatus) mangaListApply(v *url.Values)               { v.Set("status", string(s)) }
 func (s MangaStatus) updateMyMangaListStatusApply(v *url.Values) { v.Set("status", string(s)) }
 
+// SortMangaList is an option that sorts the results when getting the user's
+// manga list.
+type SortMangaList string
+
+// Possible sorting values.
+const (
+	SortMangaListByListScore      SortMangaList = "list_score"       // Descending
+	SortMangaListByListUpdatedAt  SortMangaList = "list_updated_at"  // Descending
+	SortMangaListByMangaTitle     SortMangaList = "manga_title"      // Ascending
+	SortMangaListByMangaStartDate SortMangaList = "manga_start_date" // Descending
+	SortMangaListByMangaID        SortMangaList = "manga_id"         // (Under Development) Ascending
+)
+
+func (s SortMangaList) mangaListApply(v *url.Values) { v.Set("sort", string(s)) }
+
+// MangaList gets the manga list of the user indicated by username (or use @me).
+// The manga can be sorted and filtered using the MangaStatus and SortMangaList
+// option functions respectively.
 func (s *UserService) MangaList(ctx context.Context, username string, options ...MangaListOption) ([]UserManga, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
 		oo[i] = optionFromMangaListOption(options[i])
 	}
-	list, resp, err := s.client.mangaList(ctx, fmt.Sprintf("users/%s/mangalist", username), oo...)
+	list := new(mangaList)
+	resp, err := s.client.list(ctx, fmt.Sprintf("users/%s/mangalist", username), list, oo...)
 	if err != nil {
 		return nil, resp, err
 	}
