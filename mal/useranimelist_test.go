@@ -15,6 +15,13 @@ func TestUserServiceAnimeList(t *testing.T) {
 
 	mux.HandleFunc("/users/foo/animelist", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"status": "completed",
+			"sort":   "anime_id",
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
 		const out = `
 		{
 		  "data": [
@@ -96,6 +103,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 
 	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
+		// TODO(nstratos): Test body
 		const out = `
 		{
 		  "status": "completed",

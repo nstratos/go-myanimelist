@@ -15,7 +15,13 @@ func TestUserServiceMangaList(t *testing.T) {
 
 	mux.HandleFunc("/users/foo/mangalist", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
-		// TODO(nstratos): Test URL params.
+		testURLValues(t, r, urlValues{
+			"status": "completed",
+			"sort":   "manga_id",
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
 		const out = `
 		{
 		  "data": [

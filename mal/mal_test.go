@@ -38,6 +38,7 @@ func setup() (client *Client, mux *http.ServeMux, teardown func()) {
 type urlValues map[string]string
 
 func testURLValues(t *testing.T, r *http.Request, values urlValues) {
+	t.Helper()
 	want := url.Values{}
 	for k, v := range values {
 		want.Add(k, v)
