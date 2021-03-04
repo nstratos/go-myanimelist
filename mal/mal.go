@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -196,12 +195,12 @@ func checkResponse(r *http.Response) error {
 		return nil
 	}
 	errorResponse := &ErrorResponse{Response: r}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err == nil && data != nil {
 		json.Unmarshal(data, errorResponse)
 	}
 	// Re-populate error response body in case JSON unmarshal fails.
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+	r.Body = io.NopCloser(bytes.NewBuffer(data))
 
 	return errorResponse
 }
