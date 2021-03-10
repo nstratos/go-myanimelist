@@ -205,6 +205,25 @@ func checkResponse(r *http.Response) error {
 	return errorResponse
 }
 
+func (c *Client) details(ctx context.Context, path string, v interface{}, options ...DetailsOption) (*Response, error) {
+	req, err := c.NewRequest(http.MethodGet, path)
+	if err != nil {
+		return nil, err
+	}
+	q := req.URL.Query()
+	for _, o := range options {
+		o.detailsApply(&q)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := c.Do(ctx, req, v)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}
+
 // Paging provides access to the next and previous page URLs when there are
 // pages of results.
 type Paging struct {

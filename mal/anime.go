@@ -3,7 +3,6 @@ package mal
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -126,24 +125,12 @@ type DetailsOption interface {
 }
 
 // Details returns details about an anime.
-func (s *AnimeService) Details(ctx context.Context, id int64, options ...DetailsOption) (*Anime, *Response, error) {
-	u := fmt.Sprintf("anime/%d", id)
-	req, err := s.client.NewRequest(http.MethodGet, u)
-	if err != nil {
-		return nil, nil, err
-	}
-	q := req.URL.Query()
-	for _, o := range options {
-		o.detailsApply(&q)
-	}
-	req.URL.RawQuery = q.Encode()
-
+func (s *AnimeService) Details(ctx context.Context, animeID int64, options ...DetailsOption) (*Anime, *Response, error) {
 	a := new(Anime)
-	resp, err := s.client.Do(ctx, req, a)
+	resp, err := s.client.details(ctx, fmt.Sprintf("anime/%d", animeID), a, options...)
 	if err != nil {
 		return nil, resp, err
 	}
-
 	return a, resp, nil
 }
 
