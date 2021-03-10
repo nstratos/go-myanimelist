@@ -69,7 +69,7 @@ func testMethod(t *testing.T, r *http.Request, want string) {
 func testContentType(t *testing.T, r *http.Request, want string) {
 	ct := r.Header.Get("Content-Type")
 	if ct != want {
-		t.Errorf("Content-Type = %v, want %v", ct, want)
+		t.Errorf("Content-Type = %q, want %q", ct, want)
 	}
 }
 

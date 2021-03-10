@@ -96,6 +96,7 @@ func TestMangaServiceUpdateMyListStatus(t *testing.T) {
 
 	mux.HandleFunc("/manga/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
+		testContentType(t, r, "application/x-www-form-urlencoded")
 		testBody(t, r, "comments=comments&is_rereading=true&num_chapters_read=3&num_times_reread=2&num_volumes_read=3&priority=2&reread_value=1&score=8&status=completed&tags=foo%2Cbar")
 		const out = `
 		{
