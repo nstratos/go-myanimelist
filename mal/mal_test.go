@@ -233,18 +233,6 @@ func TestNewRequest(t *testing.T) {
 	}
 }
 
-func TestClient_NewRequest_HTTPS(t *testing.T) {
-	c := NewClient(nil)
-
-	req, err := c.NewRequest("GET", "/foo")
-	if err != nil {
-		t.Error("NewRequest returned err:", err)
-	}
-	if got, want := req.URL.Scheme, "https"; got != want {
-		t.Errorf("NewRequest scheme = %q, want %q", got, want)
-	}
-}
-
 func TestClient_NewRequest_invalidMethod(t *testing.T) {
 	s := strings.Split(runtime.Version(), ".")
 	// This test requires Go version 1.7 or higher.
