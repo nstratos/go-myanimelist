@@ -163,27 +163,6 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-// func TestNewClient_options(t *testing.T) {
-// 	httpClient := &http.Client{}
-// 	c := NewClient(
-// 		Auth("TestUser", "TestPass"),
-// 		HTTPClient(httpClient),
-// 	)
-
-// 	// test passing username and password as option
-// 	if got, want := c.username, "TestUser"; got != want {
-// 		t.Errorf("NewClient.username = %v, want %v", got, want)
-// 	}
-// 	if got, want := c.password, "TestPass"; got != want {
-// 		t.Errorf("NewClient.password = %v, want %v", got, want)
-// 	}
-
-// 	// test passing http client as option
-// 	if got, want := c.client, httpClient; got != want {
-// 		t.Errorf("NewClient.client = %p, want %p", got, want)
-// 	}
-// }
-
 func TestErrorResponse(t *testing.T) {
 	errResp := &ErrorResponse{
 		Response: &http.Response{
