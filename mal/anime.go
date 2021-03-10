@@ -209,16 +209,28 @@ func (s *AnimeService) list(ctx context.Context, path string, options ...Option)
 type AnimeRanking string
 
 // Possible AnimeRanking values.
+//
+//     | Value        | Description             |
+//     | -----        | -----------             |
+//     | all          | Top Anime Series        |
+//     | airing       | Top Airing Anime        |
+//     | upcoming     | Top Upcoming Anime      |
+//     | tv           | Top Anime TV Series     |
+//     | ova          | Top Anime OVA Series    |
+//     | movie        | Top Anime Movies        |
+//     | special      | Top Anime Specials      |
+//     | bypopularity | Top Anime by Popularity |
+//     | favorite     | Top Favorited Anime     |
 const (
-	RankingAll          AnimeRanking = "all"          // Top Anime Series.
-	RankingAiring       AnimeRanking = "airing"       // Top Airing Anime.
-	RankingUpcoming     AnimeRanking = "upcoming"     // Top Upcoming Anime.
-	RankingTV           AnimeRanking = "tv"           // Top Anime TV Series.
-	RankingOVA          AnimeRanking = "ova"          // Top Anime OVA Series.
-	RankingMovie        AnimeRanking = "movie"        // Top Anime Movies.
-	RankingSpecial      AnimeRanking = "special"      // Top Anime Specials.
-	RankingByPopularity AnimeRanking = "bypopularity" // Top Anime by Popularity.
-	RankingFavorite     AnimeRanking = "favorite"     // Top Favorited Anime.
+	AnimeRankingAll          AnimeRanking = "all"
+	AnimeRankingAiring       AnimeRanking = "airing"
+	AnimeRankingUpcoming     AnimeRanking = "upcoming"
+	AnimeRankingTV           AnimeRanking = "tv"
+	AnimeRankingOVA          AnimeRanking = "ova"
+	AnimeRankingMovie        AnimeRanking = "movie"
+	AnimeRankingSpecial      AnimeRanking = "special"
+	AnimeRankingByPopularity AnimeRanking = "bypopularity"
+	AnimeRankingFavorite     AnimeRanking = "favorite"
 )
 
 func optionFromAnimeRanking(r AnimeRanking) optionFunc {
@@ -226,11 +238,6 @@ func optionFromAnimeRanking(r AnimeRanking) optionFunc {
 		v.Set("ranking_type", string(r))
 	})
 }
-
-// type animeRankingOption AnimeRanking
-
-// func (o animeRankingOption) seasonalAnimeApply(v *url.Values) { o.apply(v) }
-// func (o animeRankingOption) apply(v *url.Values)              { v.Set("ranking_type", string(o)) }
 
 // Ranking allows an authenticated user to receive the top anime based on a
 // certain ranking.

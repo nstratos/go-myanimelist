@@ -112,3 +112,50 @@ func TestMangaServiceListError(t *testing.T) {
 	testResponseStatusCode(t, resp, http.StatusInternalServerError, "Manga.List")
 	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
 }
+
+func TestMangaServiceRanking(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/manga/ranking", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"ranking_type": "all",
+			"fields":       "foo,bar",
+			"limit":        "10",
+			"offset":       "0",
+		})
+		const out = `
+		{
+		  "data": [
+		    {
+		      "node": { "id": 1 },
+			  "ranking": { "rank": 1 }
+		    },
+		    {
+		      "node": { "id": 2 },
+			  "ranking": { "rank": 2 }
+		    }
+		  ],
+		  "paging": {
+		    "next": "?offset=4"
+		  }
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, resp, err := client.Manga.Ranking(ctx, MangaRankingAll,
+		Fields{"foo", "bar"},
+		Limit(10),
+		Offset(0),
+	)
+	if err != nil {
+		t.Errorf("Manga.Ranking returned error: %v", err)
+	}
+	want := []Manga{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Manga.Ranking returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+	testResponseOffset(t, resp, 4, 0, "Manga.Ranking")
+}

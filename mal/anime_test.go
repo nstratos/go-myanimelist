@@ -178,7 +178,7 @@ func TestAnimeServiceRanking(t *testing.T) {
 	mux.HandleFunc("/anime/ranking", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		testURLValues(t, r, urlValues{
-			"ranking_type": "airing",
+			"ranking_type": "all",
 			"fields":       "foo,bar",
 			"limit":        "10",
 			"offset":       "0",
@@ -203,7 +203,7 @@ func TestAnimeServiceRanking(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	got, resp, err := client.Anime.Ranking(ctx, RankingAiring,
+	got, resp, err := client.Anime.Ranking(ctx, AnimeRankingAll,
 		Fields{"foo", "bar"},
 		Limit(10),
 		Offset(0),

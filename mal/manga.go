@@ -3,6 +3,7 @@ package mal
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -111,4 +112,47 @@ func (s *MangaService) list(ctx context.Context, path string, options ...Option)
 		manga[i] = list.Data[i].Manga
 	}
 	return manga, resp, nil
+}
+
+// MangaRanking allows to choose how the manga will be ranked.
+type MangaRanking string
+
+// Possible MangaRanking values.
+//
+//     | Value        | Description      |
+//     | -----        | -----------      |
+//     | all          | All              |
+//     | manga        | Top Manga        |
+//     | oneshots     | Top One-shots    |
+//     | doujin       | Top Doujinshi    |
+//     | lightnovels  | Top Light Novels |
+//     | novels       | Top Novels       |
+//     | manhwa       | Top Manhwa       |
+//     | manhua       | Top Manhua       |
+//     | bypopularity | Most popular     |
+//     | favorite     | Most favorited   |
+const (
+	MangaRankingAll          MangaRanking = "all"
+	MangaRankingManga        MangaRanking = "manga"
+	MangaRankingOneshots     MangaRanking = "oneshots"
+	MangaRankingDoujinshi    MangaRanking = "doujin"
+	MangaRankingLightNovels  MangaRanking = "lightnovels"
+	MangaRankingNovels       MangaRanking = "novels"
+	MangaRankingManhwa       MangaRanking = "manhwa"
+	MangaRankingManhua       MangaRanking = "manhua"
+	MangaRankingByPopularity MangaRanking = "bypopularity"
+	MangaRankingFavorite     MangaRanking = "favorite"
+)
+
+func optionFromMangaRanking(r MangaRanking) optionFunc {
+	return optionFunc(func(v *url.Values) {
+		v.Set("ranking_type", string(r))
+	})
+}
+
+// Ranking allows an authenticated user to receive the top manga based on a
+// certain ranking.
+func (s *MangaService) Ranking(ctx context.Context, ranking MangaRanking, options ...Option) ([]Manga, *Response, error) {
+	options = append(options, optionFromMangaRanking(ranking))
+	return s.list(ctx, "manga/ranking", options...)
 }
