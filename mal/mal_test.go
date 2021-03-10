@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -132,18 +131,6 @@ func testResponseStatusCode(t *testing.T, resp *Response, code int, prefix strin
 	}
 	if got, want := resp.StatusCode, code; got != want {
 		t.Errorf("%s resp.StatusCode=%d, want %d", prefix, got, want)
-	}
-}
-
-func testID(t *testing.T, r *http.Request, want string) {
-	idXML := r.URL.Path[strings.LastIndex(r.URL.Path, "/")+1:]
-	xml := idXML[len(idXML)-4:]
-	if xml != ".xml" {
-		t.Errorf("URL path %v does not end in .xml", r.URL.Path)
-	}
-	id := idXML[:len(idXML)-4]
-	if id != want {
-		t.Errorf("provided id = %v, want %v", id, want)
 	}
 }
 
