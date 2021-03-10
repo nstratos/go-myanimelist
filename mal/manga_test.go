@@ -48,3 +48,67 @@ func TestMangaServiceDetailsError(t *testing.T) {
 	}
 	testErrorResponse(t, err, ErrorResponse{Message: "manga deleted", Err: "not_found"})
 }
+
+func TestMangaServiceList(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/manga", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"q":      "query",
+			"fields": "foo,bar",
+			"limit":  "10",
+			"offset": "0",
+		})
+		const out = `
+		{
+		  "data": [
+		    {
+		      "node": { "id": 1 }
+		    },
+		    {
+		      "node": { "id": 2 }
+		    }
+		  ],
+		  "paging": {
+		    "next": "?offset=4",
+		    "previous": "?offset=2"
+		  }
+		}`
+		fmt.Fprintf(w, out)
+	})
+
+	ctx := context.Background()
+	got, resp, err := client.Manga.List(ctx, "query",
+		Fields{"foo", "bar"},
+		Limit(10),
+		Offset(0),
+	)
+	if err != nil {
+		t.Errorf("Manga.List returned error: %v", err)
+	}
+	want := []Manga{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Manga.List returned\nhave: %+v\n\nwant: %+v", got, want)
+	}
+	testResponseOffset(t, resp, 4, 2, "Manga.List")
+}
+
+func TestMangaServiceListError(t *testing.T) {
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/manga", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		http.Error(w, `{"message":"mal is down","error":"internal"}`, 500)
+	})
+
+	ctx := context.Background()
+	_, resp, err := client.Manga.List(ctx, "query")
+	if err == nil {
+		t.Fatal("Manga.List expected internal error, got no error.")
+	}
+	testResponseStatusCode(t, resp, http.StatusInternalServerError, "Manga.List")
+	testErrorResponse(t, err, ErrorResponse{Message: "mal is down", Err: "internal"})
+}

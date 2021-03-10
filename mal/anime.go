@@ -180,11 +180,6 @@ func (f Fields) apply(v *url.Values) {
 	}
 }
 
-// query is an option that allows to search when listing results.
-//type query string
-
-//func (q query) apply(v *url.Values) { v.Set("q", string(q)) }
-
 func optionFromQuery(query string) optionFunc {
 	return optionFunc(func(v *url.Values) {
 		v.Set("q", query)

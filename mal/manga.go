@@ -93,3 +93,22 @@ func (s *MangaService) Details(ctx context.Context, mangaID int64, options ...De
 	}
 	return m, resp, nil
 }
+
+// List allows an authenticated user to receive their manga list.
+func (s *MangaService) List(ctx context.Context, search string, options ...Option) ([]Manga, *Response, error) {
+	options = append(options, optionFromQuery(search))
+	return s.list(ctx, "manga", options...)
+}
+
+func (s *MangaService) list(ctx context.Context, path string, options ...Option) ([]Manga, *Response, error) {
+	list := new(mangaList)
+	resp, err := s.client.list(ctx, path, list, options...)
+	if err != nil {
+		return nil, resp, err
+	}
+	manga := make([]Manga, len(list.Data))
+	for i := range list.Data {
+		manga[i] = list.Data[i].Manga
+	}
+	return manga, resp, nil
+}
