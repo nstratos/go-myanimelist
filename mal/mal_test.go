@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
-	"runtime"
 	"strings"
 	"testing"
 )
@@ -233,15 +232,20 @@ func TestNewRequest(t *testing.T) {
 	}
 }
 
-func TestClient_NewRequest_invalidMethod(t *testing.T) {
-	s := strings.Split(runtime.Version(), ".")
-	// This test requires Go version 1.7 or higher.
-	if len(s) >= 2 && s[0] == "go1" && s[1] == "7" {
-		c := NewClient(nil)
-		_, err := c.NewRequest("invalid method", "/foo")
-		if err == nil {
-			t.Error("NewRequest with invalid method expected to return err")
-		}
+func TestClientNewRequestInvalidMethod(t *testing.T) {
+	c := NewClient(nil)
+	_, err := c.NewRequest("invalid method", "/foo")
+	if err == nil {
+		t.Error("NewRequest with invalid method expected to return err")
+	}
+}
+
+func TestNewRequestBadEndpoint(t *testing.T) {
+	c := NewClient(nil)
+	inURL := "%foo"
+	_, err := c.NewRequest("GET", inURL)
+	if err == nil {
+		t.Errorf("NewRequest(%q) should return parse err", inURL)
 	}
 }
 
@@ -275,7 +279,7 @@ func TestDo(t *testing.T) {
 	}
 }
 
-func TestDo_httpError(t *testing.T) {
+func TestDoHTTPError(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -302,7 +306,7 @@ func (e errTransport) RoundTrip(*http.Request) (*http.Response, error) {
 	return nil, fmt.Errorf("connection refused")
 }
 
-func TestDo_returnsError(t *testing.T) {
+func TestDoRoundTripError(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 	client.client = &http.Client{
@@ -321,7 +325,7 @@ func TestDo_returnsError(t *testing.T) {
 	}
 }
 
-func TestDo_noContent(t *testing.T) {
+func TestDoNoContent(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -339,7 +343,7 @@ func TestDo_noContent(t *testing.T) {
 	}
 }
 
-func TestDo_bodyImplementsIOWriter(t *testing.T) {
+func TestDoBodyImplementsIOWriter(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -361,7 +365,7 @@ func TestDo_bodyImplementsIOWriter(t *testing.T) {
 	}
 }
 
-func TestDo_decodeError(t *testing.T) {
+func TestDoDecodeError(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -380,7 +384,7 @@ func TestDo_decodeError(t *testing.T) {
 	}
 }
 
-func TestDo_contextCanceled(t *testing.T) {
+func TestDoContextCanceled(t *testing.T) {
 	client, mux, teardown := setup()
 	defer teardown()
 
@@ -397,7 +401,7 @@ func TestDo_contextCanceled(t *testing.T) {
 	}
 }
 
-func TestDo_nilContext(t *testing.T) {
+func TestDoNilContext(t *testing.T) {
 	client, _, teardown := setup()
 	defer teardown()
 
@@ -407,68 +411,3 @@ func TestDo_nilContext(t *testing.T) {
 		t.Errorf("Expected context must be non-nil error")
 	}
 }
-
-// func TestClient_post_invalidID(t *testing.T) {
-// 	setup()
-// 	defer teardown()
-
-// 	mux.HandleFunc("/api/animelist/update/", func(w http.ResponseWriter, r *http.Request) {
-// 		testMethod(t, r, "POST")
-// 		testID(t, r, "0")
-// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-// 		testContentType(t, r, "application/x-www-form-urlencoded")
-// 		// zeroEntry defined in anime_test.go
-// 		testFormValue(t, r, "data", fmt.Sprintf(zeroEntry, 3))
-// 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
-// 	})
-
-// 	response, err := client.post("api/animelist/update/", 0, AnimeEntry{Status: OnHold}, true)
-
-// 	if err == nil {
-// 		t.Errorf("Anime.Update invalid ID should return err")
-// 	}
-
-// 	if response == nil {
-// 		t.Errorf("Anime.Update invalid ID should return also return response")
-// 	}
-// }
-
-// func TestClient_delete_invalidID(t *testing.T) {
-// 	client, mux, teardown := setup()
-// 	defer teardown()
-
-// 	mux.HandleFunc("/api/animelist/delete/", func(w http.ResponseWriter, r *http.Request) {
-// 		testMethod(t, r, "DELETE")
-// 		testID(t, r, "0")
-// 		testBasicAuth(t, r, true, "TestUser", "TestPass")
-// 		http.Error(w, "Invalid ID", http.StatusNotImplemented)
-// 	})
-
-// 	response, err := client.delete("api/animelist/delete/", 0, true)
-
-// 	if err == nil {
-// 		t.Errorf("Anime.Delete invalid ID should return err")
-// 	}
-
-// 	if response == nil {
-// 		t.Errorf("Anime.Delete invalid ID should return also return response")
-// 	}
-// }
-
-func TestClient_NewRequest_badEndpoint(t *testing.T) {
-	c := NewClient(nil)
-	inURL := "%foo"
-	_, err := c.NewRequest("GET", inURL)
-	if err == nil {
-		t.Errorf("NewRequest(%q) should return parse err", inURL)
-	}
-}
-
-// func TestClient_NewRequest_xmlEncodeError(t *testing.T) {
-// 	c := NewClient(nil)
-// 	in := func() {} // xml.Marshal cannot encode a func
-// 	_, err := c.NewRequest("GET", "/foo", in)
-// 	if err == nil {
-// 		t.Errorf("NewRequest receiving a function as body should return XML encode err")
-// 	}
-// }

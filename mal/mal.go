@@ -97,9 +97,6 @@ type Response struct {
 //
 // MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
 func (c *Client) NewRequest(method, urlStr string, urlOptions ...func(v *url.Values)) (*http.Request, error) {
-	if !strings.HasSuffix(c.BaseURL.Path, "/") {
-		return nil, fmt.Errorf("BaseURL must have a trailing slash, but %q does not", c.BaseURL)
-	}
 	u, err := c.BaseURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
