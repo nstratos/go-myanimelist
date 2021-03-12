@@ -357,6 +357,6 @@ func TestDoNilContext(t *testing.T) {
 	req, _ := client.NewRequest("GET", ".")
 	_, err := client.Do(nil, req, nil)
 	if err == nil {
-		t.Errorf("Expected context must be non-nil error")
+		t.Errorf("Do should return error when we pass nil context.")
 	}
 }

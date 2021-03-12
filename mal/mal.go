@@ -127,11 +127,10 @@ func (c *Client) NewRequest(method, urlStr string, urlOptions ...func(v *url.Val
 // io.Writer interface, the raw response body will be written to v, without
 // attempting to first decode it.
 //
-// The provided ctx must be non-nil, if it is nil an error is returned. If it is
-// canceled or times out, ctx.Err() will be returned.
+// If the provided ctx is nil then an error will be returned.
 func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
 	if ctx == nil {
-		return nil, errors.New("context must be non-nil")
+		return nil, errors.New("context must not be nil")
 	}
 	req = req.WithContext(ctx)
 
