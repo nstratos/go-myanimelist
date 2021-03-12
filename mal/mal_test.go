@@ -198,7 +198,7 @@ func TestNewRequest(t *testing.T) {
 	}
 }
 
-func TestClientNewRequestInvalidMethod(t *testing.T) {
+func TestNewRequestInvalidMethod(t *testing.T) {
 	c := NewClient(nil)
 	_, err := c.NewRequest("invalid method", "/foo")
 	if err == nil {

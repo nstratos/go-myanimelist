@@ -44,6 +44,7 @@ type Client struct {
 	Anime *AnimeService
 	Manga *MangaService
 	User  *UserService
+	Forum *ForumService
 }
 
 // NewClient returns a new MyAnimeList API client. The httpClient parameter
@@ -69,6 +70,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.User = &UserService{client: c}
 	c.Anime = &AnimeService{client: c}
 	c.Manga = &MangaService{client: c}
+	c.Forum = &ForumService{client: c}
 
 	return c
 }
