@@ -350,23 +350,6 @@ func TestDoDecodeError(t *testing.T) {
 	}
 }
 
-func TestDoContextCanceled(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-
-	req, _ := client.NewRequest("GET", ".")
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	_, err := client.Do(ctx, req, nil)
-	if err == nil {
-		t.Fatalf("Expected context canceled error.")
-	}
-}
-
 func TestDoNilContext(t *testing.T) {
 	client, _, teardown := setup()
 	defer teardown()

@@ -138,13 +138,6 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 	dumpRequest(req)
 	resp, err := c.client.Do(req)
 	if err != nil {
-		// If we got an error, and the context has been canceled, the context's
-		// error is probably more useful.
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
 		return nil, err
 	}
 	defer resp.Body.Close()
