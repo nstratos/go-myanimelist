@@ -188,7 +188,8 @@ func checkResponse(r *http.Response) error {
 	errorResponse := &ErrorResponse{Response: r}
 	data, err := io.ReadAll(r.Body)
 	if err == nil && data != nil {
-		json.Unmarshal(data, errorResponse)
+		// Ignore unmarshal error for undocumented error formats or HTML.
+		_ = json.Unmarshal(data, errorResponse)
 	}
 	// Re-populate error response body in case JSON unmarshal fails.
 	r.Body = io.NopCloser(bytes.NewBuffer(data))
