@@ -7,7 +7,173 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
+
+func TestAnimeMarshal(t *testing.T) {
+	testJSONMarshal(t, &Anime{}, "{}")
+	createdAt := time.Date(2020, 1, 1, 15, 0, 0, 0, time.UTC)
+	updatedAt := time.Date(2020, 1, 1, 15, 0, 0, 0, time.UTC)
+	u := &Anime{
+		ID:    1,
+		Title: "t",
+		MainPicture: Picture{
+			Medium: "m",
+			Large:  "l",
+		},
+		AlternativeTitles: Titles{
+			Synonyms: []string{"s1", "s2"},
+			En:       "e",
+			Ja:       "j",
+		},
+		StartDate:       "2020-01-01",
+		EndDate:         "2021-01-01",
+		Synopsis:        "s",
+		Mean:            1.1,
+		Rank:            1,
+		Popularity:      1,
+		NumListUsers:    1,
+		NumScoringUsers: 1,
+		NSFW:            "white",
+		CreatedAt:       createdAt,
+		UpdatedAt:       updatedAt,
+		MediaType:       "m",
+		Status:          "s",
+		Genres:          []Genre{{ID: 1, Name: "n"}},
+		MyListStatus: AnimeListStatus{
+			Status:             "s",
+			Score:              1,
+			NumEpisodesWatched: 1,
+			IsRewatching:       true,
+			UpdatedAt:          updatedAt,
+			Priority:           1,
+			NumTimesRewatched:  1,
+			RewatchValue:       1,
+			Tags:               []string{"t1", "t2"},
+			Comments:           "c",
+		},
+		NumEpisodes:            1,
+		StartSeason:            StartSeason{Year: 1, Season: "s"},
+		Broadcast:              Broadcast{DayOfTheWeek: "d", StartTime: "15:00"},
+		Source:                 "s",
+		AverageEpisodeDuration: 1,
+		Rating:                 "r",
+		Pictures:               []Picture{},
+		Background:             "b",
+		RelatedAnime:           []RelatedAnime{{Node: Anime{ID: 1}, RelationType: "r", RelationTypeFormatted: "r"}},
+		RelatedManga:           []RelatedManga{},
+		Recommendations:        []RecommendedAnime{},
+		Studios:                []Studio{{ID: 1, Name: "n"}, {ID: 2, Name: "n"}},
+		Statistics: Statistics{
+			Status: Status{
+				Watching:    "1",
+				Completed:   "1",
+				OnHold:      "1",
+				Dropped:     "1",
+				PlanToWatch: "1",
+			},
+			NumListUsers: 1,
+		},
+	}
+	want := `
+	{
+		"id": 1,
+		"title": "t",
+		"main_picture": {
+		  "medium": "m",
+		  "large": "j"
+		},
+		"alternative_titles": {
+		  "synonyms": ["s1", "s2"],
+		  "en": "e",
+		  "ja": "j"
+		},
+		"start_date": "2020-01-01",
+		"end_date": "2021-01-01",
+		"synopsis": "s",
+		"mean": 1.1,
+		"rank": 1,
+		"popularity": 1,
+		"num_list_users": 1,
+		"num_scoring_users": 1,
+		"nsfw": "white",
+		"created_at": "2020-01-01T15:00:00Z",
+		"updated_at": "2020-01-01T15:00:00Z",
+		"media_type": "m",
+		"status": "s",
+		"genres": [{"id": 1, "name": "n"}],
+		"my_list_status": {
+		  "status": "s",
+		  "score": 1,
+		  "priority": 1,
+		  "num_episodes_watched": 1,
+		  "num_times_rewatched": 1,
+		  "is_rewatching": true,
+		  "updated_at": "2020-01-01T15:00:00Z",
+		  "tags": ["t1", "t2"],
+		  "comments": "c"
+		},
+		"num_episodes": 1,
+		"start_season": {
+		  "year": 2020,
+		  "season": "s"
+		},
+		"broadcast": {
+		  "day_of_the_week": "d",
+		  "start_time": "15:00"
+		},
+		"source": "s",
+		"average_episode_duration": 1,
+		"rating": "r",
+		"pictures": [
+		  {
+			"medium": "m",
+			"large": "l"
+		  }
+		],
+		"background": "b",
+		"related_anime": [
+		  {
+			"node": {
+			  "id": 1,
+			  "title": "t",
+			  "main_picture": {
+				"medium": "m",
+				"large": "l"
+			  }
+			},
+			"relation_type": "r",
+			"relation_type_formatted": "r"
+		  }
+		],
+		"related_manga": [],
+		"recommendations": [
+		  {
+			"node": {
+			  "id": 1,
+			  "title": "t",
+			  "main_picture": {
+				"medium": "m",
+				"large": "l"
+			  }
+			},
+			"num_recommendations": 4
+		  }
+		],
+		"studios": [{ "id": 1, "name": "n" }],
+		"statistics": {
+		  "status": {
+			"watching": "1",
+			"completed": "1",
+			"on_hold": "1",
+			"dropped": "1",
+			"plan_to_watch": "1"
+		  },
+		  "num_list_users": 1
+		}
+	  }`
+	testJSONMarshal(t, u, want)
+}
 
 func TestAnimeServiceDetails(t *testing.T) {
 	client, mux, teardown := setup()
