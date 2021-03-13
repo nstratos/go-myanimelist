@@ -329,7 +329,8 @@ func TestDoNilContext(t *testing.T) {
 	defer teardown()
 
 	req, _ := client.NewRequest("GET", ".")
-	_, err := client.Do(nil, req, nil)
+	var ctx context.Context = nil
+	_, err := client.Do(ctx, req, nil)
 	if err == nil {
 		t.Errorf("Do should return error when we pass nil context.")
 	}
