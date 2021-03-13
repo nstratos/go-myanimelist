@@ -1,7 +1,6 @@
 package mal
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -280,28 +279,6 @@ func TestDoNoContent(t *testing.T) {
 	_, err := client.Do(ctx, req, &body)
 	if err != nil {
 		t.Fatalf("Do returned unexpected error: %v", err)
-	}
-}
-
-func TestDoBodyImplementsIOWriter(t *testing.T) {
-	client, mux, teardown := setup()
-	defer teardown()
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "foo bar")
-	})
-
-	var body bytes.Buffer
-
-	req, _ := client.NewRequest("GET", ".")
-	ctx := context.Background()
-	_, err := client.Do(ctx, req, &body)
-	if err != nil {
-		t.Fatalf("Do returned unexpected error: %v", err)
-	}
-	if got, want := body.String(), "foo bar"; got != want {
-		t.Errorf("Response Body is %q, want %q", got, want)
 	}
 }
 
