@@ -289,7 +289,7 @@ func TestDoBodyImplementsIOWriter(t *testing.T) {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "foo bar")
+		fmt.Fprint(w, "foo bar")
 	})
 
 	var body bytes.Buffer
@@ -311,7 +311,7 @@ func TestDoDecodeError(t *testing.T) {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "this is not JSON")
+		fmt.Fprint(w, "this is not JSON")
 	})
 
 	var body json.RawMessage

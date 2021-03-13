@@ -19,7 +19,7 @@ func TestAnimeServiceDetails(t *testing.T) {
 			"fields": "foo,bar",
 		})
 		testBody(t, r, "")
-		fmt.Fprintf(w, `{"id":1}`)
+		fmt.Fprint(w, `{"id":1}`)
 	})
 
 	ctx := context.Background()
@@ -77,7 +77,7 @@ func TestAnimeServiceList(t *testing.T) {
 		    "previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -138,7 +138,7 @@ func TestAnimeServiceListParsePagingError(t *testing.T) {
 
 			mux.HandleFunc("/anime", func(w http.ResponseWriter, r *http.Request) {
 				testMethod(t, r, http.MethodGet)
-				fmt.Fprintf(w, tt.out)
+				fmt.Fprint(w, tt.out)
 			})
 
 			ctx := context.Background()
@@ -199,7 +199,7 @@ func TestAnimeServiceRanking(t *testing.T) {
 		    "next": "?offset=4"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -248,7 +248,7 @@ func TestAnimeServiceSeasonal(t *testing.T) {
 			"season": "summer"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -294,7 +294,7 @@ func TestAnimeServiceSuggested(t *testing.T) {
 		    "previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()

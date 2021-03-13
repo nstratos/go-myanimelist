@@ -43,7 +43,7 @@ func TestUserServiceAnimeList(t *testing.T) {
 		    "previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -118,7 +118,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		  "tags": ["foo","bar"],
 		  "comments": "comments"
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()

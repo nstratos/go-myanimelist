@@ -16,7 +16,7 @@ func TestForumServiceBoards(t *testing.T) {
 		testMethod(t, r, http.MethodGet)
 		testURLValues(t, r, urlValues{})
 		testBody(t, r, "")
-		fmt.Fprintf(w, `
+		const out = `
 		{
 		  "categories": [
 		    {
@@ -31,7 +31,8 @@ func TestForumServiceBoards(t *testing.T) {
 		      ]
 		    }
 		  ]
-		}`)
+		}`
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -97,7 +98,7 @@ func TestForumServiceTopicDetails(t *testing.T) {
 			"previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -160,7 +161,7 @@ func TestForumServiceTopics(t *testing.T) {
 			"previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()

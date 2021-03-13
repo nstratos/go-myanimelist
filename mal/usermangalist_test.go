@@ -43,7 +43,7 @@ func TestUserServiceMangaList(t *testing.T) {
 		    "previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -112,7 +112,7 @@ func TestMangaServiceUpdateMyListStatus(t *testing.T) {
 		  "tags": ["foo","bar"],
 		  "comments": "comments"
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()

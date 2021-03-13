@@ -18,7 +18,7 @@ func TestMangaServiceDetails(t *testing.T) {
 			"fields": "foo,bar",
 		})
 		testBody(t, r, "")
-		fmt.Fprintf(w, `{"id":1}`)
+		fmt.Fprint(w, `{"id":1}`)
 	})
 
 	ctx := context.Background()
@@ -76,7 +76,7 @@ func TestMangaServiceList(t *testing.T) {
 		    "previous": "?offset=2"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()
@@ -141,7 +141,7 @@ func TestMangaServiceRanking(t *testing.T) {
 		    "next": "?offset=4"
 		  }
 		}`
-		fmt.Fprintf(w, out)
+		fmt.Fprint(w, out)
 	})
 
 	ctx := context.Background()

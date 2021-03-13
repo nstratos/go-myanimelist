@@ -14,7 +14,7 @@ func TestUserServiceMyInfo(t *testing.T) {
 
 	mux.HandleFunc("/users/@me", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
-		fmt.Fprintf(w, `{"id":1}`)
+		fmt.Fprint(w, `{"id":1}`)
 	})
 
 	ctx := context.Background()
