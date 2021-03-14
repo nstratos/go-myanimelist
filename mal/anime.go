@@ -124,7 +124,8 @@ type DetailsOption interface {
 	detailsApply(v *url.Values)
 }
 
-// Details returns details about an anime.
+// Details returns details about an anime. By default, few anime fields are
+// populated. Use the Fields option to specify which fields should be included.
 func (s *AnimeService) Details(ctx context.Context, animeID int, options ...DetailsOption) (*Anime, *Response, error) {
 	a := new(Anime)
 	resp, err := s.client.details(ctx, fmt.Sprintf("anime/%d", animeID), a, options...)

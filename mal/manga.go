@@ -85,7 +85,8 @@ type Serialization struct {
 	Role string   `json:"role"`
 }
 
-// Details returns details about a manga.
+// Details returns details about a manga. By default, few manga fields are
+// populated. Use the Fields option to specify which fields should be included.
 func (s *MangaService) Details(ctx context.Context, mangaID int, options ...DetailsOption) (*Manga, *Response, error) {
 	m := new(Manga)
 	resp, err := s.client.details(ctx, fmt.Sprintf("manga/%d", mangaID), m, options...)
