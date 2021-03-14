@@ -64,21 +64,7 @@ func run() error {
 		Client: mal.NewClient(tokenClient),
 		}
 
-	//c.animeList(ctx)
-	// c.ranking(ctx)
-	// c.animeListForLoop(ctx)
-	//c.userAnimeList(ctx)
-	// c.updateMyAnimeListStatus(ctx)
-	//c.updateMyMangaListStatus(ctx)
-	//c.userMangaList(ctx)
-	// c.deleteMyListItem(ctx)
-	//c.forumBoards(ctx)
-	c.forumTopics(ctx)
-	if c.err != nil {
-		return c.err
-	}
-
-	return nil
+	return c.showcase(ctx)
 }
 
 func authenticate(ctx context.Context, clientID, clientSecret, state string) (*http.Client, error) {

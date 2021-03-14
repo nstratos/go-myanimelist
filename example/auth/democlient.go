@@ -18,6 +18,29 @@ type demoClient struct {
 	err error
 }
 
+func (c *demoClient) showcase(ctx context.Context) error {
+	methods := []func(context.Context){
+		c.animeList,
+		c.ranking,
+		c.animeListForLoop,
+		c.userAnimeList,
+		//c.updateMyAnimeListStatus,
+		//c.deleteMyAnimeListItem,
+		//c.updateMyMangaListStatus,
+		//c.deleteMyMangaListItem,
+		c.userMangaList,
+		c.forumBoards,
+		c.forumTopics,
+	}
+	for _, m := range methods {
+		m(ctx)
+	}
+	if c.err != nil {
+		return c.err
+	}
+	return nil
+}
+
 func (c *demoClient) animeList(ctx context.Context) {
 	if c.err != nil {
 		return
@@ -127,16 +150,26 @@ func (c *demoClient) updateMyMangaListStatus(ctx context.Context) {
 	fmt.Printf("%#v\n", s)
 }
 
-func (c *demoClient) deleteMyListItem(ctx context.Context) {
+func (c *demoClient) deleteMyAnimeListItem(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	resp, err := c.Anime.DeleteMyListItem(ctx, 820)
+	_, err := c.Anime.DeleteMyListItem(ctx, 820)
 	if err != nil {
 		c.err = err
 		return
 	}
-	fmt.Println(resp.StatusCode)
+}
+
+func (c *demoClient) deleteMyMangaListItem(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	_, err := c.Manga.DeleteMyListItem(ctx, 1)
+	if err != nil {
+		c.err = err
+		return
+	}
 }
 
 func (c *demoClient) ranking(ctx context.Context) {
