@@ -16,10 +16,51 @@ Import the package using:
 
 First construct a new mal client:
 
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 
-Then use one of the client's services (Account, Anime or Manga) to access the
-different MyAnimeList API methods.
+Then use one of the client's services (User, Anime, Manga and Forum) to access
+the different MyAnimeList API methods.
+
+Authentication
+
+When creating a new client, pass an http.Client that can handle authentication
+for you. The recommended way is to use the golang.org/x/oauth2 package
+(https://github.com/golang/oauth2). After performing the OAuth2 flow, you will
+get an access token which can be used like this:
+
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+Performing the OAuth2 flow involves registering a MAL API application and then
+asking for the user's consent to allow the application to access their data.
+
+There is a detailed example of how to perform the Oauth2 flow and get an access
+token through the terminal under example/malauth. The only thing you need to run
+the example is a client ID and a client secret which you can acquire after
+registering your MAL API application. Here's how:
+
+ 1. Navigate to https://myanimelist.net/apiconfig or go to your MyAnimeList
+    profile, click Edit Profile and select the API tab on the far right.
+
+ 2. Click Create ID and submit the form with your application details.
+
+After registering your application, you can run the example and pass the client
+ID and client secret through flags:
+
+	cd example/malauth
+	go run main.go democlient.go --client-id=... --client-secret=...
+
+	or
+
+	go install github.com/nstratos/go-myanimelist/example/malauth
+	malauth --client-id=... --client-secret=...
+
+Official MAL API OAuth2 docs:
+https://myanimelist.net/apiconfig/references/authorization
 
 List
 
@@ -32,15 +73,6 @@ To get the anime and manga list of a user:
 
 	list, _, err := c.Manga.List("Xinil")
 	// ...
-
-Authentication
-
-Beyond List, the rest of the methods require authentication so typically you
-will use an option to pass username and password to NewClient:
-
-	c := mal.NewClient(
-		mal.Auth("<your username>", "<your password>"),
-	)
 
 Search
 
@@ -113,9 +145,7 @@ Advanced Control
 If you need more control over the created requests, you can use an option to
 pass a custom HTTP client to NewClient:
 
-	c := mal.NewClient(
-		mal.HTTPClient(&http.Client{}),
-	)
+	c := mal.NewClient(&http.Client{})
 
 For example this http.Client will make sure to cancel any request that takes
 longer than 1 second:
@@ -123,7 +153,7 @@ longer than 1 second:
 	httpcl := &http.Client{
 		Timeout: 1 * time.Second,
 	}
-	c := mal.NewClient(mal.HTTPClient(httpcl))
+	c := mal.NewClient(httpcl)
 	// ...
 
 Unit Testing
@@ -144,12 +174,12 @@ also a much higher chance of false positives in test failures due to network
 issues etc.
 
 These tests are meant to be run using a dedicated test account that contains
-empty anime and manga lists. The username and password of the test account need
-to be provided every time.
+empty anime and manga lists. A valid access token needs to be provided every
+time.
 
 To run the integration tests:
 
-	go test -tags=integration -username '<test account username>' -password '<test account password>'
+	go test --access-token '<your access token>'
 
 License
 
