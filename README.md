@@ -90,8 +90,6 @@ https://myanimelist.net/apiconfig/references/authorization
 To search and get anime and manga data:
 
 ```go
-c := mal.NewClient()
-
 list, _, err := c.Anime.List(ctx, "hokuto no ken",
 	mal.Fields{"rank", "popularity", "my_list_status"},
 	mal.Limit(5),
@@ -113,30 +111,46 @@ Official docs:
 - https://myanimelist.net/apiconfig/references/api/v2#operation/anime_get
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
-## Search
+## Details
 
-To search for anime and manga:
+To get details for a certain anime or manga:
 
 ```go
-c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-result, _, err := c.Anime.Search("bebop")
+a, _, err := c.Anime.Details(ctx, 967,
+	mal.Fields{
+		"alternative_titles",
+		"media_type",
+		"num_episodes",
+		"start_season",
+		"source",
+		"genres",
+		"studios",
+		"average_episode_duration",
+	},
+)
 // ...
 
-result, _, err := c.Manga.Search("bebop")
+m, _, err := c.Manga.Details(ctx, 401,
+	mal.Fields{
+		"alternative_titles",
+		"media_type",
+		"num_volumes",
+		"num_chapters",
+		"authors{last_name, first_name}",
+		"genres",
+		"status",
+	},
+)
 // ...
 ```
 
-For more complex searches, you can provide the % operator which acts as a
-wildcard and is escaped as %% in Go:
+By default most fields are not populated so use the Fields option to request the
+fields you need.
 
-```go
-result, _, err := c.Anime.Search("fate%%heaven%%flower")
-// ...
-// Will return: Fate/stay night Movie: Heaven's Feel - I. presage flower
-```
+Official docs:
 
-Note: This is an undocumented feature of the MyAnimeList Search method.
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_get
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_get
 
 ## Add
 

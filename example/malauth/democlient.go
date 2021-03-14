@@ -21,15 +21,17 @@ type demoClient struct {
 
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
-		//c.animeList,
+		// c.animeList,
 		// c.animeDetails,
-		c.ranking,
+		c.mangaDetails,
+		// c.animeRanking,
+		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
 		// c.userAnimeList,
-		//c.updateMyAnimeListStatus,
-		//c.deleteMyAnimeListItem,
-		//c.updateMyMangaListStatus,
-		//c.deleteMyMangaListItem,
+		// c.updateMyAnimeListStatus,
+		// c.deleteMyAnimeListItem,
+		// c.updateMyMangaListStatus,
+		// c.deleteMyMangaListItem,
 		// c.userMangaList,
 		// c.forumBoards,
 		// c.forumTopics,
@@ -106,6 +108,48 @@ func (c *demoClient) animeDetails(ctx context.Context) {
 	fmt.Printf("Duration: %d min. per ep.\n", a.AverageEpisodeDuration/60)
 }
 
+func (c *demoClient) mangaDetails(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	m, _, err := c.Manga.Details(ctx, 401,
+		mal.Fields{
+			"alternative_titles",
+			"media_type",
+			"num_volumes",
+			"num_chapters",
+			"authors{last_name, first_name}",
+			"genres",
+			"status",
+		},
+	)
+	if err != nil {
+		c.err = err
+		return
+	}
+	fmt.Printf("%s\n", m.Title)
+	fmt.Printf("ID: %d\n", m.ID)
+	fmt.Printf("English: %s\n", m.AlternativeTitles.En)
+	fmt.Printf("Type: %s\n", strings.Title(m.MediaType))
+	fmt.Printf("Volumes: %d\n", m.NumVolumes)
+	fmt.Printf("Chapters: %d\n", m.NumChapters)
+	fmt.Print("Studios: ")
+	delim := ""
+	for _, s := range m.Authors {
+		fmt.Printf("%s%s, %s (%s)", delim, s.Person.LastName, s.Person.FirstName, s.Role)
+		delim = " "
+	}
+	fmt.Println()
+	fmt.Print("Genres: ")
+	delim = ""
+	for _, g := range m.Genres {
+		fmt.Printf("%s%s", delim, g.Name)
+		delim = " "
+	}
+	fmt.Println()
+	fmt.Printf("Status: %s\n", strings.Title(m.Status))
+}
+
 func (c *demoClient) animeListForLoop(ctx context.Context) {
 	if c.err != nil {
 		return
@@ -157,7 +201,6 @@ func (c *demoClient) userMangaList(ctx context.Context) {
 	}
 	manga, _, err := c.User.MangaList(ctx, "@me",
 		mal.SortMangaListByListScore,
-		//mal.Fields{"list_status{start_date, end_date, priority, comments, tags}", "my_list_status{start_date, end_date, priority, comments, tags}"},
 		mal.Fields{"list_status{start_date, end_date, priority, comments, tags}"},
 		mal.Limit(10),
 		mal.Offset(0),
@@ -219,20 +262,14 @@ func (c *demoClient) deleteMyMangaListItem(ctx context.Context) {
 	}
 }
 
-func (c *demoClient) ranking(ctx context.Context) {
+func (c *demoClient) animeRanking(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
 	rankings := []mal.AnimeRanking{
-		mal.AnimeRankingAll,
 		mal.AnimeRankingAiring,
-		mal.AnimeRankingUpcoming,
-		mal.AnimeRankingTV,
-		mal.AnimeRankingOVA,
-		mal.AnimeRankingMovie,
-		mal.AnimeRankingSpecial,
+		mal.AnimeRankingAll,
 		mal.AnimeRankingByPopularity,
-		mal.AnimeRankingFavorite,
 	}
 	for _, r := range rankings {
 		fmt.Println("Ranking:", r)
@@ -250,7 +287,7 @@ func (c *demoClient) ranking(ctx context.Context) {
 	}
 }
 
-func (c *demoClient) suggested(ctx context.Context) {
+func (c *demoClient) animeSuggested(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
