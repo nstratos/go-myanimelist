@@ -107,13 +107,6 @@ func testResponseStatusCode(t *testing.T, resp *Response, code int, prefix strin
 	}
 }
 
-func testFormValue(t *testing.T, r *http.Request, value, want string) {
-	v := r.FormValue(value)
-	if v != want {
-		t.Errorf("form value %v = %v, want %v", value, v, want)
-	}
-}
-
 func TestNewClient(t *testing.T) {
 	c := NewClient(nil)
 
