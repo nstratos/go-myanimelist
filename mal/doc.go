@@ -88,8 +88,8 @@ To search and get anime and manga data:
 	)
 	// ...
 
-You may get user specific data for a certain record by asking for the optional
-field "my_list_status".
+You may get user specific data for a certain record by using the optional field
+"my_list_status".
 
 Official docs:
 

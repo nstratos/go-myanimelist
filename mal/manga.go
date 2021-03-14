@@ -96,7 +96,8 @@ func (s *MangaService) Details(ctx context.Context, mangaID int, options ...Deta
 	return m, resp, nil
 }
 
-// List allows an authenticated user to receive their manga list.
+// List allows an authenticated user to search and list manga data. You may get
+// user specific data by using the optional field "my_list_status".
 func (s *MangaService) List(ctx context.Context, search string, options ...Option) ([]Manga, *Response, error) {
 	options = append(options, optionFromQuery(search))
 	return s.list(ctx, "manga", options...)

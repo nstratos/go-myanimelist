@@ -191,7 +191,8 @@ func optionFromQuery(query string) optionFunc {
 	})
 }
 
-// List allows an authenticated user to receive their anime list.
+// List allows an authenticated user to search and list anime data. You may get
+// user specific data by using the optional field "my_list_status".
 func (s *AnimeService) List(ctx context.Context, search string, options ...Option) ([]Anime, *Response, error) {
 	options = append(options, optionFromQuery(search))
 	return s.list(ctx, "anime", options...)
