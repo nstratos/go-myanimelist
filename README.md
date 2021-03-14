@@ -50,6 +50,10 @@ c := mal.NewClient(
 )
 ```
 
+Note that all calls made by the client above will include the specified access
+token which is specific for an authenticated user. Therefore, authenticated
+clients should almost never be shared between different users.
+
 Performing the OAuth2 flow involves registering a MAL API application and then
 asking for the user's consent to allow the application to access their data.
 
@@ -74,22 +78,40 @@ ID and client secret through flags:
     go install github.com/nstratos/go-myanimelist/example/malauth
     malauth --client-id=... --client-secret=...
 
+After you perform a successful authentication once, the access token will be
+cached in a file under the same directory which makes it easier to run the
+example multiple times.
+
 Official MAL API OAuth2 docs:
 https://myanimelist.net/apiconfig/references/authorization
 
 ## List
 
-To get the anime and manga list of a user:
+To search and get anime and manga data:
 
 ```go
 c := mal.NewClient()
 
-list, _, err := c.Anime.List("Xinil")
+list, _, err := c.Anime.List(ctx, "hokuto no ken",
+	mal.Fields{"rank", "popularity", "my_list_status"},
+	mal.Limit(5),
+)
 // ...
 
-list, _, err := c.Manga.List("Xinil")
+list, _, err := c.Manga.List(ctx, "hokuto no ken",
+	mal.Fields{"rank", "popularity", "my_list_status"},
+	mal.Limit(5),
+)
 // ...
 ```
+
+You may get user specific data for a certain record by asking for the optional
+field "my_list_status".
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_get
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
 ## Search
 
