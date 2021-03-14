@@ -199,3 +199,23 @@ func testUpdateUserMangaList(ctx context.Context, t *testing.T, client *mal.Clie
 		}
 	}
 }
+
+func testForumMethods(ctx context.Context, t *testing.T, client *mal.Client, username string) {
+	_, _, err := client.Forum.Boards(ctx)
+	if err != nil {
+		t.Errorf("Forum.Boards returned error: %v", err)
+	}
+
+	topics, _, err := client.Forum.Topics(ctx, mal.Query("kiseijuu"), mal.SortTopicsRecent)
+	if err != nil {
+		t.Errorf("Forum.Topics returned error: %v", err)
+	}
+	if len(topics) == 0 {
+		t.Fatal("Forum.Topics returned 0 topics")
+	}
+
+	_, _, err = client.Forum.TopicDetails(ctx, topics[0].ID)
+	if err != nil {
+		t.Errorf("Forum.TopicDetails returned error: %v", err)
+	}
+}

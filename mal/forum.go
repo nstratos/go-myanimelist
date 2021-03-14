@@ -83,17 +83,17 @@ type CreatedBy struct {
 
 // Poll is an optional poll in a forum post.
 type Poll struct {
-	ID       string       `json:"id"`
+	ID       int          `json:"id"`
 	Question string       `json:"question"`
-	Closed   string       `json:"closed"`
+	Closed   bool         `json:"closed"`
 	Options  []PollOption `json:"options"`
 }
 
 // PollOption is one of the choices of a poll.
 type PollOption struct {
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	Text  string `json:"text"`
-	Votes string `json:"votes"`
+	Votes int    `json:"votes"`
 }
 
 // TopicDetailsOption are options specific to the ForumService.TopicDetails
