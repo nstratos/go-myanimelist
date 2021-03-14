@@ -129,7 +129,7 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 	return conf.Client(ctx, token), nil
 }
 
-const cacheName = "authentication-example-token-cache.txt"
+const cacheName = "auth-example-token-cache.txt"
 
 func cacheToken(token string) {
 	content := []byte(token)

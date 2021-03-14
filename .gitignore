@@ -2,4 +2,4 @@ client
 agent.txt
 count.out
 cover.out
-authentication-example-token-cache.txt
+*token-cache.txt
