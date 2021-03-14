@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -61,23 +60,22 @@ func run() error {
 		return err
 	}
 
-	c := mal.NewClient(tokenClient)
-	offset := 0
-	count := 0
-	for {
-		anime, resp, err := c.Anime.List(ctx, "naruto", 100, offset)
-		if err != nil {
-			return err
+	c := demoClient{
+		Client: mal.NewClient(tokenClient),
 		}
-		for _, a := range anime {
-			count++
-			fmt.Printf("%5d %v\n", count, a.Title)
-		}
-		fmt.Printf("Next offset: %d\n", resp.NextOffset)
-		offset = resp.NextOffset
-		if offset == 0 {
-			break
-		}
+
+	//c.animeList(ctx)
+	// c.ranking(ctx)
+	// c.animeListForLoop(ctx)
+	//c.userAnimeList(ctx)
+	// c.updateMyAnimeListStatus(ctx)
+	//c.updateMyMangaListStatus(ctx)
+	//c.userMangaList(ctx)
+	// c.deleteMyListItem(ctx)
+	//c.forumBoards(ctx)
+	c.forumTopics(ctx)
+	if c.err != nil {
+		return c.err
 	}
 
 	return nil
@@ -135,7 +133,7 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 		return nil, fmt.Errorf("reading code from terminal: %v", err)
 	}
 
-	// Exchange the authentication code for a token. MyAnimeList currenly only
+	// Exchange the authentication code for a token. MyAnimeList currently only
 	// supports the plain code_challenge_method so to verify the string, just
 	// make sure it is the same as the one you entered in the code_challenge.
 	token, err := conf.Exchange(ctx, code,
@@ -154,7 +152,7 @@ const cacheName = "authentication-example-token-cache.txt"
 
 func cacheToken(token string) {
 	content := []byte(token)
-	err := ioutil.WriteFile(cacheName, content, 0644)
+	err := os.WriteFile(cacheName, content, 0644)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "caching access token: %v, token is: %s", err, token)
 		return
@@ -162,7 +160,7 @@ func cacheToken(token string) {
 }
 
 func loadCachedToken() string {
-	token, err := ioutil.ReadFile(cacheName)
+	token, err := os.ReadFile(cacheName)
 	if err != nil {
 		return ""
 	}
