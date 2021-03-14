@@ -86,7 +86,7 @@ type Serialization struct {
 }
 
 // Details returns details about a manga.
-func (s *MangaService) Details(ctx context.Context, mangaID int64, options ...DetailsOption) (*Manga, *Response, error) {
+func (s *MangaService) Details(ctx context.Context, mangaID int, options ...DetailsOption) (*Manga, *Response, error) {
 	m := new(Manga)
 	resp, err := s.client.details(ctx, fmt.Sprintf("manga/%d", mangaID), m, options...)
 	if err != nil {

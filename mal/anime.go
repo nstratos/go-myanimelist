@@ -125,7 +125,7 @@ type DetailsOption interface {
 }
 
 // Details returns details about an anime.
-func (s *AnimeService) Details(ctx context.Context, animeID int64, options ...DetailsOption) (*Anime, *Response, error) {
+func (s *AnimeService) Details(ctx context.Context, animeID int, options ...DetailsOption) (*Anime, *Response, error) {
 	a := new(Anime)
 	resp, err := s.client.details(ctx, fmt.Sprintf("anime/%d", animeID), a, options...)
 	if err != nil {

@@ -37,6 +37,15 @@ func TestIntegration(t *testing.T) {
 	t.Run("UpdateUserMangaList", func(t *testing.T) {
 		testUpdateUserMangaList(ctx, t, client, username)
 	})
+	t.Run("AnimeMethods", func(t *testing.T) {
+		testAnimeMethods(ctx, t, client)
+	})
+	t.Run("MangaMethods", func(t *testing.T) {
+		testMangaMethods(ctx, t, client)
+	})
+	t.Run("ForumMethods", func(t *testing.T) {
+		testForumMethods(ctx, t, client)
+	})
 }
 
 func testGetUserInfo(ctx context.Context, t *testing.T, client *mal.Client) (username string) {
@@ -200,13 +209,63 @@ func testUpdateUserMangaList(ctx context.Context, t *testing.T, client *mal.Clie
 	}
 }
 
-func testForumMethods(ctx context.Context, t *testing.T, client *mal.Client, username string) {
+func testAnimeMethods(ctx context.Context, t *testing.T, client *mal.Client) {
+	list, _, err := client.Anime.List(ctx, "kiseijuu", mal.Limit(2))
+	if err != nil {
+		t.Errorf("Anime.List returned error: %v", err)
+	}
+	if len(list) == 0 {
+		t.Fatal("Anime.List returned 0 anime")
+	}
+
+	_, _, err = client.Anime.Details(ctx, list[0].ID)
+	if err != nil {
+		t.Errorf("Anime.Details returned error: %v", err)
+	}
+
+	_, _, err = client.Anime.Ranking(ctx, mal.AnimeRankingAll, mal.Limit(2))
+	if err != nil {
+		t.Errorf("Anime.Ranking returned error: %v", err)
+	}
+
+	_, _, err = client.Anime.Seasonal(ctx, 2020, mal.AnimeSeasonWinter, mal.SortSeasonalByAnimeNumListUsers, mal.Limit(2))
+	if err != nil {
+		t.Errorf("Anime.Seasonal returned error: %v", err)
+	}
+
+	_, _, err = client.Anime.Suggested(ctx, mal.Fields{"rank", "popularity"}, mal.Limit(2))
+	if err != nil {
+		t.Errorf("Anime.Suggested returned error: %v", err)
+	}
+}
+
+func testMangaMethods(ctx context.Context, t *testing.T, client *mal.Client) {
+	list, _, err := client.Manga.List(ctx, "kiseijuu", mal.Limit(2))
+	if err != nil {
+		t.Errorf("Manga.List returned error: %v", err)
+	}
+	if len(list) == 0 {
+		t.Fatal("Manga.List returned 0 anime")
+	}
+
+	_, _, err = client.Manga.Details(ctx, list[0].ID)
+	if err != nil {
+		t.Errorf("Manga.Details returned error: %v", err)
+	}
+
+	_, _, err = client.Manga.Ranking(ctx, mal.MangaRankingAll, mal.Limit(2))
+	if err != nil {
+		t.Errorf("Manga.Ranking returned error: %v", err)
+	}
+}
+
+func testForumMethods(ctx context.Context, t *testing.T, client *mal.Client) {
 	_, _, err := client.Forum.Boards(ctx)
 	if err != nil {
 		t.Errorf("Forum.Boards returned error: %v", err)
 	}
 
-	topics, _, err := client.Forum.Topics(ctx, mal.Query("kiseijuu"), mal.SortTopicsRecent)
+	topics, _, err := client.Forum.Topics(ctx, mal.Query("kiseijuu"), mal.Limit(2))
 	if err != nil {
 		t.Errorf("Forum.Topics returned error: %v", err)
 	}
@@ -214,7 +273,7 @@ func testForumMethods(ctx context.Context, t *testing.T, client *mal.Client, use
 		t.Fatal("Forum.Topics returned 0 topics")
 	}
 
-	_, _, err = client.Forum.TopicDetails(ctx, topics[0].ID)
+	_, _, err = client.Forum.TopicDetails(ctx, topics[0].ID, mal.Limit(2))
 	if err != nil {
 		t.Errorf("Forum.TopicDetails returned error: %v", err)
 	}
