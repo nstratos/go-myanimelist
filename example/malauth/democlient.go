@@ -22,9 +22,9 @@ type demoClient struct {
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
 		//c.animeList,
-		c.animeDetails,
-		// c.ranking,
-		// c.animeListForLoop,
+		// c.animeDetails,
+		c.ranking,
+		// c.animeListForLoop, // Warning: Many requests.
 		// c.userAnimeList,
 		//c.updateMyAnimeListStatus,
 		//c.deleteMyAnimeListItem,

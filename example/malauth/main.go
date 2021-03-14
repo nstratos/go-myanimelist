@@ -24,8 +24,8 @@ func main() {
 
 // In order to create a client ID and secret for your application:
 //
-//  1. Navigate to https://myanimelist.net/apiconfig (or go to your MyAnimeList
-//     profile, click Edit Profile and select the API tab on the far right.)
+//  1. Navigate to https://myanimelist.net/apiconfig or go to your MyAnimeList
+//     profile, click Edit Profile and select the API tab on the far right.
 //  2. Click Create ID and submit the form with your application details.
 const (
 	defaultClientID     = ""
