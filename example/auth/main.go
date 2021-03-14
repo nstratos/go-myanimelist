@@ -57,7 +57,7 @@ func run() error {
 
 	c := demoClient{
 		Client: mal.NewClient(tokenClient),
-		}
+	}
 
 	return c.showcase(ctx)
 }

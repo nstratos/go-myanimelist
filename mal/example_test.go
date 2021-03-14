@@ -84,6 +84,7 @@ func newStubServer() *httptest.Server {
 
 	mux.HandleFunc("/anime", serveStubHandler("animeList.json"))
 	mux.HandleFunc("/anime/967", serveStubHandler("animeDetails.json"))
+	mux.HandleFunc("/anime/ranking", serveStubHandler("animeRanking.json"))
 
 	return server
 }
@@ -151,6 +152,40 @@ func ExampleAnimeService_Details() {
 	// Source: Manga
 	// Genres: Action Drama Martial Arts Sci-Fi Shounen
 	// Duration: 25 min. per ep.
+}
+
+func ExampleAnimeService_Ranking() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	anime, _, err := c.Anime.Ranking(ctx,
+		mal.AnimeRankingAiring,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	if err != nil {
+		fmt.Printf("Anime.Ranking error: %v", err)
+		return
+	}
+	for _, a := range anime {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+	}
+	// Output:
+	// Rank:     2, Popularity:   104 Shingeki no Kyojin: The Final Season
+	// Rank:    59, Popularity:   371 Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Part 2
+	// Rank:    67, Popularity:  1329 Yuru Camp△ Season 2
+	// Rank:    69, Popularity:   109 Jujutsu Kaisen (TV)
+	// Rank:    83, Popularity:  3714 Holo no Graffiti
+	// Rank:    85, Popularity:   304 Horimiya
 }
 
 // func ExampleAnimeService_Update() {
