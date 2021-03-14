@@ -1,157 +1,201 @@
-// +build integration
-
 package mal_test
 
 import (
+	"context"
 	"flag"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/nstratos/go-myanimelist/mal"
+	"golang.org/x/oauth2"
 )
 
-var (
-	malUsername = flag.String("username", "testgopher", "MyAnimeList.net username to use for integration tests")
-	malPassword = flag.String("password", "", "MyAnimeList.net password to use for integration tests")
+var accessToken = flag.String("access-token", "", "MyAnimeList.net access token to use for integration tests")
 
-	testAnimeIDs = []int{1, 5, 6, 7}
-	testMangaIDs = []int{1, 2, 3, 4}
-
-	addedStatus   mal.Status = mal.Planned
-	updatedStatus            = mal.Current
-
-	// client is the MyAnimeList client being used for the integration tests.
-	client *mal.Client
-)
-
-func setup(t *testing.T) {
-	if *malPassword == "" {
-		t.Errorf("No password provided for user %q.", *malUsername)
-		t.Error("These tests are meant to be run with a dedicated test account with empty lists.")
-		t.Fatal("You might want to use: go test -tags=integration -username '<your account>' -password '<your password>'")
+func setup(ctx context.Context, t *testing.T) *mal.Client {
+	if *accessToken == "" {
+		t.Log("No access token provided.")
+		t.Log("The integration tests are meant to be run with a dedicated test account with empty lists.")
+		t.Skip("To run the integration tests use: go test --access-token '<your access token>'")
 	}
 
-	// Create mal client for tests.
-	client = mal.NewClient(mal.Auth(*malUsername, *malPassword))
+	tc := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: *accessToken},
+	))
+	return mal.NewClient(tc)
 }
 
-func TestAnimeServiceIntegration(t *testing.T) {
-	setup(t)
+func TestIntegration(t *testing.T) {
+	ctx := context.Background()
+	client := setup(ctx, t)
 
-	// Get anime list for test account. No authentication needed.
-	list, _, err := client.Anime.List(*malUsername)
+	username := testGetUserInfo(ctx, t, client)
+	t.Run("UpdateUserAnimeList", func(t *testing.T) {
+		testUpdateUserAnimeList(ctx, t, client, username)
+	})
+	t.Run("UpdateUserMangaList", func(t *testing.T) {
+		testUpdateUserMangaList(ctx, t, client, username)
+	})
+}
+
+func testGetUserInfo(ctx context.Context, t *testing.T, client *mal.Client) (username string) {
+	t.Helper()
+	// Get user info to find the username.
+	info, _, err := client.User.MyInfo(ctx)
 	if err != nil {
-		t.Fatal("client.Anime.List returned err:", err)
+		t.Fatal("User.MyInfo returned err:", err)
+	}
+
+	username = info.Name
+	t.Logf("Running integration tests using user: %q", username)
+	return username
+}
+
+func testUpdateUserAnimeList(ctx context.Context, t *testing.T, client *mal.Client, username string) {
+	// Get anime list for test account.
+	const me = "@me"
+	list, _, err := client.User.AnimeList(ctx, me)
+	if err != nil {
+		t.Fatalf("User.AnimeList(%q) returned err: %s", me, err)
 	}
 
 	// Being strict here. Anime list of test account must be empty.
-	if len(list.Anime) != 0 {
-		t.Fatalf("MyAnimeList.net test account %q is supposed to have 0 anime but has %d", *malUsername, len(list.Anime))
+	if len(list) != 0 {
+		t.Fatalf("MyAnimeList.net test account %q is supposed to have 0 anime but has %d", username, len(list))
 	}
 
-	// Test if password matches test account username.
-	if _, _, err := client.Account.Verify(); err != nil {
-		t.Fatalf("Account verification for user %q failed: %v", *malUsername, err)
-	}
-
+	testAnimeIDs := []int{1, 5, 6, 7}
 	// Clean up all anime at the end.
 	defer func() {
 		for _, id := range testAnimeIDs {
-			if _, derr := client.Anime.Delete(id); derr != nil {
-				t.Errorf("client.Anime.Delete(%d) returned err: %v", id, derr)
+			if _, delErr := client.Anime.DeleteMyListItem(ctx, id); delErr != nil {
+				t.Errorf("Anime.DeleteMyListItem(%d) returned err: %v", id, delErr)
 			}
 		}
 	}()
 
-	// Test adding all the anime.
+	// Test adding some anime.
 	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Add(id, mal.AnimeEntry{Status: addedStatus}); err != nil {
-			t.Fatalf("client.Anime.Add(%d) returned err: %v", id, err)
-		}
-	}
-
-	// Test updating all the anime.
-	for _, id := range testAnimeIDs {
-		if _, err := client.Anime.Update(id, mal.AnimeEntry{Status: updatedStatus}); err != nil {
-			t.Fatalf("client.Anime.Update(%d) returned err: %v", id, err)
+		if _, _, err := client.Anime.UpdateMyListStatus(ctx, id,
+			mal.AnimeStatusWatching,
+			mal.Comments("test comment"),
+			mal.IsRewatching(true),
+			mal.NumEpisodesWatched(1),
+			mal.NumTimesRewatched(1),
+			mal.Priority(1),
+			mal.RewatchValue(1),
+			mal.Score(1),
+			mal.Tags{"foo", "bar"},
+		); err != nil {
+			t.Fatalf("Anime.UpdateMyListStatus(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Get anime list of test account for a second time.
-	list, _, err = client.Anime.List(*malUsername)
+	list, _, err = client.User.AnimeList(ctx, me,
+		mal.Fields{"list_status{num_times_rewatched, rewatch_value, priority, comments, tags}"},
+	)
 	if err != nil {
-		t.Fatal("client.Anime.List after additions returned err:", err)
+		t.Fatalf("User.AnimeList(%q) after additions returned err: %s", me, err)
 	}
 
 	// And make sure it has the number of anime it's supposed to have.
-	if got, want := len(list.Anime), len(testAnimeIDs); got != want {
+	if got, want := len(list), len(testAnimeIDs); got != want {
 		t.Fatalf("Test account Anime number after additions = %d, want %d", got, want)
 	}
 
 	// And that they all have been updated appropriately.
-	for _, anime := range list.Anime {
-		if got, want := anime.MyStatus, updatedStatus; got != want {
-			t.Errorf("Anime ID: %d status = %d, want %d", anime.SeriesAnimeDBID, got, want)
+	for _, a := range list {
+		want := mal.AnimeListStatus{
+			Status:             mal.AnimeStatusWatching,
+			Score:              1,
+			NumEpisodesWatched: 1,
+			IsRewatching:       true,
+			Priority:           1,
+			NumTimesRewatched:  1,
+			RewatchValue:       1,
+			Tags:               []string{"foo", "bar"},
+			Comments:           "test comment",
+		}
+		a.Status.UpdatedAt = time.Time{}
+		if got := a.Status; !reflect.DeepEqual(got, want) {
+			t.Errorf("Anime ID: %d AnimeListStatus\nhave: %+v\nwant: %+v", a.Anime.ID, got, want)
 		}
 	}
 }
 
-func TestMangaServiceIntegration(t *testing.T) {
-	setup(t)
-
-	// Get manga list for test account. No authentication needed.
-	list, _, err := client.Manga.List(*malUsername)
+func testUpdateUserMangaList(ctx context.Context, t *testing.T, client *mal.Client, username string) {
+	// Get manga list for test account.
+	const me = "@me"
+	list, _, err := client.User.MangaList(ctx, me)
 	if err != nil {
-		t.Fatal("client.Manga.List returned err:", err)
+		t.Fatalf("User.MangaList(%q) returned err: %s", me, err)
 	}
 
 	// Being strict here. Manga list of test account must be empty.
-	if len(list.Manga) != 0 {
-		t.Fatalf("MyMangaList.net test account %q is supposed to have 0 manga but has %d", *malUsername, len(list.Manga))
+	if len(list) != 0 {
+		t.Fatalf("MyMangaList.net test account %q is supposed to have 0 manga but has %d", username, len(list))
 	}
 
-	// Test if password matches test account username.
-	if _, _, err := client.Account.Verify(); err != nil {
-		t.Fatalf("Account verification for user %q failed: %v", *malUsername, err)
-	}
-
+	testMangaIDs := []int{1, 2, 3, 4}
 	// Clean up all manga at the end.
 	defer func() {
 		for _, id := range testMangaIDs {
-			if _, derr := client.Manga.Delete(id); derr != nil {
-				t.Errorf("client.Manga.Delete(%d) returned err: %v", id, derr)
+			if _, delErr := client.Manga.DeleteMyListItem(ctx, id); delErr != nil {
+				t.Errorf("Manga.DeleteMyListItem(%d) returned err: %v", id, delErr)
 			}
 		}
 	}()
 
-	// Test adding all the manga.
+	// Test adding some manga.
 	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Add(id, mal.MangaEntry{Status: addedStatus}); err != nil {
-			t.Fatalf("client.Manga.Add(%d) returned err: %v", id, err)
-		}
-	}
-
-	// Test updating all the manga.
-	for _, id := range testMangaIDs {
-		if _, err := client.Manga.Update(id, mal.MangaEntry{Status: updatedStatus}); err != nil {
-			t.Fatalf("client.Manga.Update(%d) returned err: %v", id, err)
+		if _, _, err := client.Manga.UpdateMyListStatus(ctx, id,
+			mal.MangaStatusReading,
+			mal.Comments("test comment"),
+			mal.IsRereading(true),
+			mal.NumChaptersRead(1),
+			mal.NumVolumesRead(1),
+			mal.NumTimesReread(1),
+			mal.Priority(1),
+			mal.RereadValue(1),
+			mal.Score(1),
+			mal.Tags{"foo", "bar"},
+		); err != nil {
+			t.Fatalf("Manga.UpdateMyListStatus(%d) returned err: %v", id, err)
 		}
 	}
 
 	// Get manga list of test account for a second time.
-	list, _, err = client.Manga.List(*malUsername)
+	list, _, err = client.User.MangaList(ctx, me,
+		mal.Fields{"list_status{num_times_reread, reread_value, priority, comments, tags}"},
+	)
 	if err != nil {
-		t.Fatal("client.Manga.List after additions returned err:", err)
+		t.Fatalf("User.MangaList(%q) after additions returned err: %s", me, err)
 	}
 
 	// And make sure it has the number of manga it's supposed to have.
-	if got, want := len(list.Manga), len(testMangaIDs); got != want {
+	if got, want := len(list), len(testMangaIDs); got != want {
 		t.Fatalf("Test account Manga number after additions = %d, want %d", got, want)
 	}
 
 	// And that they all have been updated appropriately.
-	for _, manga := range list.Manga {
-		if got, want := manga.MyStatus, updatedStatus; got != want {
-			t.Errorf("Manga ID: %d status = %d, want %d", manga.SeriesMangaDBID, got, want)
+	for _, a := range list {
+		want := mal.MangaListStatus{
+			Status:          mal.MangaStatusReading,
+			Score:           1,
+			NumChaptersRead: 1,
+			NumVolumesRead:  1,
+			IsRereading:     true,
+			Priority:        1,
+			NumTimesReread:  1,
+			RereadValue:     1,
+			Tags:            []string{"foo", "bar"},
+			Comments:        "test comment",
+		}
+		a.Status.UpdatedAt = time.Time{}
+		if got := a.Status; !reflect.DeepEqual(got, want) {
+			t.Errorf("Manga ID: %d MangaListStatus\nhave: %+v\nwant: %+v", a.Manga.ID, got, want)
 		}
 	}
 }
