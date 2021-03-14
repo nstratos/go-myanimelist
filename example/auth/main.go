@@ -40,16 +40,11 @@ func run() error {
 	var (
 		clientID     = flag.String("client-id", defaultClientID, "your application client ID")
 		clientSecret = flag.String("client-secret", defaultClientSecret, "your application client secret")
-		// State is a token to protect the user from CSRF attacks. In a web
+		// state is a token to protect the user from CSRF attacks. In a web
 		// application, you should provide a non-empty string and validate that
 		// it matches the state query parameter on the redirect URL callback
-		// after the MyAnimeList authentication.
+		// after the MyAnimeList authentication. It can stay empty here.
 		state = flag.String("state", "", "token to protect against CSRF attacks")
-		// After a first successful authentication, the program will print the
-		// access token so that you can copy it. If you want to run the program
-		// multiple times and avoid authenticating each time, pass the access
-		// token using the -token flag you copied the first time.
-		//token = flag.String("token", "", "the access token is returned after a successful authentication")
 	)
 	flag.Parse()
 

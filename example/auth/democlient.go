@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
@@ -20,17 +21,18 @@ type demoClient struct {
 
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
-		c.animeList,
-		c.ranking,
-		c.animeListForLoop,
-		c.userAnimeList,
+		//c.animeList,
+		c.animeDetails,
+		// c.ranking,
+		// c.animeListForLoop,
+		// c.userAnimeList,
 		//c.updateMyAnimeListStatus,
 		//c.deleteMyAnimeListItem,
 		//c.updateMyMangaListStatus,
 		//c.deleteMyMangaListItem,
-		c.userMangaList,
-		c.forumBoards,
-		c.forumTopics,
+		// c.userMangaList,
+		// c.forumBoards,
+		// c.forumTopics,
 	}
 	for _, m := range methods {
 		m(ctx)
@@ -45,9 +47,9 @@ func (c *demoClient) animeList(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	anime, _, err := c.Anime.List(ctx, "galactic heroes",
+	anime, _, err := c.Anime.List(ctx, "hokuto no ken",
 		mal.Fields{"rank", "popularity", "start_season"},
-		mal.Limit(5),
+		mal.Limit(3),
 		mal.Offset(0),
 	)
 	if err != nil {
@@ -57,6 +59,51 @@ func (c *demoClient) animeList(ctx context.Context) {
 	for _, a := range anime {
 		fmt.Printf("ID: %5d, Rank: %5d, Popularity: %5d %s (%d)\n", a.ID, a.Rank, a.Popularity, a.Title, a.StartSeason.Year)
 	}
+}
+
+func (c *demoClient) animeDetails(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	a, _, err := c.Anime.Details(ctx, 967,
+		mal.Fields{
+			"alternative_titles",
+			"media_type",
+			"num_episodes",
+			"start_season",
+			"source",
+			"genres",
+			"studios",
+			"average_episode_duration",
+		},
+	)
+
+	if err != nil {
+		c.err = err
+		return
+	}
+	fmt.Printf("%s\n", a.Title)
+	fmt.Printf("ID: %d\n", a.ID)
+	fmt.Printf("English: %s\n", a.AlternativeTitles.En)
+	fmt.Printf("Type: %s\n", strings.ToUpper(a.MediaType))
+	fmt.Printf("Episodes: %d\n", a.NumEpisodes)
+	fmt.Printf("Premiered: %s %d\n", strings.Title(a.StartSeason.Season), a.StartSeason.Year)
+	fmt.Print("Studios: ")
+	delim := ""
+	for _, s := range a.Studios {
+		fmt.Printf("%s%s", delim, s.Name)
+		delim = " "
+	}
+	fmt.Println()
+	fmt.Printf("Source: %s\n", strings.Title(a.Source))
+	fmt.Print("Genres: ")
+	delim = ""
+	for _, g := range a.Genres {
+		fmt.Printf("%s%s", delim, g.Name)
+		delim = " "
+	}
+	fmt.Println()
+	fmt.Printf("Duration: %d min. per ep.\n", a.AverageEpisodeDuration/60)
 }
 
 func (c *demoClient) animeListForLoop(ctx context.Context) {
