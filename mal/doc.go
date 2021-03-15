@@ -163,15 +163,18 @@ updated:
 
 Delete
 
-To delete anime and manga, simply provide their IDs:
+To delete anime or manga from a user's list, simply provide their IDs:
 
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-	_, err := c.Anime.Delete(9989)
+	_, err := c.Anime.DeleteMyListItem(ctx, 967)
 	// ...
 
-	_, err := c.Manga.Delete(35733)
+	_, err := c.Manga.DeleteMyListItem(ctx, 401)
 	// ...
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_my_list_status_delete
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_delete
 
 More Examples
 

@@ -71,3 +71,26 @@ func ExampleMangaService_Details() {
 	// Genres: Action Psychological Sci-Fi Drama Horror Seinen
 	// Status: Finished
 }
+
+func ExampleMangaService_DeleteMyListItem() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	resp, err := c.Manga.DeleteMyListItem(ctx, 401)
+	if err != nil {
+		fmt.Printf("Manga.DeleteMyListItem error: %v", err)
+		return
+	}
+	fmt.Println(resp.Status)
+	// Output:
+	// 200 OK
+}

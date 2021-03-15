@@ -49,10 +49,20 @@ func newStubServer() *httptest.Server {
 		}
 	}
 
+	deleteHandler := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			http.Error(w, "", http.StatusMethodNotAllowed)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
 	mux.HandleFunc("/anime", serveStubHandler("animeList.json"))
 	mux.HandleFunc("/anime/967", serveStubHandler("animeDetails.json"))
+	mux.HandleFunc("/anime/967/my_list_status", deleteHandler)
 	mux.HandleFunc("/anime/ranking", serveStubHandler("animeRanking.json"))
 	mux.HandleFunc("/manga/401", serveStubHandler("mangaDetails.json"))
+	mux.HandleFunc("/manga/401/my_list_status", deleteHandler)
 
 	return server
 }
@@ -185,4 +195,27 @@ func ExampleAnimeService_Ranking() {
 	// Rank:    69, Popularity:   109 Jujutsu Kaisen (TV)
 	// Rank:    83, Popularity:  3714 Holo no Graffiti
 	// Rank:    85, Popularity:   304 Horimiya
+}
+
+func ExampleAnimeService_DeleteMyListItem() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	resp, err := c.Anime.DeleteMyListItem(ctx, 967)
+	if err != nil {
+		fmt.Printf("Anime.DeleteMyListItem error: %v", err)
+		return
+	}
+	fmt.Println(resp.Status)
+	// Output:
+	// 200 OK
 }
