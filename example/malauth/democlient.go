@@ -26,15 +26,15 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.animeDetails,
 		// c.mangaDetails,
 		// c.animeRanking,
-		c.mangaRanking,
+		// c.mangaRanking,
 		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
-		// c.userAnimeList,
 		// c.updateMyAnimeListStatus,
+		// c.userAnimeList,
 		// c.deleteMyAnimeListItem,
 		// c.updateMyMangaListStatus,
+		c.userMangaList,
 		// c.deleteMyMangaListItem,
-		// c.userMangaList,
 		// c.forumBoards,
 		// c.forumTopics,
 	}
@@ -202,16 +202,17 @@ func (c *demoClient) userAnimeList(ctx context.Context) {
 		return
 	}
 	anime, _, err := c.User.AnimeList(ctx, "@me",
-		mal.Fields{"list_status{start_date, end_date, priority, comments, tags}", "my_list_status{start_date, end_date, priority, comments, tags}"},
-		mal.Limit(10),
-		mal.Offset(0),
+		mal.Fields{"list_status"},
+		mal.AnimeStatusWatching,
+		mal.SortAnimeListByListUpdatedAt,
+		mal.Limit(5),
 	)
 	if err != nil {
 		c.err = err
 		return
 	}
 	for _, a := range anime {
-		fmt.Printf("ID: %5d, Status: %10q, %s\n", a.Anime.ID, a.Status.Status, a.Anime.Title)
+		fmt.Printf("ID: %5d, Status: %15q, Episodes Watched: %3d %s\n", a.Anime.ID, a.Status.Status, a.Status.NumEpisodesWatched, a.Anime.Title)
 	}
 }
 
@@ -221,8 +222,8 @@ func (c *demoClient) userMangaList(ctx context.Context) {
 	}
 	manga, _, err := c.User.MangaList(ctx, "@me",
 		mal.SortMangaListByListScore,
-		mal.Fields{"list_status{start_date, end_date, priority, comments, tags}"},
-		mal.Limit(10),
+		mal.Fields{"list_status{comments, tags}"},
+		mal.Limit(5),
 		mal.Offset(0),
 	)
 	if err != nil {
@@ -230,7 +231,7 @@ func (c *demoClient) userMangaList(ctx context.Context) {
 		return
 	}
 	for _, m := range manga {
-		fmt.Printf("ID: %5d, Status: %10q, %s\n", m.Manga.ID, m.Status.Status, m.Manga.Title)
+		fmt.Printf("ID: %5d, Status: %15q, Volumes Read: %3d, Chapters Read: %3d %s\n", m.Manga.ID, m.Status.Status, m.Status.NumVolumesRead, m.Status.NumChaptersRead, m.Manga.Title)
 	}
 }
 
@@ -238,7 +239,10 @@ func (c *demoClient) updateMyAnimeListStatus(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	s, resp, err := c.Anime.UpdateMyListStatus(ctx, 820, mal.Score(8), mal.NumEpisodesWatched(4))
+	s, resp, err := c.Anime.UpdateMyListStatus(ctx, 37521,
+		mal.AnimeStatusCompleted,
+		//mal.NumEpisodesWatched(73),
+	)
 	if err != nil {
 		c.err = err
 		return
@@ -251,7 +255,11 @@ func (c *demoClient) updateMyMangaListStatus(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	s, resp, err := c.Manga.UpdateMyListStatus(ctx, 1, mal.MangaStatusReading, mal.Score(8), mal.NumChaptersRead(4))
+	s, resp, err := c.Manga.UpdateMyListStatus(ctx, 1,
+		mal.MangaStatusReading,
+		mal.Score(8),
+		mal.NumChaptersRead(4),
+	)
 	if err != nil {
 		c.err = err
 		return

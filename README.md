@@ -112,6 +112,41 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
+## UserList
+
+To get the anime or manga list of a user:
+
+```go
+// Get the authenticated user's anime list, filter only watching anime, sort by
+// last updated, include list status.
+anime, _, err := c.User.AnimeList(ctx, "@me",
+    mal.Fields{"list_status"},
+    mal.AnimeStatusWatching,
+    mal.SortAnimeListByListUpdatedAt,
+    mal.Limit(5),
+)
+// ...
+
+// Get the authenticated user's manga list's second page, sort by score, 
+// include list status, comments and tags.
+manga, _, err := c.User.MangaList(ctx, "@me",
+    mal.SortMangaListByListScore,
+    mal.Fields{"list_status{comments, tags}"},
+    mal.Limit(5),
+    mal.Offset(1),
+)
+// ...
+```
+
+You may provide the username of the user or "@me" to get the authenticated
+user's list.
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_animelist_get
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_mangalist_get
+
 ## Details
 
 To get details for a certain anime or manga:
