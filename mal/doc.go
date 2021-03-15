@@ -92,6 +92,7 @@ You may get user specific data for a certain record by using the optional field
 Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/anime_get
+
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
 Details
@@ -131,7 +132,32 @@ fields you need.
 Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_get
+
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_get
+
+Ranking
+
+To get anime or manga based on a certain ranking:
+
+	anime, _, err := c.Anime.Ranking(ctx,
+		mal.AnimeRankingAiring,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	// ...
+
+	manga, _, err := c.Manga.Ranking(ctx,
+		mal.MangaRankingByPopularity,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	// ...
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_ranking_get
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_ranking_get
 
 Add
 
@@ -174,6 +200,7 @@ To delete anime or manga from a user's list, simply provide their IDs:
 Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_my_list_status_delete
+
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_delete
 
 More Examples

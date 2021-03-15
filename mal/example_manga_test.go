@@ -103,6 +103,40 @@ func ExampleMangaService_Details() {
 	// Status: Finished
 }
 
+func ExampleMangaService_Ranking() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	manga, _, err := c.Manga.Ranking(ctx,
+		mal.MangaRankingByPopularity,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	if err != nil {
+		fmt.Printf("Manga.Ranking error: %v", err)
+		return
+	}
+	for _, m := range manga {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", m.Rank, m.Popularity, m.Title)
+	}
+	// Output:
+	// Rank:    38, Popularity:     1 Shingeki no Kyojin
+	// Rank:     3, Popularity:     2 One Piece
+	// Rank:     1, Popularity:     3 Berserk
+	// Rank:   566, Popularity:     4 Naruto
+	// Rank:   106, Popularity:     5 Tokyo Ghoul
+	// Rank:    39, Popularity:     6 One Punch-Man
+}
+
 func ExampleMangaService_DeleteMyListItem() {
 	ctx := context.Background()
 	c := mal.NewClient(

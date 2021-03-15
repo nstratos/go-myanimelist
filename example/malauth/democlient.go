@@ -22,10 +22,11 @@ type demoClient struct {
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
 		// c.animeList,
-		c.mangaList,
+		// c.mangaList,
 		// c.animeDetails,
 		// c.mangaDetails,
 		// c.animeRanking,
+		c.mangaRanking,
 		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
 		// c.userAnimeList,
@@ -303,6 +304,24 @@ func (c *demoClient) animeRanking(ctx context.Context) {
 			fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
 		}
 		fmt.Println("--------")
+	}
+}
+
+func (c *demoClient) mangaRanking(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	manga, _, err := c.Manga.Ranking(ctx,
+		mal.MangaRankingByPopularity,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	if err != nil {
+		c.err = err
+		return
+	}
+	for _, m := range manga {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", m.Rank, m.Popularity, m.Title)
 	}
 }
 
