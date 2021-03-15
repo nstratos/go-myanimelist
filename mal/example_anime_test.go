@@ -61,6 +61,7 @@ func newStubServer() *httptest.Server {
 	mux.HandleFunc("/anime/967", serveStubHandler("animeDetails.json"))
 	mux.HandleFunc("/anime/967/my_list_status", deleteHandler)
 	mux.HandleFunc("/anime/ranking", serveStubHandler("animeRanking.json"))
+	mux.HandleFunc("/manga", serveStubHandler("mangaList.json"))
 	mux.HandleFunc("/manga/401", serveStubHandler("mangaDetails.json"))
 	mux.HandleFunc("/manga/401/my_list_status", deleteHandler)
 

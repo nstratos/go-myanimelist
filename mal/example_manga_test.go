@@ -10,6 +10,37 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func ExampleMangaService_List() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	manga, _, err := c.Manga.List(ctx, "parasyte",
+		mal.Fields{"num_volumes", "num_chapters", "alternative_titles"},
+		mal.Limit(3),
+		mal.Offset(0),
+	)
+	if err != nil {
+		fmt.Printf("Manga.List error: %v", err)
+		return
+	}
+	for _, m := range manga {
+		fmt.Printf("ID: %5d, Volumes: %3d, Chapters: %3d %s (%s)\n", m.ID, m.NumVolumes, m.NumChapters, m.Title, m.AlternativeTitles.En)
+	}
+	// Output:
+	// ID:   401, Volumes:  10, Chapters:  64 Kiseijuu (Parasyte)
+	// ID: 78789, Volumes:   1, Chapters:  12 Neo Kiseijuu (Neo Parasyte m)
+	// ID: 80797, Volumes:   1, Chapters:  15 Neo Kiseijuu f (Neo Parasyte f)
+}
+
 func ExampleMangaService_Details() {
 	ctx := context.Background()
 	c := mal.NewClient(

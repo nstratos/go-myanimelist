@@ -22,8 +22,9 @@ type demoClient struct {
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
 		// c.animeList,
+		c.mangaList,
 		// c.animeDetails,
-		c.mangaDetails,
+		// c.mangaDetails,
 		// c.animeRanking,
 		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
@@ -60,6 +61,24 @@ func (c *demoClient) animeList(ctx context.Context) {
 	}
 	for _, a := range anime {
 		fmt.Printf("ID: %5d, Rank: %5d, Popularity: %5d %s (%d)\n", a.ID, a.Rank, a.Popularity, a.Title, a.StartSeason.Year)
+	}
+}
+
+func (c *demoClient) mangaList(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	manga, _, err := c.Manga.List(ctx, "parasyte",
+		mal.Fields{"num_volumes", "num_chapters", "alternative_titles"},
+		mal.Limit(3),
+		mal.Offset(0),
+	)
+	if err != nil {
+		c.err = err
+		return
+	}
+	for _, m := range manga {
+		fmt.Printf("ID: %5d, Volumes: %3d, Chapters: %3d %s (%s)\n", m.ID, m.NumVolumes, m.NumChapters, m.Title, m.AlternativeTitles.En)
 	}
 }
 

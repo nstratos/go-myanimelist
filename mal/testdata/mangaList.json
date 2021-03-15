@@ -1,0 +1,68 @@
+{
+    "data":[
+      {
+        "node":{
+          "id":401,
+          "title":"Kiseijuu",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/188928.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/188928l.jpg"
+          },
+          "num_volumes":10,
+          "num_chapters":64,
+          "alternative_titles":{
+            "synonyms":[
+              "Parasite",
+              "Parasitic Beasts"
+            ],
+            "en":"Parasyte",
+            "ja":"\u5bc4\u751f\u7363"
+          }
+        }
+      },
+      {
+        "node":{
+          "id":78789,
+          "title":"Neo Kiseijuu",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/180940.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/180940l.jpg"
+          },
+          "num_volumes":1,
+          "num_chapters":12,
+          "alternative_titles":{
+            "synonyms":[
+              "Neo Parasyte",
+              "Kiseijuu Tribute",
+              "Lucy and Migi",
+              "Lucy to Migi"
+            ],
+            "en":"Neo Parasyte m",
+            "ja":"\u30cd\u30aa\u5bc4\u751f\u7363"
+          }
+        }
+      },
+      {
+        "node":{
+          "id":80797,
+          "title":"Neo Kiseijuu f",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/1\/154559.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/1\/154559l.jpg"
+          },
+          "num_volumes":1,
+          "num_chapters":15,
+          "alternative_titles":{
+            "synonyms":[
+              "Kiseijuu Tribute"
+            ],
+            "en":"Neo Parasyte f",
+            "ja":"\u30cd\u30aa\u5bc4\u751f\u7363f"
+          }
+        }
+      }
+    ],
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/manga?offset=3&fields=num_volumes%2Cnum_chapters%2Calternative_titles&limit=3&q=parasyte"
+    }
+  }
