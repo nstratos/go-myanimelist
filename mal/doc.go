@@ -176,23 +176,7 @@ To delete anime and manga, simply provide their IDs:
 More Examples
 
 See package examples:
-https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
-
-Advanced Control
-
-If you need more control over the created requests, you can use an option to
-pass a custom HTTP client to NewClient:
-
-	c := mal.NewClient(&http.Client{})
-
-For example this http.Client will make sure to cancel any request that takes
-longer than 1 second:
-
-	httpcl := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-	c := mal.NewClient(httpcl)
-	// ...
+https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
 Unit Testing
 
@@ -213,9 +197,10 @@ issues etc.
 
 These tests are meant to be run using a dedicated test account that contains
 empty anime and manga lists. A valid access token needs to be provided every
-time.
+time. Check the authentication section to learn how to get one.
 
-To run the integration tests:
+By default the integration tests are skipped when an access token is not
+provided. To run all tests including the integration tests:
 
 	go test --access-token '<your access token>'
 

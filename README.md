@@ -3,7 +3,7 @@
 go-myanimelist is a Go client library for accessing the [MyAnimeList API v2](https://myanimelist.net/apiconfig/references/api/v2).
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/nstratos/go-myanimelist/mal?status.svg)](https://godoc.org/github.com/nstratos/go-myanimelist/mal)
+[![Go Reference](https://pkg.go.dev/badge/github.com/nstratos/go-myanimelist/mal.svg)](https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nstratos/go-myanimelist)](https://goreportcard.com/report/github.com/nstratos/go-myanimelist)
 [![Coverage Status](https://coveralls.io/repos/github/nstratos/go-myanimelist/badge.svg?branch=master)](https://coveralls.io/github/nstratos/go-myanimelist?branch=master)
 [![Build Status](https://travis-ci.org/nstratos/go-myanimelist.svg?branch=master)](https://travis-ci.org/nstratos/go-myanimelist)
@@ -201,27 +201,7 @@ _, err := c.Manga.Delete(35733)
 ## More Examples
 
 See package examples:
-https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
-
-## Advanced Control
-
-If you need more control over the created requests, you can use an option to
-pass a custom HTTP client to NewClient:
-
-```go
-c := mal.NewClient(&http.Client{})
-```
-
-For example this http.Client will make sure to cancel any request that takes
-longer than 1 second:
-
-```go
-httpcl := &http.Client{
-	Timeout: 1 * time.Second,
-}
-c := mal.NewClient(httpcl)
-// ...
-```
+https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
 ## Unit Testing
 
@@ -242,9 +222,10 @@ issues etc.
 
 These tests are meant to be run using a dedicated test account that contains
 empty anime and manga lists. A valid access token needs to be provided every
-time.
+time. Check the authentication section to learn how to get one.
 
-To run the integration tests:
+By default the integration tests are skipped when an access token is not
+provided. To run all tests including the integration tests:
 
 	go test --access-token '<your access token>'
 
