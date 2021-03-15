@@ -128,6 +128,20 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_mangalist_get
 
+MyInfo
+
+To get information about the authenticated user:
+
+	user, _, err := c.User.MyInfo(ctx)
+	// ...
+
+This method can use the Fields option but the API doesn't seem to be able to
+send optional fields like "anime_statistics" at the time of writing.
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_get
+
 Details
 
 To get details for a certain anime or manga:

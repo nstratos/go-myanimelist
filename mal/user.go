@@ -3,6 +3,7 @@ package mal
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -46,8 +47,13 @@ type AnimeStatistics struct {
 	MeanScore           float64 `json:"mean_score,omitempty"`
 }
 
+// MyInfoOption are options specific to the User.MyInfo method.
+type MyInfoOption interface {
+	myInfoApply(v *url.Values)
+}
+
 // MyInfo returns information about the authenticated user.
-func (s *UserService) MyInfo(ctx context.Context) (*User, *Response, error) {
+func (s *UserService) MyInfo(ctx context.Context, options ...MyInfoOption) (*User, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "users/@me")
 	if err != nil {
 		return nil, nil, err

@@ -21,6 +21,7 @@ type demoClient struct {
 
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
+		c.userMyInfo,
 		// c.animeList,
 		// c.mangaList,
 		// c.animeDetails,
@@ -33,7 +34,7 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.userAnimeList,
 		// c.deleteMyAnimeListItem,
 		// c.updateMyMangaListStatus,
-		c.userMangaList,
+		// c.userMangaList,
 		// c.deleteMyMangaListItem,
 		// c.forumBoards,
 		// c.forumTopics,
@@ -45,6 +46,18 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		return c.err
 	}
 	return nil
+}
+
+func (c *demoClient) userMyInfo(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	u, _, err := c.User.MyInfo(ctx)
+	if err != nil {
+		c.err = err
+		return
+	}
+	fmt.Printf("ID: %5d, Joined: %v, Username: %s\n", u.ID, u.JoinedAt.Format("Jan 2006"), u.Name)
 }
 
 func (c *demoClient) animeList(ctx context.Context) {

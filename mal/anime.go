@@ -179,6 +179,7 @@ func (f Fields) seasonalAnimeApply(v *url.Values) { f.apply(v) }
 func (f Fields) animeListApply(v *url.Values)     { f.apply(v) }
 func (f Fields) mangaListApply(v *url.Values)     { f.apply(v) }
 func (f Fields) detailsApply(v *url.Values)       { f.apply(v) }
+func (f Fields) myInfoApply(v *url.Values)        { f.apply(v) }
 func (f Fields) apply(v *url.Values) {
 	if len(f) != 0 {
 		v.Set("fields", strings.Join(f, ","))
