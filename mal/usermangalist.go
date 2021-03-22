@@ -60,12 +60,21 @@ func (m mangaList) pagination() Paging { return m.Paging }
 // passed as an option when updating the manga list.
 type MangaStatus string
 
-// Possible statuses of a manga in the user's list.
 const (
-	MangaStatusReading    MangaStatus = "reading"
-	MangaStatusCompleted  MangaStatus = "completed"
-	MangaStatusOnHold     MangaStatus = "on_hold"
-	MangaStatusDropped    MangaStatus = "dropped"
+	// MangaStatusReading returns the manga with status 'reading' from a user's
+	// list or sets the status of a list item as such.
+	MangaStatusReading MangaStatus = "reading"
+	// MangaStatusCompleted returns the manga with status 'completed' from a
+	// user's list or sets the status of a list item as such.
+	MangaStatusCompleted MangaStatus = "completed"
+	// MangaStatusOnHold returns the manga with status 'on hold' from a user's
+	// list or sets the status of a list item as such.
+	MangaStatusOnHold MangaStatus = "on_hold"
+	// MangaStatusDropped returns the manga with status 'dropped' from a user's
+	// list or sets the status of a list item as such.
+	MangaStatusDropped MangaStatus = "dropped"
+	// MangaStatusPlanToRead returns the manga with status 'plan to read' from a
+	// user's list or sets the status of a list item as such.
 	MangaStatusPlanToRead MangaStatus = "plan_to_read"
 )
 
@@ -76,13 +85,22 @@ func (s MangaStatus) updateMyMangaListStatusApply(v *url.Values) { v.Set("status
 // manga list.
 type SortMangaList string
 
-// Possible sorting values.
 const (
-	SortMangaListByListScore      SortMangaList = "list_score"       // Descending
-	SortMangaListByListUpdatedAt  SortMangaList = "list_updated_at"  // Descending
-	SortMangaListByMangaTitle     SortMangaList = "manga_title"      // Ascending
-	SortMangaListByMangaStartDate SortMangaList = "manga_start_date" // Descending
-	SortMangaListByMangaID        SortMangaList = "manga_id"         // (Under Development) Ascending
+	// SortMangaListByListScore sorts results by the score of each item in the
+	// list in descending order.
+	SortMangaListByListScore SortMangaList = "list_score"
+	// SortMangaListByListUpdatedAt sorts results by the most updated entries in
+	// the list in descending order.
+	SortMangaListByListUpdatedAt SortMangaList = "list_updated_at"
+	// SortMangaListByMangaTitle sorts results by the manga title in ascending
+	// order.
+	SortMangaListByMangaTitle SortMangaList = "manga_title"
+	// SortMangaListByMangaStartDate sorts results by the manga start date in
+	// descending order.
+	SortMangaListByMangaStartDate SortMangaList = "manga_start_date"
+	// SortMangaListByMangaID sorts results by the manga ID in ascending order.
+	// Note: Currently under development.
+	SortMangaListByMangaID SortMangaList = "manga_id"
 )
 
 func (s SortMangaList) mangaListApply(v *url.Values) { v.Set("sort", string(s)) }

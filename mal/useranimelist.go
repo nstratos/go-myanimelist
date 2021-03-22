@@ -20,12 +20,21 @@ type AnimeListOption interface {
 // passed as an option when updating the anime list.
 type AnimeStatus string
 
-// Possible statuses of an anime in the user's list.
 const (
-	AnimeStatusWatching    AnimeStatus = "watching"
-	AnimeStatusCompleted   AnimeStatus = "completed"
-	AnimeStatusOnHold      AnimeStatus = "on_hold"
-	AnimeStatusDropped     AnimeStatus = "dropped"
+	// AnimeStatusWatching returns the anime with status 'watching' from a
+	// user's list or sets the status of a list item as such.
+	AnimeStatusWatching AnimeStatus = "watching"
+	// AnimeStatusCompleted returns the anime with status 'completed' from a
+	// user's list or sets the status of a list item as such.
+	AnimeStatusCompleted AnimeStatus = "completed"
+	// AnimeStatusOnHold returns the anime with status 'on hold' from a user's
+	// list or sets the status of a list item as such.
+	AnimeStatusOnHold AnimeStatus = "on_hold"
+	// AnimeStatusDropped returns the anime with status 'dropped' from a user's
+	// list or sets the status of a list item as such.
+	AnimeStatusDropped AnimeStatus = "dropped"
+	// AnimeStatusPlanToWatch returns the anime with status 'plan to watch' from
+	// a user's list or sets the status of a list item as such.
 	AnimeStatusPlanToWatch AnimeStatus = "plan_to_watch"
 )
 
@@ -36,13 +45,22 @@ func (s AnimeStatus) updateMyAnimeListStatusApply(v *url.Values) { v.Set("status
 // anime list.
 type SortAnimeList string
 
-// Possible sorting values.
 const (
-	SortAnimeListByListScore      SortAnimeList = "list_score"       // Descending
-	SortAnimeListByListUpdatedAt  SortAnimeList = "list_updated_at"  // Descending
-	SortAnimeListByAnimeTitle     SortAnimeList = "anime_title"      // Ascending
-	SortAnimeListByAnimeStartDate SortAnimeList = "anime_start_date" // Descending
-	SortAnimeListByAnimeID        SortAnimeList = "anime_id"         // (Under Development) Ascending
+	// SortAnimeListByListScore sorts results by the score of each item in the
+	// list in descending order.
+	SortAnimeListByListScore SortAnimeList = "list_score"
+	// SortAnimeListByListUpdatedAt sorts results by the most updated entries in
+	// the list in descending order.
+	SortAnimeListByListUpdatedAt SortAnimeList = "list_updated_at"
+	// SortAnimeListByAnimeTitle sorts results by the anime title in ascending
+	// order.
+	SortAnimeListByAnimeTitle SortAnimeList = "anime_title"
+	// SortAnimeListByAnimeStartDate sorts results by the anime start date in
+	// descending order.
+	SortAnimeListByAnimeStartDate SortAnimeList = "anime_start_date"
+	// SortAnimeListByAnimeID sorts results by the anime ID in ascending order.
+	// Note: Currently under development.
+	SortAnimeListByAnimeID SortAnimeList = "anime_id"
 )
 
 func (s SortAnimeList) animeListApply(v *url.Values) { v.Set("sort", string(s)) }

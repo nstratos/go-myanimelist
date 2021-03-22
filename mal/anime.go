@@ -215,29 +215,25 @@ func (s *AnimeService) list(ctx context.Context, path string, options ...Option)
 // AnimeRanking allows to choose how the anime will be ranked.
 type AnimeRanking string
 
-// Possible AnimeRanking values.
-//
-//     | Value        | Description             |
-//     | -----        | -----------             |
-//     | all          | Top Anime Series        |
-//     | airing       | Top Airing Anime        |
-//     | upcoming     | Top Upcoming Anime      |
-//     | tv           | Top Anime TV Series     |
-//     | ova          | Top Anime OVA Series    |
-//     | movie        | Top Anime Movies        |
-//     | special      | Top Anime Specials      |
-//     | bypopularity | Top Anime by Popularity |
-//     | favorite     | Top Favorited Anime     |
 const (
-	AnimeRankingAll          AnimeRanking = "all"
-	AnimeRankingAiring       AnimeRanking = "airing"
-	AnimeRankingUpcoming     AnimeRanking = "upcoming"
-	AnimeRankingTV           AnimeRanking = "tv"
-	AnimeRankingOVA          AnimeRanking = "ova"
-	AnimeRankingMovie        AnimeRanking = "movie"
-	AnimeRankingSpecial      AnimeRanking = "special"
+	// AnimeRankingAll returns the top anime series.
+	AnimeRankingAll AnimeRanking = "all"
+	// AnimeRankingAiring returns the top airing anime.
+	AnimeRankingAiring AnimeRanking = "airing"
+	// AnimeRankingUpcoming returns the top upcoming anime.
+	AnimeRankingUpcoming AnimeRanking = "upcoming"
+	// AnimeRankingTV returns the top Anime TV series.
+	AnimeRankingTV AnimeRanking = "tv"
+	// AnimeRankingOVA returns the top anime OVA series.
+	AnimeRankingOVA AnimeRanking = "ova"
+	// AnimeRankingMovie returns the top anime movies.
+	AnimeRankingMovie AnimeRanking = "movie"
+	// AnimeRankingSpecial returns the top anime specials.
+	AnimeRankingSpecial AnimeRanking = "special"
+	// AnimeRankingByPopularity returns the top anime by popularity.
 	AnimeRankingByPopularity AnimeRanking = "bypopularity"
-	AnimeRankingFavorite     AnimeRanking = "favorite"
+	// AnimeRankingFavorite returns the top favorite Anime.
+	AnimeRankingFavorite AnimeRanking = "favorite"
 )
 
 func optionFromAnimeRanking(r AnimeRanking) optionFunc {
@@ -270,10 +266,13 @@ const (
 // SortSeasonalAnime is an option that allows to sort the anime results.
 type SortSeasonalAnime string
 
-// Possible values for sorting seasonal anime.
 const (
-	SortSeasonalByAnimeScore        SortSeasonalAnime = "anime_score"          // Descending
-	SortSeasonalByAnimeNumListUsers SortSeasonalAnime = "anime_num_list_users" // Descending
+	// SortSeasonalByAnimeScore sorts seasonal results by anime score in
+	// descending order.
+	SortSeasonalByAnimeScore SortSeasonalAnime = "anime_score"
+	// SortSeasonalByAnimeNumListUsers sorts seasonal results by anime num list
+	// users in descending order.
+	SortSeasonalByAnimeNumListUsers SortSeasonalAnime = "anime_num_list_users"
 )
 
 func (s SortSeasonalAnime) seasonalAnimeApply(v *url.Values) { v.Set("sort", string(s)) }

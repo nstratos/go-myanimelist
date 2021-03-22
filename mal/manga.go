@@ -119,31 +119,27 @@ func (s *MangaService) list(ctx context.Context, path string, options ...Option)
 // MangaRanking allows to choose how the manga will be ranked.
 type MangaRanking string
 
-// Possible MangaRanking values.
-//
-//     | Value        | Description      |
-//     | -----        | -----------      |
-//     | all          | All              |
-//     | manga        | Top Manga        |
-//     | oneshots     | Top One-shots    |
-//     | doujin       | Top Doujinshi    |
-//     | lightnovels  | Top Light Novels |
-//     | novels       | Top Novels       |
-//     | manhwa       | Top Manhwa       |
-//     | manhua       | Top Manhua       |
-//     | bypopularity | Most popular     |
-//     | favorite     | Most favorited   |
 const (
-	MangaRankingAll          MangaRanking = "all"
-	MangaRankingManga        MangaRanking = "manga"
-	MangaRankingOneshots     MangaRanking = "oneshots"
-	MangaRankingDoujinshi    MangaRanking = "doujin"
-	MangaRankingLightNovels  MangaRanking = "lightnovels"
-	MangaRankingNovels       MangaRanking = "novels"
-	MangaRankingManhwa       MangaRanking = "manhwa"
-	MangaRankingManhua       MangaRanking = "manhua"
+	// MangaRankingAll returns all types ranked.
+	MangaRankingAll MangaRanking = "all"
+	// MangaRankingManga returns the top manga.
+	MangaRankingManga MangaRanking = "manga"
+	// MangaRankingOneshots returns the top one-shots.
+	MangaRankingOneshots MangaRanking = "oneshots"
+	// MangaRankingDoujinshi returns the top doujinshi.
+	MangaRankingDoujinshi MangaRanking = "doujin"
+	// MangaRankingLightNovels returns the top light novels.
+	MangaRankingLightNovels MangaRanking = "lightnovels"
+	// MangaRankingNovels returns the top novels.
+	MangaRankingNovels MangaRanking = "novels"
+	// MangaRankingManhwa returns the top manhwa.
+	MangaRankingManhwa MangaRanking = "manhwa"
+	// MangaRankingManhua returns the top manhua.
+	MangaRankingManhua MangaRanking = "manhua"
+	// MangaRankingByPopularity returns the most popular entries.
 	MangaRankingByPopularity MangaRanking = "bypopularity"
-	MangaRankingFavorite     MangaRanking = "favorite"
+	// MangaRankingFavorite returns the most favorite entries.
+	MangaRankingFavorite MangaRanking = "favorite"
 )
 
 func optionFromMangaRanking(r MangaRanking) optionFunc {
