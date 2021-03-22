@@ -63,6 +63,8 @@ func newStubServer() *httptest.Server {
 	mux.HandleFunc("/anime/967", serveStubHandler("animeDetails.json"))
 	mux.HandleFunc("/anime/967/my_list_status", serveStubHandler("updateMyAnimeList.json"))
 	mux.HandleFunc("/anime/ranking", serveStubHandler("animeRanking.json"))
+	mux.HandleFunc("/anime/season/2020/fall", serveStubHandler("animeSeasonal.json"))
+	mux.HandleFunc("/anime/suggestions", serveStubHandler("animeSuggested.json"))
 	mux.HandleFunc("/manga", serveStubHandler("mangaList.json"))
 	mux.HandleFunc("/manga/401", serveStubHandler("mangaDetails.json"))
 	mux.HandleFunc("/manga/401/my_list_status", serveStubHandler("updateMyMangaList.json"))
@@ -202,6 +204,68 @@ func ExampleAnimeService_Ranking() {
 	// Rank:    69, Popularity:   109 Jujutsu Kaisen (TV)
 	// Rank:    83, Popularity:  3714 Holo no Graffiti
 	// Rank:    85, Popularity:   304 Horimiya
+}
+
+func ExampleAnimeService_Seasonal() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	anime, _, err := c.Anime.Seasonal(ctx, 2020, mal.AnimeSeasonFall,
+		mal.Fields{"rank", "popularity"},
+		mal.SortSeasonalByAnimeNumListUsers,
+		mal.Limit(3),
+		mal.Offset(0),
+	)
+	if err != nil {
+		fmt.Printf("Anime.Seasonal error: %v", err)
+		return
+	}
+	for _, a := range anime {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+	}
+	// Output:
+	// Rank:    93, Popularity:    31 One Piece
+	// Rank:  1870, Popularity:    92 Black Clover
+	// Rank:    62, Popularity:   106 Jujutsu Kaisen (TV)
+}
+
+func ExampleAnimeService_Suggested() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	anime, _, err := c.Anime.Suggested(ctx,
+		mal.Limit(10),
+		mal.Fields{"rank", "popularity"},
+	)
+	if err != nil {
+		fmt.Printf("Anime.Suggested error: %v", err)
+		return
+	}
+	for _, a := range anime {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+	}
+	// Output:
+	// Rank:   971, Popularity:   916 Kill la Kill Specials
+	// Rank:   726, Popularity:  4972 Osomatsu-san Movie
+	// Rank:   943, Popularity:  4595 Watashi no Ashinaga Ojisan
 }
 
 func ExampleAnimeService_DeleteMyListItem() {

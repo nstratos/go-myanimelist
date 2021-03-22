@@ -28,12 +28,13 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.mangaDetails,
 		// c.animeRanking,
 		// c.mangaRanking,
+		c.animeSeasonal,
 		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
 		// c.updateMyAnimeListStatus,
 		// c.userAnimeList,
 		// c.deleteMyAnimeListItem,
-		c.updateMyMangaListStatus,
+		// c.updateMyMangaListStatus,
 		// c.userMangaList,
 		// c.deleteMyMangaListItem,
 		// c.forumBoards,
@@ -347,12 +348,31 @@ func (c *demoClient) mangaRanking(ctx context.Context) {
 	}
 }
 
+func (c *demoClient) animeSeasonal(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	anime, _, err := c.Anime.Seasonal(ctx, 2020, mal.AnimeSeasonFall,
+		mal.Fields{"rank", "popularity"},
+		mal.SortSeasonalByAnimeNumListUsers,
+		mal.Limit(3),
+		mal.Offset(0),
+	)
+	if err != nil {
+		c.err = err
+		return
+	}
+	for _, a := range anime {
+		fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
+	}
+}
+
 func (c *demoClient) animeSuggested(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
 	anime, _, err := c.Anime.Suggested(ctx,
-		mal.Limit(10),
+		mal.Limit(3),
 		mal.Fields{"rank", "popularity"},
 	)
 	if err != nil {

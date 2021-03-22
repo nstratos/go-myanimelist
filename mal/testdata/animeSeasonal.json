@@ -1,0 +1,47 @@
+{
+    "data":[
+      {
+        "node":{
+          "id":21,
+          "title":"One Piece",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/6\/73245.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/6\/73245l.jpg"
+          },
+          "rank":93,
+          "popularity":31
+        }
+      },
+      {
+        "node":{
+          "id":34572,
+          "title":"Black Clover",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/2\/88336.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/2\/88336l.jpg"
+          },
+          "rank":1870,
+          "popularity":92
+        }
+      },
+      {
+        "node":{
+          "id":40748,
+          "title":"Jujutsu Kaisen (TV)",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/1171\/109222.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/1171\/109222l.jpg"
+          },
+          "rank":62,
+          "popularity":106
+        }
+      }
+    ],
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/anime\/season\/2020\/fall?offset=3&fields=rank%2Cpopularity&limit=3&sort=anime_num_list_users"
+    },
+    "season":{
+      "year":2020,
+      "season":"fall"
+    }
+  }

@@ -276,7 +276,6 @@ const (
 	SortSeasonalByAnimeNumListUsers SortSeasonalAnime = "anime_num_list_users" // Descending
 )
 
-//func (s SortSeasonalAnime) apply(v *url.Values)              { s.seasonalAnimeApply(v) }
 func (s SortSeasonalAnime) seasonalAnimeApply(v *url.Values) { v.Set("sort", string(s)) }
 
 // SeasonalAnimeOption are options specific to the AnimeService.Seasonal method.
@@ -292,21 +291,6 @@ func optionFromSeasonalAnimeOption(o SeasonalAnimeOption) optionFunc {
 
 // Seasonal allows an authenticated user to receive the seasonal anime by
 // providing the year and season. The results can be sorted using an option.
-//
-// Example:
-//
-//     anime, _, err := c.Anime.Seasonal(ctx, 2020, mal.AnimeSeasonFall,
-//         mal.Fields{"rank", "popularity"},
-//         mal.SortSeasonalByAnimeNumListUsers,
-//         mal.Limit(10),
-//         mal.Offset(0),
-//     )
-//     if err != nil {
-//         return err
-//     }
-//     for _, a := range anime {
-//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
-//     }
 func (s *AnimeService) Seasonal(ctx context.Context, year int, season AnimeSeason, options ...SeasonalAnimeOption) ([]Anime, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
@@ -317,19 +301,6 @@ func (s *AnimeService) Seasonal(ctx context.Context, year int, season AnimeSeaso
 
 // Suggested returns suggested anime for the authorized user. If the user is new
 // comer, this endpoint returns an empty list.
-//
-// Example:
-//
-//     anime, _, err := c.Anime.Suggested(ctx,
-//         mal.Limit(10),
-//         mal.Fields{"rank", "popularity"},
-//     )
-//     if err != nil {
-//         return err
-//     }
-//     for _, a := range anime {
-//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
-//     }
 func (s *AnimeService) Suggested(ctx context.Context, options ...Option) ([]Anime, *Response, error) {
 	return s.list(ctx, "anime/suggestions", options...)
 }
