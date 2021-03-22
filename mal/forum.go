@@ -179,7 +179,8 @@ type UserName string
 
 func (n UserName) topicsApply(v *url.Values) { v.Set("user_name", string(n)) }
 
-// Topics returns the forum's topics.
+// Topics returns the forum's topics. Make sure to pass at least the Query
+// option or you will get an API error.
 func (s *ForumService) Topics(ctx context.Context, options ...TopicsOption) ([]Topic, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
