@@ -9,6 +9,66 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func ExampleForumService_Boards() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	forum, _, err := c.Forum.Boards(ctx)
+	if err != nil {
+		fmt.Printf("Forum.Boards error: %v", err)
+		return
+	}
+	for _, category := range forum.Categories {
+		fmt.Printf("%s\n", category.Title)
+		for _, b := range category.Boards {
+			fmt.Printf("|-> %s\n", b.Title)
+			for _, b := range b.Subboards {
+				fmt.Printf("    |-> %s\n", b.Title)
+			}
+		}
+		fmt.Println("---")
+	}
+	// Output:
+	// MyAnimeList
+	// |-> Updates & Announcements
+	// |-> MAL Guidelines & FAQ
+	// |-> DB Modification Requests
+	//     |-> Anime DB
+	//     |-> Character & People DB
+	//     |-> Manga DB
+	// |-> Support
+	// |-> Suggestions
+	// |-> MAL Contests
+	// ---
+	// Anime & Manga
+	// |-> News Discussion
+	// |-> Anime & Manga Recommendations
+	// |-> Series Discussion
+	//     |-> Anime Series
+	//     |-> Manga Series
+	// |-> Anime Discussion
+	// |-> Manga Discussion
+	// ---
+	// General
+	// |-> Introductions
+	// |-> Games, Computers & Tech Support
+	// |-> Music & Entertainment
+	// |-> Current Events
+	// |-> Casual Discussion
+	// |-> Creative Corner
+	// |-> Forum Games
+	// ---
+}
+
 func ExampleForumService_Topics() {
 	ctx := context.Background()
 	c := mal.NewClient(

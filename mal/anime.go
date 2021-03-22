@@ -150,8 +150,8 @@ func (f optionFunc) apply(v *url.Values) {
 // Limit is an option that limits the results returned by a request.
 type Limit int
 
+func (l Limit) pagingApply(v *url.Values)        { l.apply(v) }
 func (l Limit) topicsApply(v *url.Values)        { l.apply(v) }
-func (l Limit) topicDetailsApply(v *url.Values)  { l.apply(v) }
 func (l Limit) seasonalAnimeApply(v *url.Values) { l.apply(v) }
 func (l Limit) animeListApply(v *url.Values)     { l.apply(v) }
 func (l Limit) mangaListApply(v *url.Values)     { l.apply(v) }
@@ -160,8 +160,8 @@ func (l Limit) apply(v *url.Values)              { v.Set("limit", strconv.Itoa(i
 // Offset is an option that sets the offset of the results.
 type Offset int
 
+func (o Offset) pagingApply(v *url.Values)        { o.apply(v) }
 func (o Offset) topicsApply(v *url.Values)        { o.apply(v) }
-func (o Offset) topicDetailsApply(v *url.Values)  { o.apply(v) }
 func (o Offset) seasonalAnimeApply(v *url.Values) { o.apply(v) }
 func (o Offset) animeListApply(v *url.Values)     { o.apply(v) }
 func (o Offset) mangaListApply(v *url.Values)     { o.apply(v) }

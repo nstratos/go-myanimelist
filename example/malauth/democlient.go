@@ -37,9 +37,9 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.updateMyMangaListStatus,
 		// c.userMangaList,
 		// c.deleteMyMangaListItem,
-		// c.forumBoards,
-		c.forumTopics,
-		c.forumTopicDetails,
+		c.forumBoards,
+		// c.forumTopics,
+		// c.forumTopicDetails,
 	}
 	for _, m := range methods {
 		m(ctx)
@@ -397,12 +397,12 @@ func (c *demoClient) forumBoards(ctx context.Context) {
 	for _, category := range forum.Categories {
 		fmt.Printf("%s\n", category.Title)
 		for _, b := range category.Boards {
-			fmt.Printf("ID: %5d, Title: %5q %s\n", b.ID, b.Title, b.Description)
+			fmt.Printf("|-> %s\n", b.Title)
 			for _, b := range b.Subboards {
-				fmt.Printf("|-> ID: %5d, Title: %5q\n", b.ID, b.Title)
+				fmt.Printf("    |-> %s\n", b.Title)
 			}
 		}
-		fmt.Printf("-------\n")
+		fmt.Println("---")
 	}
 }
 

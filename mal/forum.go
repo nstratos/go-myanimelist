@@ -96,17 +96,17 @@ type PollOption struct {
 	Votes int    `json:"votes"`
 }
 
-// TopicDetailsOption are options specific to the ForumService.TopicDetails
-// method.
-type TopicDetailsOption interface {
-	topicDetailsApply(v *url.Values)
+// A PagingOption includes the Limit and Offset options which are used for
+// controlling pagination in results.
+type PagingOption interface {
+	pagingApply(v *url.Values)
 }
 
 // TopicDetails returns details about the forum topic specified by topicID.
-func (s *ForumService) TopicDetails(ctx context.Context, topicID int, options ...TopicDetailsOption) (TopicDetails, *Response, error) {
+func (s *ForumService) TopicDetails(ctx context.Context, topicID int, options ...PagingOption) (TopicDetails, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {
-		oo[i] = optionFromTopicDetailsOption(options[i])
+		oo[i] = optionFromPagingOption(options[i])
 	}
 	d := new(topicDetail)
 	resp, err := s.client.list(ctx, fmt.Sprintf("forum/topic/%d", topicID), d, oo...)
@@ -116,9 +116,9 @@ func (s *ForumService) TopicDetails(ctx context.Context, topicID int, options ..
 	return d.Data, resp, nil
 }
 
-func optionFromTopicDetailsOption(o TopicDetailsOption) optionFunc {
+func optionFromPagingOption(o PagingOption) optionFunc {
 	return optionFunc(func(v *url.Values) {
-		o.topicDetailsApply(v)
+		o.pagingApply(v)
 	})
 }
 
