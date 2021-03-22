@@ -41,3 +41,31 @@ func ExampleUserService_AnimeList() {
 	// ID:  1453, Status:      "watching", Episodes Watched:  28 Maison Ikkoku
 	// ID: 37521, Status:     "completed", Episodes Watched:  24 Vinland Saga
 }
+
+func ExampleAnimeService_UpdateMyListStatus() {
+	ctx := context.Background()
+	c := mal.NewClient(
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
+	)
+
+	// Use a stub server instead of the real API.
+	server := newStubServer()
+	defer server.Close()
+	c.BaseURL, _ = url.Parse(server.URL)
+
+	s, _, err := c.Anime.UpdateMyListStatus(ctx, 967,
+		mal.AnimeStatusWatching,
+		mal.NumEpisodesWatched(73),
+		mal.Score(8),
+		mal.Comments("You wa shock!"),
+	)
+	if err != nil {
+		fmt.Printf("Anime.UpdateMyListStatus error: %v", err)
+		return
+	}
+	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments)
+	// Output:
+	// Status: "watching", Score: 8, Episodes Watched: 73, Comments: You wa shock!
+}

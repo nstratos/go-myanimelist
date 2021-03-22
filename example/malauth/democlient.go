@@ -33,7 +33,7 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.updateMyAnimeListStatus,
 		// c.userAnimeList,
 		// c.deleteMyAnimeListItem,
-		// c.updateMyMangaListStatus,
+		c.updateMyMangaListStatus,
 		// c.userMangaList,
 		// c.deleteMyMangaListItem,
 		// c.forumBoards,
@@ -252,33 +252,34 @@ func (c *demoClient) updateMyAnimeListStatus(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	s, resp, err := c.Anime.UpdateMyListStatus(ctx, 37521,
-		mal.AnimeStatusCompleted,
-		//mal.NumEpisodesWatched(73),
+	s, _, err := c.Anime.UpdateMyListStatus(ctx, 967,
+		mal.AnimeStatusWatching,
+		mal.NumEpisodesWatched(73),
+		mal.Score(8),
+		mal.Comments("You wa shock!"),
 	)
 	if err != nil {
 		c.err = err
 		return
 	}
-	fmt.Println(resp.StatusCode)
-	fmt.Printf("%#v\n", s)
+	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments)
 }
 
 func (c *demoClient) updateMyMangaListStatus(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	s, resp, err := c.Manga.UpdateMyListStatus(ctx, 1,
+	s, _, err := c.Manga.UpdateMyListStatus(ctx, 401,
 		mal.MangaStatusReading,
-		mal.Score(8),
-		mal.NumChaptersRead(4),
+		mal.NumVolumesRead(1),
+		mal.NumChaptersRead(5),
+		mal.Comments("Migi"),
 	)
 	if err != nil {
 		c.err = err
 		return
 	}
-	fmt.Println(resp.StatusCode)
-	fmt.Printf("%#v\n", s)
+	fmt.Printf("Status: %q, Volumes Read: %d, Chapters Read: %d, Comments: %s\n", s.Status, s.NumVolumesRead, s.NumChaptersRead, s.Comments)
 }
 
 func (c *demoClient) deleteMyAnimeListItem(ctx context.Context) {

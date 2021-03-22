@@ -43,27 +43,29 @@ func newStubServer() *httptest.Server {
 
 	serveStubHandler := func(filename string) func(w http.ResponseWriter, r *http.Request) {
 		return func(w http.ResponseWriter, r *http.Request) {
-			if err := serveStubFile(w, filename); err != nil {
-				http.Error(w, fmt.Sprintf(`{"message": "%s", "error":"internal"}`, err), http.StatusInternalServerError)
+			malError := func(err string) string {
+				return fmt.Sprintf(`{"message": "", "error":"%s"}`, err)
+			}
+			switch r.Method {
+			case http.MethodDelete:
+				w.WriteHeader(http.StatusOK)
+			case http.MethodGet, http.MethodPatch:
+				if err := serveStubFile(w, filename); err != nil {
+					http.Error(w, malError("internal"), http.StatusInternalServerError)
+				}
+			default:
+				http.Error(w, malError("not_allowed"), http.StatusMethodNotAllowed)
 			}
 		}
 	}
 
-	deleteHandler := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodDelete {
-			http.Error(w, "", http.StatusMethodNotAllowed)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	}
-
 	mux.HandleFunc("/anime", serveStubHandler("animeList.json"))
 	mux.HandleFunc("/anime/967", serveStubHandler("animeDetails.json"))
-	mux.HandleFunc("/anime/967/my_list_status", deleteHandler)
+	mux.HandleFunc("/anime/967/my_list_status", serveStubHandler("updateMyAnimeList.json"))
 	mux.HandleFunc("/anime/ranking", serveStubHandler("animeRanking.json"))
 	mux.HandleFunc("/manga", serveStubHandler("mangaList.json"))
 	mux.HandleFunc("/manga/401", serveStubHandler("mangaDetails.json"))
-	mux.HandleFunc("/manga/401/my_list_status", deleteHandler)
+	mux.HandleFunc("/manga/401/my_list_status", serveStubHandler("updateMyMangaList.json"))
 	mux.HandleFunc("/manga/ranking", serveStubHandler("mangaRanking.json"))
 	mux.HandleFunc("/users/@me", serveStubHandler("userMyInfo.json"))
 	mux.HandleFunc("/users/@me/animelist", serveStubHandler("userAnimeList.json"))
