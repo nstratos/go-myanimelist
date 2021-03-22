@@ -206,33 +206,32 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_ranking_get
 
-Add
+Add or Update List
 
-To add anime and manga, you provide their IDs and values through AnimeEntry and
-MangaEntry:
+To add or update an entry in an authenticated user's list, provide the anime or
+manga ID and then options to specify the status, score, comments, tags etc.
 
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-	_, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.Current, Episode: 1})
+	_, _, err := c.Anime.UpdateMyListStatus(ctx, 967,
+		mal.AnimeStatusWatching,
+		mal.NumEpisodesWatched(73),
+		mal.Score(8),
+		mal.Comments("You wa shock!"),
+	)
 	// ...
 
-	_, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.Planned, Chapter: 1, Volume: 1})
+	_, _, err := c.Manga.UpdateMyListStatus(ctx, 401,
+		mal.MangaStatusReading,
+		mal.NumVolumesRead(1),
+		mal.NumChaptersRead(5),
+		mal.Comments("Migi"),
+	)
 	// ...
 
-Note that when adding entries, Status is required.
+Official docs:
 
-Update
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_my_list_status_put
 
-Similar to Add, Update also needs the ID of the entry and the values to be
-updated:
-
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-	_, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9})
-	// ...
-
-	_, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.OnHold})
-	// ...
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_put
 
 Delete
 
