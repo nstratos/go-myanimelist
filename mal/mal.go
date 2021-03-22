@@ -2,18 +2,19 @@ package mal
 
 import (
 	"bytes"
-	"encoding/xml"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
 // Status specifies a status for anime and manga entries.
-type Status int
+//type Status int
 
 // Anime and manga entries have a status such as completed, on hold and
 // dropped.
@@ -21,121 +22,55 @@ type Status int
 // Current is for entries marked as currently watching or reading.
 //
 // Planned is for entries marked as plan to watch or read.
-const (
-	Current   Status = 1
-	Completed        = 2
-	OnHold           = 3
-	Dropped          = 4
-	Planned          = 6
-)
+// const (
+// 	Current   Status = 1
+// 	Completed        = 2
+// 	OnHold           = 3
+// 	Dropped          = 4
+// 	Planned          = 6
+// )
 
 const (
-	defaultBaseURL             = "https://myanimelist.net/"
-	defaultListEndpoint        = "malappinfo.php"
-	defaultAccountEndpoint     = "api/account/verify_credentials.xml"
-	defaultAnimeAddEndpoint    = "api/animelist/add/"
-	defaultAnimeUpdateEndpoint = "api/animelist/update/"
-	defaultAnimeDeleteEndpoint = "api/animelist/delete/"
-	defaultAnimeSearchEndpoint = "api/anime/search.xml"
-	defaultMangaAddEndpoint    = "api/mangalist/add/"
-	defaultMangaUpdateEndpoint = "api/mangalist/update/"
-	defaultMangaDeleteEndpoint = "api/mangalist/delete/"
-	defaultMangaSearchEndpoint = "api/manga/search.xml"
+	defaultBaseURL = "https://api.myanimelist.net/v2/"
 )
 
 // Client manages communication with the MyAnimeList API.
 type Client struct {
 	client *http.Client
 
-	username string
-	password string
-
 	// Base URL for MyAnimeList API requests.
 	BaseURL *url.URL
 
-	Account *AccountService
-	Anime   *AnimeService
-	Manga   *MangaService
+	Anime *AnimeService
+	Manga *MangaService
+	User  *UserService
+	Forum *ForumService
 }
 
-// Auth is an option that can be passed to NewClient. It allows to specify the
-// username and password to be used for authenticating with the MyAnimeList
-// API. When this option is used, the client will use basic authentication on
-// the requests than need them.
+// NewClient returns a new MyAnimeList API client. The httpClient parameter
+// allows to specify the http.client that will be used for all API requests. If
+// a nil httpClient is provided, a new http.Client will be used.
 //
-// Most API methods require authentication so it is typical to pass this option
-// when creating a new client.
-func Auth(username, password string) func(*Client) {
-	return func(c *Client) {
-		c.username = username
-		c.password = password
+// In the typical case, you will want to provide an http.Client that will
+// perform the authentication for you. Such a client is provided by the
+// golang.org/x/oauth2 package. Check out the example directory of the project
+// for a full authentication example.
+func NewClient(httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = &http.Client{}
 	}
-}
 
-// HTTPClient is an option that can be passed to NewClient. It allows to
-// specify the HTTP client that will be used to create the requests. If this
-// option is not set, a default HTTP client (http.DefaultClient) will be used
-// which is usually sufficient.
-//
-// This option can be set for less trivial cases, when more control over the
-// created HTTP requests is required. One such example is providing a timeout
-// to cancel requests that exceed it.
-func HTTPClient(httpClient *http.Client) func(*Client) {
-	return func(c *Client) {
-		c.client = httpClient
-	}
-}
-
-// NewClient returns a new MyAnimeList API client.
-func NewClient(options ...func(*Client)) *Client {
 	baseURL, _ := url.Parse(defaultBaseURL)
-	listEndpoint, _ := url.Parse(defaultListEndpoint)
-	accountEndpoint, _ := url.Parse(defaultAccountEndpoint)
-	animeAddEndpoint, _ := url.Parse(defaultAnimeAddEndpoint)
-	animeUpdateEndpoint, _ := url.Parse(defaultAnimeUpdateEndpoint)
-	animeDeleteEndpoint, _ := url.Parse(defaultAnimeDeleteEndpoint)
-	animeSearchEndpoint, _ := url.Parse(defaultAnimeSearchEndpoint)
-	mangaAddEndpoint, _ := url.Parse(defaultMangaAddEndpoint)
-	mangaUpdateEndpoint, _ := url.Parse(defaultMangaUpdateEndpoint)
-	mangaDeleteEndpoint, _ := url.Parse(defaultMangaDeleteEndpoint)
-	mangaSearchEndpoint, _ := url.Parse(defaultMangaSearchEndpoint)
 
 	c := &Client{
+		client:  httpClient,
 		BaseURL: baseURL,
 	}
 
-	c.Account = &AccountService{
-		client:   c,
-		Endpoint: accountEndpoint,
-	}
-
-	c.Anime = &AnimeService{
-		client:         c,
-		ListEndpoint:   listEndpoint,
-		AddEndpoint:    animeAddEndpoint,
-		UpdateEndpoint: animeUpdateEndpoint,
-		DeleteEndpoint: animeDeleteEndpoint,
-		SearchEndpoint: animeSearchEndpoint,
-	}
-
-	c.Manga = &MangaService{
-		client:         c,
-		ListEndpoint:   listEndpoint,
-		AddEndpoint:    mangaAddEndpoint,
-		UpdateEndpoint: mangaUpdateEndpoint,
-		DeleteEndpoint: mangaDeleteEndpoint,
-		SearchEndpoint: mangaSearchEndpoint,
-	}
-
-	for _, option := range options {
-		if option != nil {
-			option(c)
-		}
-	}
-
-	if c.client == nil {
-		c.client = http.DefaultClient
-	}
+	c.User = &UserService{client: c}
+	c.Anime = &AnimeService{client: c}
+	c.Manga = &MangaService{client: c}
+	c.Forum = &ForumService{client: c}
 
 	return c
 }
@@ -149,6 +84,9 @@ func NewClient(options ...func(*Client)) *Client {
 type Response struct {
 	*http.Response
 	Body []byte
+
+	NextOffset int
+	PrevOffset int
 }
 
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
@@ -160,125 +98,183 @@ type Response struct {
 // updating entries.
 //
 // MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
-func (c *Client) NewRequest(method, urlStr string, data interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) NewRequest(method, urlStr string, urlOptions ...func(v *url.Values)) (*http.Request, error) {
+	u, err := c.BaseURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
 	}
 
-	u := c.BaseURL.ResolveReference(rel)
-
-	var body io.Reader
-	if data != nil {
-		d, merr := xml.Marshal(data)
-		if merr != nil {
-			return nil, merr
+	var r io.Reader
+	if len(urlOptions) != 0 {
+		v := &url.Values{}
+		for _, o := range urlOptions {
+			o(v)
 		}
-		v := url.Values{}
-		v.Set("data", string(d))
-		body = strings.NewReader(v.Encode())
+		r = strings.NewReader(v.Encode())
 	}
 
-	req, err := http.NewRequest(method, u.String(), body)
+	req, err := http.NewRequest(method, u.String(), r)
 	if err != nil {
 		return nil, err
 	}
 
+	if len(urlOptions) != 0 {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 	return req, nil
-
 }
 
 // Do sends an API request and returns the API response. The API response is
-// XML decoded and stored in the value pointed to by v. If XML was unable to get
-// decoded, it will be returned in Response.Body along with the error so that
-// the caller can further inspect it if needed.
-func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
+// JSON decoded and stored in the value pointed to by v. If v implements the
+// io.Writer interface, the raw response body will be written to v, without
+// attempting to first decode it.
+//
+// If the provided ctx is nil then an error will be returned.
+func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
+	if ctx == nil {
+		return nil, errors.New("context must not be nil")
+	}
+	req = req.WithContext(ctx)
+
+	dumpRequest(req)
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	dumpResponse(resp)
 
-	response, err := readResponse(resp)
-	if err != nil {
+	response := &Response{Response: resp}
+	if err := checkResponse(resp); err != nil {
 		return response, err
 	}
 
 	if v != nil {
-		b := response.Body
-		// enconding/xml cannot handle entity &bull;
-		b = bytes.Replace(b, []byte("&bull;"), []byte("<![CDATA[&bull;]]>"), -1)
-		err := xml.Unmarshal(b, v)
-		if err != nil {
-			return response, fmt.Errorf("cannot decode: %v", err)
+		decErr := json.NewDecoder(resp.Body).Decode(v)
+		if decErr == io.EOF {
+			decErr = nil // ignore EOF errors caused by empty response body
+		}
+		if decErr != nil {
+			err = decErr
 		}
 	}
 
-	return response, nil
+	return response, err
 }
 
-// ErrNoContent is returned when a MyAnimeList API method returns error 204.
-var ErrNoContent = errors.New("no content")
+// An ErrorResponse reports an error caused by an API request.
+//
+// https://myanimelist.net/apiconfig/references/api/v2#section/Common-formats
+type ErrorResponse struct {
+	Response *http.Response // HTTP response that caused this error
+	Message  string         `json:"message"`
+	Err      string         `json:"error"`
+}
 
-func readResponse(r *http.Response) (*Response, error) {
-	resp := &Response{Response: r}
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("%v %v: %d %v %v",
+		r.Response.Request.Method, r.Response.Request.URL,
+		r.Response.StatusCode, r.Message, r.Err)
+}
 
-	data, err := ioutil.ReadAll(r.Body)
+func checkResponse(r *http.Response) error {
+	if c := r.StatusCode; 200 <= c && c <= 299 {
+		return nil
+	}
+	errorResponse := &ErrorResponse{Response: r}
+	data, err := io.ReadAll(r.Body)
+	if err == nil && data != nil {
+		// Ignore unmarshal error for undocumented error formats or HTML.
+		_ = json.Unmarshal(data, errorResponse)
+	}
+	// Re-populate error response body in case JSON unmarshal fails.
+	r.Body = io.NopCloser(bytes.NewBuffer(data))
+
+	return errorResponse
+}
+
+func (c *Client) details(ctx context.Context, path string, v interface{}, options ...DetailsOption) (*Response, error) {
+	req, err := c.NewRequest(http.MethodGet, path)
 	if err != nil {
-		return resp, fmt.Errorf("cannot read response body: %v", err)
+		return nil, err
 	}
-	resp.Body = data
-
-	if r.StatusCode == http.StatusNoContent {
-		return resp, ErrNoContent
+	q := req.URL.Query()
+	for _, o := range options {
+		o.detailsApply(&q)
 	}
+	req.URL.RawQuery = q.Encode()
 
-	if r.StatusCode < 200 || r.StatusCode > 299 {
-		return resp, fmt.Errorf("%v %v: %d %s",
-			r.Request.Method, r.Request.URL,
-			r.StatusCode, string(data))
+	resp, err := c.Do(ctx, req, v)
+	if err != nil {
+		return resp, err
 	}
 
 	return resp, nil
 }
 
-// post sends a POST API request used by Add and Update.
-func (c *Client) post(endpoint string, id int, entry interface{}, useAuth bool) (*Response, error) {
-	req, err := c.NewRequest("POST", fmt.Sprintf("%s%d.xml", endpoint, id), entry)
-	if err != nil {
-		return nil, err
-	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	return c.Do(req, nil)
+// Paging provides access to the next and previous page URLs when there are
+// pages of results.
+type Paging struct {
+	Next     string `json:"next"`
+	Previous string `json:"previous"`
 }
 
-// delete sends a DELETE API request used by Delete.
-func (c *Client) delete(endpoint string, id int, useAuth bool) (*Response, error) {
-	req, err := c.NewRequest("DELETE", fmt.Sprintf("%s%d.xml", endpoint, id), nil)
-	if err != nil {
-		return nil, err
-	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
-	}
-
-	return c.Do(req, nil)
+type pagination interface {
+	pagination() Paging
 }
 
-// get sends a GET API request used by List and Search.
-func (c *Client) get(url string, result interface{}, useAuth bool) (*Response, error) {
-	req, err := c.NewRequest("GET", url, nil)
+func (c *Client) list(ctx context.Context, path string, p pagination, options ...Option) (*Response, error) {
+	req, err := c.NewRequest(http.MethodGet, path)
 	if err != nil {
 		return nil, err
 	}
-	if useAuth {
-		req.SetBasicAuth(c.username, c.password)
+	q := req.URL.Query()
+	for _, o := range options {
+		o.apply(&q)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := c.Do(ctx, req, p)
+	if err != nil {
+		return resp, err
 	}
 
-	return c.Do(req, result)
+	prev, next, err := parsePaging(p.pagination())
+	if err != nil {
+		return resp, err
+	}
+	resp.PrevOffset = prev
+	resp.NextOffset = next
+
+	return resp, nil
+}
+
+func parsePaging(p Paging) (prev, next int, err error) {
+	if p.Previous != "" {
+		offset, err := parseOffset(p.Previous)
+		if err != nil {
+			return 0, 0, fmt.Errorf("paging: previous: %s", err)
+		}
+		prev = offset
+	}
+	if p.Next != "" {
+		offset, err := parseOffset(p.Next)
+		if err != nil {
+			return 0, 0, fmt.Errorf("paging: next: %s", err)
+		}
+		next = offset
+	}
+	return prev, next, nil
+}
+
+func parseOffset(urlStr string) (int, error) {
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return 0, fmt.Errorf("parsing URL %q: %s", urlStr, err)
+	}
+	offset, err := strconv.Atoi(u.Query().Get("offset"))
+	if err != nil {
+		return 0, fmt.Errorf("parsing offset: %s", err)
+	}
+	return offset, nil
 }

@@ -1,0 +1,39 @@
+{
+    "data":[
+      {
+        "id":1877721,
+        "title":"What is the best JoJo opening?",
+        "created_at":"2020-11-24T03:00:58+00:00",
+        "number_of_posts":73,
+        "last_post_created_at":"2021-02-24T07:05:33+00:00",
+        "is_locked":false,
+        "created_by":{
+          "id":10012763,
+          "name":"Ringtomb"
+        },
+        "last_post_created_by":{
+          "id":5946052,
+          "name":"IAmOdie"
+        }
+      },
+      {
+        "id":1851738,
+        "title":"JoJo's Bizarre Adventures but its Yu Yu Hakusho Opening",
+        "created_at":"2020-07-13T05:54:54+00:00",
+        "number_of_posts":0,
+        "last_post_created_at":"2020-07-13T05:54:54+00:00",
+        "is_locked":false,
+        "created_by":{
+          "id":8521432,
+          "name":"TinTin_29"
+        },
+        "last_post_created_by":{
+          "id":8521432,
+          "name":"TinTin_29"
+        }
+      }
+    ],
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/forum\/topics?offset=2&limit=2&q=JoJo+opening&sort=recent"
+    }
+  }

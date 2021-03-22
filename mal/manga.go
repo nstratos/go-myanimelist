@@ -1,170 +1,156 @@
 package mal
 
 import (
-	"encoding/xml"
+	"context"
 	"fmt"
 	"net/url"
+	"time"
 )
 
-// MangaEntry represents the values that an manga will have on the list when
-// added or updated. Status is required.
-type MangaEntry struct {
-	XMLName            xml.Name `xml:"entry"`
-	Volume             int      `xml:"volume,omitempty"`
-	Chapter            int      `xml:"chapter,omitempty"`
-	Status             Status   `xml:"status,omitempty"` // Use the package constants: mal.Current, mal.Completed, etc.
-	Score              int      `xml:"score,omitempty"`
-	DownloadedChapters int      `xml:"downloaded_chapters,omitempty"`
-	TimesReread        int      `xml:"times_reread,omitempty"`
-	RereadValue        int      `xml:"reread_value,omitempty"`
-	DateStart          string   `xml:"date_start,omitempty"`  // mmddyyyy
-	DateFinish         string   `xml:"date_finish,omitempty"` // mmddyyyy
-	Priority           int      `xml:"priority,omitempty"`
-	EnableDiscussion   int      `xml:"enable_discussion,omitempty"` // 1=enable, 0=disable
-	EnableRereading    int      `xml:"enable_rereading,omitempty"`  // 1=enable, 0=disable
-	Comments           string   `xml:"comments,omitempty"`
-	ScanGroup          string   `xml:"scan_group,omitempty"`
-	Tags               string   `xml:"tags,omitempty"` // comma separated
-	RetailVolumes      int      `xml:"retail_volumes,omitempty"`
-}
-
-// MangaService handles communication with the Manga List methods of the
-// MyAnimeList API.
+// MangaService handles communication with the manga related methods of the
+// MyAnimeList API:
 //
-// MyAnimeList API docs: http://myanimelist.net/modules.php?go=api
+// https://myanimelist.net/apiconfig/references/api/v2#tag/manga
+// https://myanimelist.net/apiconfig/references/api/v2#tag/user-mangalist
 type MangaService struct {
-	client         *Client
-	AddEndpoint    *url.URL
-	UpdateEndpoint *url.URL
-	DeleteEndpoint *url.URL
-	SearchEndpoint *url.URL
-	ListEndpoint   *url.URL
+	client *Client
 }
 
-// Add allows an authenticated user to add a manga to their manga list.
-func (s *MangaService) Add(mangaID int, entry MangaEntry) (*Response, error) {
-
-	return s.client.post(s.AddEndpoint.String(), mangaID, entry, true)
-}
-
-// Update allows an authenticated user to update an manga on their manga list.
-func (s *MangaService) Update(mangaID int, entry MangaEntry) (*Response, error) {
-
-	return s.client.post(s.UpdateEndpoint.String(), mangaID, entry, true)
-}
-
-// Delete allows an authenticated user to delete an manga from their manga list.
-func (s *MangaService) Delete(mangaID int) (*Response, error) {
-
-	return s.client.delete(s.DeleteEndpoint.String(), mangaID, true)
-}
-
-// MangaResult represents the result of an manga search.
-type MangaResult struct {
-	Rows []MangaRow `xml:"entry"`
-}
-
-// MangaRow represents each row of an manga search result.
-type MangaRow struct {
-	ID        int     `xml:"id"`
-	Title     string  `xml:"title"`
-	English   string  `xml:"english"`
-	Synonyms  string  `xml:"synonyms"`
-	Score     float64 `xml:"score"`
-	Type      string  `xml:"type"`
-	Status    string  `xml:"status"`
-	StartDate string  `xml:"start_date"`
-	EndDate   string  `xml:"end_date"`
-	Synopsis  string  `xml:"synopsis"`
-	Image     string  `xml:"image"`
-	Chapters  int     `xml:"chapters"`
-	Volumes   int     `xml:"volumes"`
-}
-
-// Search allows an authenticated user to search manga titles. If nothing is
-// found, it will return an ErrNoContent error.
-func (s *MangaService) Search(query string) (*MangaResult, *Response, error) {
-
-	v := s.SearchEndpoint.Query()
-	v.Set("q", query)
-	s.SearchEndpoint.RawQuery = v.Encode()
-
-	result := new(MangaResult)
-	resp, err := s.client.get(s.SearchEndpoint.String(), result, true)
-	if err != nil {
-		return nil, resp, err
-	}
-	return result, resp, nil
-}
-
-// MangaList represents the manga list of a user.
-type MangaList struct {
-	MyInfo MangaMyInfo `xml:"myinfo"`
-	Manga  []Manga     `xml:"manga"`
-	Error  string      `xml:"error"`
-}
-
-// MangaMyInfo represents the user's info which contains stats about the manga
-// that exist in their manga list. For example how many manga they have
-// completed, how many manga they are currently reading etc. It is returned as
-// part of their MangaList.
-type MangaMyInfo struct {
-	ID                int    `xml:"user_id"`
-	Name              string `xml:"user_name"`
-	Completed         int    `xml:"user_completed"`
-	OnHold            int    `xml:"user_onhold"`
-	Dropped           int    `xml:"user_dropped"`
-	DaysSpentWatching string `xml:"user_days_spent_watching"`
-	Reading           int    `xml:"user_reading"`
-	PlanToRead        int    `xml:"user_plantoread"`
-}
-
-// Manga represents a MyAnimeList manga. The data of the manga are stored in
-// the fields starting with Series. User specific data are stored in the fields
-// starting with My. For example, the score the user has set for that manga is
-// stored in the MyScore field.
+// Manga represents a MyAnimeList manga.
 type Manga struct {
-	SeriesMangaDBID int    `xml:"series_mangadb_id"`
-	SeriesChapters  int    `xml:"series_chapters"`
-	SeriesVolumes   int    `xml:"series_volumes"`
-	SeriesTitle     string `xml:"series_title"`
-	SeriesSynonyms  string `xml:"series_synonyms"`
-	SeriesType      int    `xml:"series_type"`
-	SeriesStatus    int    `xml:"series_status"`
-	SeriesStart     string `xml:"series_start"`
-	SeriesEnd       string `xml:"series_end"`
-	SeriesImage     string `xml:"series_image"`
-	MyID            int    `xml:"my_id"`
-	MyStartDate     string `xml:"my_start_date"`
-	MyFinishDate    string `xml:"my_finish_date"`
-	MyScore         int    `xml:"my_score"`
-	MyStatus        Status `xml:"my_status"`     // Use the package constants: mal.Current, mal.Completed, etc.
-	MyRereading     int    `xml:"my_rereadingg"` // Not a typo. MyAnimeList sends this as my_rereadingg.
-	MyRereadingChap int    `xml:"my_rereading_chap"`
-	MyLastUpdated   string `xml:"my_last_updated"`
-	MyTags          string `xml:"my_tags"`
-	MyReadChapters  int    `xml:"my_read_chapters"`
-	MyReadVolumes   int    `xml:"my_read_volumes"`
+	ID                int                `json:"id"`
+	Title             string             `json:"title"`
+	MainPicture       Picture            `json:"main_picture"`
+	AlternativeTitles Titles             `json:"alternative_titles"`
+	StartDate         string             `json:"start_date"`
+	Synopsis          string             `json:"synopsis"`
+	Mean              float64            `json:"mean"`
+	Rank              int                `json:"rank"`
+	Popularity        int                `json:"popularity"`
+	NumListUsers      int                `json:"num_list_users"`
+	NumScoringUsers   int                `json:"num_scoring_users"`
+	Nsfw              string             `json:"nsfw"`
+	CreatedAt         time.Time          `json:"created_at"`
+	UpdatedAt         time.Time          `json:"updated_at"`
+	MediaType         string             `json:"media_type"`
+	Status            string             `json:"status"`
+	Genres            []Genre            `json:"genres"`
+	MyListStatus      MangaListStatus    `json:"my_list_status"`
+	NumVolumes        int                `json:"num_volumes"`
+	NumChapters       int                `json:"num_chapters"`
+	Authors           []Author           `json:"authors"`
+	Pictures          []Picture          `json:"pictures"`
+	Background        string             `json:"background"`
+	RelatedAnime      []RelatedAnime     `json:"related_anime"`
+	RelatedManga      []RelatedManga     `json:"related_manga"`
+	Recommendations   []RecommendedManga `json:"recommendations"`
+	Serialization     []Serialization    `json:"serialization"`
 }
 
-// List allows an authenticated user to receive the manga list of a user.
-func (s *MangaService) List(username string) (*MangaList, *Response, error) {
+// Person is usually the creator of a manga.
+type Person struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
 
-	v := s.ListEndpoint.Query()
-	v.Set("status", "all")
-	v.Set("type", "manga")
-	v.Set("u", username)
-	s.ListEndpoint.RawQuery = v.Encode()
+// Author of the manga.
+type Author struct {
+	Person Person `json:"node"`
+	Role   string `json:"role"`
+}
 
-	list := new(MangaList)
-	resp, err := s.client.get(s.ListEndpoint.String(), list, false)
+// RelatedManga shows manga related with the returned entry.
+type RelatedManga struct {
+	Node                  Manga  `json:"node,omitempty"`
+	RelationType          string `json:"relation_type"`
+	RelationTypeFormatted string `json:"relation_type_formatted"`
+}
+
+// RecommendedManga is a manga recommended to the user.
+type RecommendedManga struct {
+	Node               Manga `json:"node"`
+	NumRecommendations int   `json:"num_recommendations"`
+}
+
+// Magazine in which the manga was serialized.
+type Magazine struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// Serialization is a serialized manga series.
+type Serialization struct {
+	Node Magazine `json:"node"`
+	Role string   `json:"role"`
+}
+
+// Details returns details about a manga. By default, few manga fields are
+// populated. Use the Fields option to specify which fields should be included.
+func (s *MangaService) Details(ctx context.Context, mangaID int, options ...DetailsOption) (*Manga, *Response, error) {
+	m := new(Manga)
+	resp, err := s.client.details(ctx, fmt.Sprintf("manga/%d", mangaID), m, options...)
 	if err != nil {
 		return nil, resp, err
 	}
+	return m, resp, nil
+}
 
-	if list.Error != "" {
-		return list, resp, fmt.Errorf("%v", list.Error)
+// List allows an authenticated user to search and list manga data. You may get
+// user specific data by using the optional field "my_list_status".
+func (s *MangaService) List(ctx context.Context, search string, options ...Option) ([]Manga, *Response, error) {
+	options = append(options, optionFromQuery(search))
+	return s.list(ctx, "manga", options...)
+}
+
+func (s *MangaService) list(ctx context.Context, path string, options ...Option) ([]Manga, *Response, error) {
+	list := new(mangaList)
+	resp, err := s.client.list(ctx, path, list, options...)
+	if err != nil {
+		return nil, resp, err
 	}
+	manga := make([]Manga, len(list.Data))
+	for i := range list.Data {
+		manga[i] = list.Data[i].Manga
+	}
+	return manga, resp, nil
+}
 
-	return list, resp, nil
+// MangaRanking allows to choose how the manga will be ranked.
+type MangaRanking string
+
+const (
+	// MangaRankingAll returns all types ranked.
+	MangaRankingAll MangaRanking = "all"
+	// MangaRankingManga returns the top manga.
+	MangaRankingManga MangaRanking = "manga"
+	// MangaRankingOneshots returns the top one-shots.
+	MangaRankingOneshots MangaRanking = "oneshots"
+	// MangaRankingDoujinshi returns the top doujinshi.
+	MangaRankingDoujinshi MangaRanking = "doujin"
+	// MangaRankingLightNovels returns the top light novels.
+	MangaRankingLightNovels MangaRanking = "lightnovels"
+	// MangaRankingNovels returns the top novels.
+	MangaRankingNovels MangaRanking = "novels"
+	// MangaRankingManhwa returns the top manhwa.
+	MangaRankingManhwa MangaRanking = "manhwa"
+	// MangaRankingManhua returns the top manhua.
+	MangaRankingManhua MangaRanking = "manhua"
+	// MangaRankingByPopularity returns the most popular entries.
+	MangaRankingByPopularity MangaRanking = "bypopularity"
+	// MangaRankingFavorite returns the most favorite entries.
+	MangaRankingFavorite MangaRanking = "favorite"
+)
+
+func optionFromMangaRanking(r MangaRanking) optionFunc {
+	return optionFunc(func(v *url.Values) {
+		v.Set("ranking_type", string(r))
+	})
+}
+
+// Ranking allows an authenticated user to receive the top manga based on a
+// certain ranking.
+func (s *MangaService) Ranking(ctx context.Context, ranking MangaRanking, options ...Option) ([]Manga, *Response, error) {
+	options = append(options, optionFromMangaRanking(ranking))
+	return s.list(ctx, "manga/ranking", options...)
 }

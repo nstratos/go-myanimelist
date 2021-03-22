@@ -1,0 +1,98 @@
+{
+    "data":{
+      "title":"What is the best JoJo opening?",
+      "posts":[
+        {
+          "id":61211790,
+          "number":1,
+          "created_at":"2020-11-24T03:00:58+00:00",
+          "created_by":{
+            "id":10012763,
+            "name":"Ringtomb",
+            "forum_avator":"https:\/\/api-cdn.myanimelist.net\/images\/useravatars\/10012763.jpg?t=1616443200"
+          },
+          "body":"For me from best to worse it is: Fighting Gold, Bloody Stream, Crazy Noisy Bizarre Town, Traitor&#039;s Requiem, Great Days, Stand Proud, Chase, Sono Chi No Sadame, End Of The World",
+          "signature":"[url=https:\/\/myanimelist.net\/clubs.php?cid=79901][img]https:\/\/cdn.myanimelist.net\/images\/clubs\/9\/349409.jpg[\/img][\/url] [size=300]Check us out![\/size]"
+        },
+        {
+          "id":61211801,
+          "number":2,
+          "created_at":"2020-11-24T03:03:28+00:00",
+          "created_by":{
+            "id":9321265,
+            "name":"Kenzolo-folk",
+            "forum_avator":"https:\/\/api-cdn.myanimelist.net\/images\/useravatars\/9321265.png?t=1616444100"
+          },
+          "body":"Great days (breakdown) from part 4 is the best one <br \/>\nthen its stand proud, sono chi no sadame, bloody stream, traitors requiem, fighting gold, end of the world, chase (its low on the list but its a banger),  crazy noisy bizarre town.",
+          "signature":"[img align=left]https:\/\/i.ibb.co\/HXDtjDn\/ezgif-3-62c87457f285.png[\/img]"
+        },
+        {
+          "id":61211808,
+          "number":3,
+          "created_at":"2020-11-24T03:05:53+00:00",
+          "created_by":{
+            "id":5602937,
+            "name":"MechKingKillbot",
+            "forum_avator":"https:\/\/api-cdn.myanimelist.net\/images\/useravatars\/5602937.gif?t=1616442900"
+          },
+          "body":"I got from best to worse<br \/>\n<br \/>\nBloody Stream , Traitor Requiem,  Stand Proud, Great Days, Sono Chi, Fighting Gold<br \/>\n<br \/>\nThe rest. End of the world is probably last",
+          "signature":"[url=https:\/\/myanimelist.net\/animelist\/MechKingKillbot?status=6][img]https:\/\/i.imgur.com\/A8AsVAl.gif[\/img][\/url]"
+        }
+      ],
+      "poll":{
+        "id":471578,
+        "question":"What is the best JoJo opening?",
+        "closed":false,
+        "options":[
+          {
+            "id":2374472,
+            "text":"Sono Chi No Sadame",
+            "votes":23
+          },
+          {
+            "id":2374473,
+            "text":"Bloody Stream",
+            "votes":61
+          },
+          {
+            "id":2374474,
+            "text":"Stand Proud",
+            "votes":12
+          },
+          {
+            "id":2374475,
+            "text":"End Of The World",
+            "votes":14
+          },
+          {
+            "id":2374476,
+            "text":"Crazy Noisy Bizarre Town",
+            "votes":22
+          },
+          {
+            "id":2374477,
+            "text":"Chase",
+            "votes":13
+          },
+          {
+            "id":2374478,
+            "text":"Great Days",
+            "votes":34
+          },
+          {
+            "id":2374479,
+            "text":"Fighting Gold",
+            "votes":15
+          },
+          {
+            "id":2374480,
+            "text":"Traitor's Requiem",
+            "votes":11
+          }
+        ]
+      }
+    },
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/forum\/topic\/1877721?offset=3&limit=3"
+    }
+  }

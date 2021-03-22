@@ -1,0 +1,52 @@
+{
+    "id":967,
+    "title":"Hokuto no Ken",
+    "main_picture":{
+      "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/8\/18502.jpg",
+      "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/8\/18502l.jpg"
+    },
+    "alternative_titles":{
+      "synonyms":[
+        "Seikimatsu Kyuseishu Densetsu: Hokuto no Ken",
+        "HNK"
+      ],
+      "en":"Fist of the North Star",
+      "ja":"\u5317\u6597\u306e\u62f3"
+    },
+    "media_type":"tv",
+    "num_episodes":109,
+    "start_season":{
+      "year":1984,
+      "season":"fall"
+    },
+    "source":"manga",
+    "genres":[
+      {
+        "id":1,
+        "name":"Action"
+      },
+      {
+        "id":8,
+        "name":"Drama"
+      },
+      {
+        "id":17,
+        "name":"Martial Arts"
+      },
+      {
+        "id":24,
+        "name":"Sci-Fi"
+      },
+      {
+        "id":27,
+        "name":"Shounen"
+      }
+    ],
+    "studios":[
+      {
+        "id":18,
+        "name":"Toei Animation"
+      }
+    ],
+    "average_episode_duration":1500
+  }
