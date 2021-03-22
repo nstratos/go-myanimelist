@@ -78,20 +78,6 @@ func (a animeList) pagination() Paging { return a.Paging }
 // AnimeList gets the anime list of the user indicated by username (or use @me).
 // The anime can be sorted and filtered using the AnimeStatus and SortAnimeList
 // option functions respectively.
-//
-// Example:
-//
-//     anime, _, err := c.User.AnimeList(ctx, "leonteus",
-//         mal.Limit(10),
-//         mal.Fields{"rank", "popularity"},
-//         mal.SortAnimeListByAnimeListScore,
-//     )
-//     if err != nil {
-//         return err
-//     }
-//     for _, a := range anime {
-//         fmt.Printf("Rank: %5d, Popularity: %5d %s\n", a.Rank, a.Popularity, a.Title)
-//     }
 func (s *UserService) AnimeList(ctx context.Context, username string, options ...AnimeListOption) ([]UserAnime, *Response, error) {
 	oo := make([]Option, len(options))
 	for i := range options {

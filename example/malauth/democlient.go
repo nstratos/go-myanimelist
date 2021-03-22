@@ -21,6 +21,8 @@ type demoClient struct {
 
 func (c *demoClient) showcase(ctx context.Context) error {
 	methods := []func(context.Context){
+		// Uncomment the methods you need to see their results. Run or build
+		// using -tags=debug to see the full HTTP request and response.
 		c.userMyInfo,
 		// c.animeList,
 		// c.mangaList,
@@ -37,7 +39,7 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.updateMyMangaListStatus,
 		// c.userMangaList,
 		// c.deleteMyMangaListItem,
-		c.forumBoards,
+		// c.forumBoards,
 		// c.forumTopics,
 		// c.forumTopicDetails,
 	}

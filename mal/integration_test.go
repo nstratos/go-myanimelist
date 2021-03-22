@@ -57,7 +57,7 @@ func testGetUserInfo(ctx context.Context, t *testing.T, client *mal.Client) (use
 	}
 
 	username = info.Name
-	t.Logf("Running integration tests using user: %q", username)
+	t.Logf("Running integration tests on account with username: %q", username)
 	return username
 }
 
