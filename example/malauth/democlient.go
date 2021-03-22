@@ -28,7 +28,7 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.mangaDetails,
 		// c.animeRanking,
 		// c.mangaRanking,
-		c.animeSeasonal,
+		// c.animeSeasonal,
 		// c.animeSuggested,
 		// c.animeListForLoop, // Warning: Many requests.
 		// c.updateMyAnimeListStatus,
@@ -38,7 +38,8 @@ func (c *demoClient) showcase(ctx context.Context) error {
 		// c.userMangaList,
 		// c.deleteMyMangaListItem,
 		// c.forumBoards,
-		// c.forumTopics,
+		c.forumTopics,
+		c.forumTopicDetails,
 	}
 	for _, m := range methods {
 		m(ctx)
@@ -409,12 +410,37 @@ func (c *demoClient) forumTopics(ctx context.Context) {
 	if c.err != nil {
 		return
 	}
-	topics, _, err := c.Forum.Topics(ctx, mal.Query("kiseijuu"), mal.SortTopicsRecent)
+	topics, _, err := c.Forum.Topics(ctx,
+		mal.Query("JoJo opening"),
+		mal.SortTopicsRecent,
+		mal.Limit(2),
+	)
 	if err != nil {
 		c.err = err
 		return
 	}
 	for _, t := range topics {
 		fmt.Printf("ID: %5d, Title: %5q created by %q\n", t.ID, t.Title, t.CreatedBy.Name)
+	}
+}
+
+func (c *demoClient) forumTopicDetails(ctx context.Context) {
+	if c.err != nil {
+		return
+	}
+	topicDetails, _, err := c.Forum.TopicDetails(ctx, 1877721, mal.Limit(3), mal.Offset(0))
+	if err != nil {
+		c.err = err
+		return
+	}
+	fmt.Printf("Topic title: %q\n", topicDetails.Title)
+	if topicDetails.Poll != nil {
+		fmt.Printf("Poll: %q\n", topicDetails.Poll.Question)
+		for _, o := range topicDetails.Poll.Options {
+			fmt.Printf("- %-25s %2d\n", o.Text, o.Votes)
+		}
+	}
+	for _, p := range topicDetails.Posts {
+		fmt.Printf("Post: %2d created by %q\n", p.Number, p.CreatedBy.Name)
 	}
 }
