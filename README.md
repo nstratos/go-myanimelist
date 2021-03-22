@@ -8,6 +8,10 @@ go-myanimelist is a Go client library for accessing the [MyAnimeList API v2](htt
 [![Coverage Status](https://coveralls.io/repos/github/nstratos/go-myanimelist/badge.svg?branch=master)](https://coveralls.io/github/nstratos/go-myanimelist?branch=master)
 [![Build Status](https://travis-ci.org/nstratos/go-myanimelist.svg?branch=master)](https://travis-ci.org/nstratos/go-myanimelist)
 
+## Project Status
+
+The project has been updated to support MyAnimeList API v2.
+
 As of March 2017, this package is featured in
 [awesome-go](https://github.com/avelino/awesome-go).
 
