@@ -1,12 +1,12 @@
 # go-myanimelist
 
-go-myanimelist is a Go client library for accessing the [MyAnimeList API v2](https://myanimelist.net/apiconfig/references/api/v2).
-
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/nstratos/go-myanimelist/mal.svg)](https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nstratos/go-myanimelist)](https://goreportcard.com/report/github.com/nstratos/go-myanimelist)
 [![Coverage Status](https://coveralls.io/repos/github/nstratos/go-myanimelist/badge.svg?branch=master)](https://coveralls.io/github/nstratos/go-myanimelist?branch=master)
 [![Actions Status](https://github.com/nstratos/go-myanimelist/workflows/CI/badge.svg)](https://github.com/nstratos/go-myanimelist/actions)
+
+go-myanimelist is a Go client library for accessing the [MyAnimeList API v2](https://myanimelist.net/apiconfig/references/api/v2).
 
 ## Project Status
 
