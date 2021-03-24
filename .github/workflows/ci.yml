@@ -26,13 +26,17 @@ jobs:
 
     - name: Mod verify
       run: go mod verify
+
+    - name: Run gofmt
+      if: runner.os != 'Windows'
       run: '[ -z $(gofmt -s -l .) ] || (gofmt -s -d . && exit 1)'
-      shell: bash
-    - name: golint
+
+    - name: Run golint
       run: |
         go get -u golang.org/x/lint/golint
         golint `go list ./... | grep -v /vendor/`
-    - name: go vet
+
+    - name: Run go vet
       run: go vet ./...
 
     - name: Run go test
