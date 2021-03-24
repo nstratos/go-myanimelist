@@ -23,9 +23,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Download modules
-      run: go mod download
-      
     - name: Mod verify
       run: go mod verify
 
