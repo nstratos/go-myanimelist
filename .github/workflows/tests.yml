@@ -25,7 +25,7 @@ jobs:
 
     - name: Download modules
       run: go mod download
-    
+      
     - name: Mod verify
       run: go mod verify
 
@@ -33,13 +33,13 @@ jobs:
       if: runner.os != 'Windows'
       run: '[ -z $(gofmt -s -l .) ] || (gofmt -s -d . && exit 1)'
 
-    - name: Run go vet
-      run: go vet ./...
-
     - name: Run golint
       run: |
         go get -u golang.org/x/lint/golint
         golint `go list ./... | grep -v /vendor/`
+
+    - name: Run go vet
+      run: go vet ./...
 
     - name: Run go test
       run: go test -v -race -covermode=count -coverprofile=coverage.out ./...
