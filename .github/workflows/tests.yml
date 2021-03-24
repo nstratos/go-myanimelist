@@ -10,8 +10,8 @@ jobs:
         include:
         # Upload coverage only on this combination.
         - go-version: 1.x
-            platform: ubuntu-latest
-            upload-coverage: true
+          platform: ubuntu-latest
+          upload-coverage: true
     runs-on: ${{ matrix.platform }}
 
     steps:
