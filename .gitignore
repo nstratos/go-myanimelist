@@ -2,3 +2,5 @@ client
 agent.txt
 count.out
 cover.out
+*token-cache.txt
+*.exe

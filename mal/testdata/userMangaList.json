@@ -1,0 +1,51 @@
+{
+    "data":[
+      {
+        "node":{
+          "id":21,
+          "title":"Death Note",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/54453.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/54453l.jpg"
+          }
+        },
+        "list_status":{
+          "status":"completed",
+          "is_rereading":false,
+          "num_volumes_read":12,
+          "num_chapters_read":108,
+          "score":0,
+          "updated_at":"2021-03-15T09:29:02+00:00",
+          "comments":"",
+          "tags":[
+            
+          ]
+        }
+      },
+      {
+        "node":{
+          "id":401,
+          "title":"Kiseijuu",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/188928.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/manga\/2\/188928l.jpg"
+          }
+        },
+        "list_status":{
+          "status":"reading",
+          "is_rereading":false,
+          "num_volumes_read":1,
+          "num_chapters_read":5,
+          "score":0,
+          "updated_at":"2021-03-15T09:30:56+00:00",
+          "comments":"",
+          "tags":[
+            
+          ]
+        }
+      }
+    ],
+    "paging":{
+      
+    }
+  }

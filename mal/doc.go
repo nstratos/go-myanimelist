@@ -1,6 +1,6 @@
 /*
 Package mal provides a client for accessing the MyAnimeList API:
-https://myanimelist.net/modules.php?go=api.
+https://myanimelist.net/apiconfig/references/api/v2.
 
 Installation
 
@@ -16,115 +16,243 @@ Import the package using:
 
 First construct a new mal client:
 
-	c := mal.NewClient()
+	c := mal.NewClient(nil)
 
-Then use one of the client's services (Account, Anime or Manga) to access the
-different MyAnimeList API methods.
-
-List
-
-To get the anime and manga list of a user:
-
-	c := mal.NewClient()
-
-	list, _, err := c.Anime.List("Xinil")
-	// ...
-
-	list, _, err := c.Manga.List("Xinil")
-	// ...
+Then use one of the client's services (User, Anime, Manga and Forum) to access
+the different MyAnimeList API methods.
 
 Authentication
 
-Beyond List, the rest of the methods require authentication so typically you
-will use an option to pass username and password to NewClient:
+When creating a new client, pass an http.Client that can handle authentication
+for you. The recommended way is to use the golang.org/x/oauth2 package
+(https://github.com/golang/oauth2). After performing the OAuth2 flow, you will
+get an access token which can be used like this:
 
+	ctx := context.Background()
 	c := mal.NewClient(
-		mal.Auth("<your username>", "<your password>"),
+		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: "<your access token>"},
+		)),
 	)
 
-Search
+Note that all calls made by the client above will include the specified access
+token which is specific for an authenticated user. Therefore, authenticated
+clients should almost never be shared between different users.
 
-To search for anime and manga:
+Performing the OAuth2 flow involves registering a MAL API application and then
+asking for the user's consent to allow the application to access their data.
 
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+There is a detailed example of how to perform the Oauth2 flow and get an access
+token through the terminal under example/malauth. The only thing you need to run
+the example is a client ID and a client secret which you can acquire after
+registering your MAL API application. Here's how:
 
-	result, _, err := c.Anime.Search("bebop")
+ 1. Navigate to https://myanimelist.net/apiconfig or go to your MyAnimeList
+    profile, click Edit Profile and select the API tab on the far right.
+
+ 2. Click Create ID and submit the form with your application details.
+
+After registering your application, you can run the example and pass the client
+ID and client secret through flags:
+
+	cd example/malauth
+	go run main.go democlient.go --client-id=... --client-secret=...
+
+	or
+
+	go install github.com/nstratos/go-myanimelist/example/malauth
+	malauth --client-id=... --client-secret=...
+
+After you perform a successful authentication once, the access token will be
+cached in a file under the same directory which makes it easier to run the
+example multiple times.
+
+Official MAL API OAuth2 docs:
+https://myanimelist.net/apiconfig/references/authorization
+
+List
+
+To search and get anime and manga data:
+
+	list, _, err := c.Anime.List(ctx, "hokuto no ken",
+		mal.Fields{"rank", "popularity", "my_list_status"},
+		mal.Limit(5),
+	)
 	// ...
 
-	result, _, err := c.Manga.Search("bebop")
+	list, _, err := c.Manga.List(ctx, "hokuto no ken",
+		mal.Fields{"rank", "popularity", "my_list_status"},
+		mal.Limit(5),
+	)
 	// ...
 
-For more complex searches, you can provide the % operator which acts as a
-wildcard and is escaped as %% in Go:
+You may get user specific data for a certain record by using the optional field
+"my_list_status".
 
-	result, _, err := c.Anime.Search("fate%%heaven%%flower")
-	// ...
-	// Will return: Fate/stay night Movie: Heaven's Feel - I. presage flower
+Official docs:
 
-Note: This is an undocumented feature of the MyAnimeList Search method.
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_get
 
-Add
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
-To add anime and manga, you provide their IDs and values through AnimeEntry and
-MangaEntry:
+UserList
 
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
+To get the anime or manga list of a user:
 
-	_, err := c.Anime.Add(9989, mal.AnimeEntry{Status: mal.Current, Episode: 1})
-	// ...
-
-	_, err := c.Manga.Add(35733, mal.MangaEntry{Status: mal.Planned, Chapter: 1, Volume: 1})
-	// ...
-
-Note that when adding entries, Status is required.
-
-Update
-
-Similar to Add, Update also needs the ID of the entry and the values to be
-updated:
-
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-	_, err := c.Anime.Update(9989, mal.AnimeEntry{Status: mal.Completed, Score: 9})
+	// Get the authenticated user's anime list, filter only watching anime, sort by
+	// last updated, include list status.
+	anime, _, err := c.User.AnimeList(ctx, "@me",
+	    mal.Fields{"list_status"},
+	    mal.AnimeStatusWatching,
+	    mal.SortAnimeListByListUpdatedAt,
+	    mal.Limit(5),
+	)
 	// ...
 
-	_, err := c.Manga.Update(35733, mal.MangaEntry{Status: mal.OnHold})
+	// Get the authenticated user's manga list's second page, sort by score,
+	// include list status, comments and tags.
+	manga, _, err := c.User.MangaList(ctx, "@me",
+	    mal.SortMangaListByListScore,
+	    mal.Fields{"list_status{comments, tags}"},
+	    mal.Limit(5),
+	    mal.Offset(1),
+	)
 	// ...
+
+You may provide the username of the user or "@me" to get the authenticated
+user's list.
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_animelist_get
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_mangalist_get
+
+MyInfo
+
+To get information about the authenticated user:
+
+	user, _, err := c.User.MyInfo(ctx)
+	// ...
+
+This method can use the Fields option but the API doesn't seem to be able to
+send optional fields like "anime_statistics" at the time of writing.
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_get
+
+Details
+
+To get details for a certain anime or manga:
+
+	a, _, err := c.Anime.Details(ctx, 967,
+		mal.Fields{
+			"alternative_titles",
+			"media_type",
+			"num_episodes",
+			"start_season",
+			"source",
+			"genres",
+			"studios",
+			"average_episode_duration",
+		},
+	)
+	// ...
+
+	m, _, err := c.Manga.Details(ctx, 401,
+		mal.Fields{
+			"alternative_titles",
+			"media_type",
+			"num_volumes",
+			"num_chapters",
+			"authors{last_name, first_name}",
+			"genres",
+			"status",
+		},
+	)
+	// ...
+
+By default most fields are not populated so use the Fields option to request the
+fields you need.
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_get
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_get
+
+Ranking
+
+To get anime or manga based on a certain ranking:
+
+	anime, _, err := c.Anime.Ranking(ctx,
+		mal.AnimeRankingAiring,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	// ...
+
+	manga, _, err := c.Manga.Ranking(ctx,
+		mal.MangaRankingByPopularity,
+		mal.Fields{"rank", "popularity"},
+		mal.Limit(6),
+	)
+	// ...
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_ranking_get
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_ranking_get
+
+Add or Update List
+
+To add or update an entry in an authenticated user's list, provide the anime or
+manga ID and then options to specify the status, score, comments, tags etc.
+
+	_, _, err := c.Anime.UpdateMyListStatus(ctx, 967,
+		mal.AnimeStatusWatching,
+		mal.NumEpisodesWatched(73),
+		mal.Score(8),
+		mal.Comments("You wa shock!"),
+	)
+	// ...
+
+	_, _, err := c.Manga.UpdateMyListStatus(ctx, 401,
+		mal.MangaStatusReading,
+		mal.NumVolumesRead(1),
+		mal.NumChaptersRead(5),
+		mal.Comments("Migi"),
+	)
+	// ...
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_my_list_status_put
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_put
 
 Delete
 
-To delete anime and manga, simply provide their IDs:
+To delete anime or manga from a user's list, simply provide their IDs:
 
-	c := mal.NewClient(mal.Auth("<your username>", "<your password>"))
-
-	_, err := c.Anime.Delete(9989)
+	_, err := c.Anime.DeleteMyListItem(ctx, 967)
 	// ...
 
-	_, err := c.Manga.Delete(35733)
+	_, err := c.Manga.DeleteMyListItem(ctx, 401)
 	// ...
+
+Official docs:
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/anime_anime_id_my_list_status_delete
+
+- https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_delete
 
 More Examples
 
 See package examples:
-https://godoc.org/github.com/nstratos/go-myanimelist/mal#pkg-examples
-
-Advanced Control
-
-If you need more control over the created requests, you can use an option to
-pass a custom HTTP client to NewClient:
-
-	c := mal.NewClient(
-		mal.HTTPClient(&http.Client{}),
-	)
-
-For example this http.Client will make sure to cancel any request that takes
-longer than 1 second:
-
-	httpcl := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-	c := mal.NewClient(mal.HTTPClient(httpcl))
-	// ...
+https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
 Unit Testing
 
@@ -144,12 +272,13 @@ also a much higher chance of false positives in test failures due to network
 issues etc.
 
 These tests are meant to be run using a dedicated test account that contains
-empty anime and manga lists. The username and password of the test account need
-to be provided every time.
+empty anime and manga lists. A valid access token needs to be provided every
+time. Check the authentication section to learn how to get one.
 
-To run the integration tests:
+By default the integration tests are skipped when an access token is not
+provided. To run all tests including the integration tests:
 
-	go test -tags=integration -username '<test account username>' -password '<test account password>'
+	go test --access-token '<your access token>'
 
 License
 

@@ -1,0 +1,43 @@
+{
+    "data":[
+      {
+        "node":{
+          "id":21659,
+          "title":"Kill la Kill Specials",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/12\/73654.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/12\/73654l.jpg"
+          },
+          "rank":971,
+          "popularity":916
+        }
+      },
+      {
+        "node":{
+          "id":38201,
+          "title":"Osomatsu-san Movie",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/1410\/96014.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/1410\/96014l.jpg"
+          },
+          "rank":726,
+          "popularity":4972
+        }
+      },
+      {
+        "node":{
+          "id":1375,
+          "title":"Watashi no Ashinaga Ojisan",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/12\/17851.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/12\/17851l.jpg"
+          },
+          "rank":943,
+          "popularity":4595
+        }
+      }
+    ],
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/anime\/suggestions?offset=3&fields=rank%2Cpopularity&limit=3"
+    }
+  }

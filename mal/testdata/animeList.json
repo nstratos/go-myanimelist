@@ -1,0 +1,55 @@
+{
+    "data":[
+      {
+        "node":{
+          "id":967,
+          "title":"Hokuto no Ken",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/8\/18502.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/8\/18502l.jpg"
+          },
+          "rank":556,
+          "popularity":1410,
+          "start_season":{
+            "year":1984,
+            "season":"fall"
+          }
+        }
+      },
+      {
+        "node":{
+          "id":1356,
+          "title":"Hokuto no Ken 2",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/11\/4120.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/11\/4120l.jpg"
+          },
+          "rank":1423,
+          "popularity":3367,
+          "start_season":{
+            "year":1987,
+            "season":"spring"
+          }
+        }
+      },
+      {
+        "node":{
+          "id":1358,
+          "title":"Hokuto no Ken Movie",
+          "main_picture":{
+            "medium":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/2\/25067.jpg",
+            "large":"https:\/\/api-cdn.myanimelist.net\/images\/anime\/2\/25067l.jpg"
+          },
+          "rank":2757,
+          "popularity":3964,
+          "start_season":{
+            "year":1986,
+            "season":"winter"
+          }
+        }
+      }
+    ],
+    "paging":{
+      "next":"https:\/\/api.myanimelist.net\/v2\/anime?offset=3&fields=rank%2Cpopularity%2Cstart_season&limit=3&q=hokuto+no+ken"
+    }
+  }

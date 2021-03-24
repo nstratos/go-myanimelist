@@ -1,0 +1,181 @@
+{
+    "categories":[
+      {
+        "title":"MyAnimeList",
+        "boards":[
+          {
+            "id":5,
+            "title":"Updates & Announcements",
+            "description":"Updates, changes, and additions to MAL.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":14,
+            "title":"MAL Guidelines & FAQ",
+            "description":"Site rules, forum rules, database guidelines, review\/recommendation guidelines, and other helpful information.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":17,
+            "title":"DB Modification Requests",
+            "description":"Ask questions or submit changes (that you are unable to edit on the entry page) in the applicable board.",
+            "subboards":[
+              {
+                "id":2,
+                "title":"Anime DB"
+              },
+              {
+                "id":3,
+                "title":"Character & People DB"
+              },
+              {
+                "id":5,
+                "title":"Manga DB"
+              }
+            ]
+          },
+          {
+            "id":3,
+            "title":"Support",
+            "description":"Have a problem using the site or think you found a bug? Post here.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":4,
+            "title":"Suggestions",
+            "description":"Have an idea or suggestion for the site? Share it here.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":13,
+            "title":"MAL Contests",
+            "description":"Our season-long anime game and other user competitions can be found here.",
+            "subboards":[
+              
+            ]
+          }
+        ]
+      },
+      {
+        "title":"Anime & Manga",
+        "boards":[
+          {
+            "id":15,
+            "title":"News Discussion",
+            "description":"Current news in anime and manga.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":16,
+            "title":"Anime & Manga Recommendations",
+            "description":"Ask the community for series recommendations or help other users looking for suggestions.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":19,
+            "title":"Series Discussion",
+            "description":"Post in episode and chapter discussion threads or talk about specific anime and manga in their series' boards.",
+            "subboards":[
+              {
+                "id":1,
+                "title":"Anime Series"
+              },
+              {
+                "id":4,
+                "title":"Manga Series"
+              }
+            ]
+          },
+          {
+            "id":1,
+            "title":"Anime Discussion",
+            "description":"General anime discussion that is not specific to any particular series.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":2,
+            "title":"Manga Discussion",
+            "description":"General manga discussion that is not specific to any particular series.",
+            "subboards":[
+              
+            ]
+          }
+        ]
+      },
+      {
+        "title":"General",
+        "boards":[
+          {
+            "id":8,
+            "title":"Introductions",
+            "description":"New to MyAnimeList? Introduce yourself here.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":7,
+            "title":"Games, Computers & Tech Support",
+            "description":"Discuss visual novels and other video games, or ask our community a computer related question.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":10,
+            "title":"Music & Entertainment",
+            "description":"Asian music and live-action series, Western media and artists, best-selling novels, etc.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":6,
+            "title":"Current Events",
+            "description":"World headlines, the latest in science, sports competitions, and other debate topics.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":11,
+            "title":"Casual Discussion",
+            "description":"General interest topics that don't fall into one of the sub-categories above, such as community polls.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":12,
+            "title":"Creative Corner",
+            "description":"Show your creations to get help or feedback from our community. Graphics, list designs, stories; anything goes.",
+            "subboards":[
+              
+            ]
+          },
+          {
+            "id":9,
+            "title":"Forum Games",
+            "description":"Fun forum games are contained here.",
+            "subboards":[
+              
+            ]
+          }
+        ]
+      }
+    ]
+  }
