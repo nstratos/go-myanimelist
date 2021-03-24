@@ -23,15 +23,10 @@ jobs:
         golint `go list ./... | grep -v /vendor/`
     - name: go vet
       run: go vet ./...
-    - name: Run tests with the race detector
-      run: go test -v -race ./...
-    - name: Generate test coverage
-      run: go test -covermode=count -coverprofile=coverage.out ./...
-    - name: Upload test coverage to CodeCov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: coverage.out
+
+    - name: Run go test
+      run: go test -v -race -covermode=count -coverprofile=coverage.out ./...
+
     - name: Upload test coverage to Coveralls
       env:
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
