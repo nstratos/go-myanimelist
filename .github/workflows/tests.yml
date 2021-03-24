@@ -23,7 +23,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Download modules
+    - name: Download go modules
       run: go mod download
 
     - name: Cache go modules
@@ -40,13 +40,13 @@ jobs:
       if: runner.os != 'Windows'
       run: '[ -z $(gofmt -s -l .) ] || (gofmt -s -d . && exit 1)'
 
+    - name: Run go vet
+      run: go vet ./...
+
     - name: Run golint
       run: |
         go install golang.org/x/lint/golint
         golint `go list ./... | grep -v /vendor/`
-
-    - name: Run go vet
-      run: go vet ./...
 
     - name: Run go test
       run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
