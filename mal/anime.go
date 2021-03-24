@@ -20,103 +20,103 @@ type AnimeService struct {
 
 // Anime represents a MyAnimeList anime.
 type Anime struct {
-	ID                     int                `json:"id,omitempty"`
-	Title                  string             `json:"title,omitempty"`
-	MainPicture            Picture            `json:"main_picture,omitempty"`
-	AlternativeTitles      Titles             `json:"alternative_titles,omitempty"`
-	StartDate              string             `json:"start_date,omitempty"`
-	EndDate                string             `json:"end_date,omitempty"`
-	Synopsis               string             `json:"synopsis,omitempty"`
-	Mean                   float64            `json:"mean,omitempty"`
-	Rank                   int                `json:"rank,omitempty"`
-	Popularity             int                `json:"popularity,omitempty"`
-	NumListUsers           int                `json:"num_list_users,omitempty"`
-	NumScoringUsers        int                `json:"num_scoring_users,omitempty"`
-	NSFW                   string             `json:"nsfw,omitempty"`
-	CreatedAt              time.Time          `json:"created_at,omitempty"`
-	UpdatedAt              time.Time          `json:"updated_at,omitempty"`
-	MediaType              string             `json:"media_type,omitempty"`
-	Status                 string             `json:"status,omitempty"`
-	Genres                 []Genre            `json:"genres,omitempty"`
-	MyListStatus           AnimeListStatus    `json:"my_list_status,omitempty"`
-	NumEpisodes            int                `json:"num_episodes,omitempty"`
-	StartSeason            StartSeason        `json:"start_season,omitempty"`
-	Broadcast              Broadcast          `json:"broadcast,omitempty"`
-	Source                 string             `json:"source,omitempty"`
-	AverageEpisodeDuration int                `json:"average_episode_duration,omitempty"`
-	Rating                 string             `json:"rating,omitempty"`
-	Pictures               []Picture          `json:"pictures,omitempty"`
-	Background             string             `json:"background,omitempty"`
-	RelatedAnime           []RelatedAnime     `json:"related_anime,omitempty"`
-	RelatedManga           []RelatedManga     `json:"related_manga,omitempty"`
-	Recommendations        []RecommendedAnime `json:"recommendations,omitempty"`
-	Studios                []Studio           `json:"studios,omitempty"`
-	Statistics             Statistics         `json:"statistics,omitempty"`
+	ID                     int                `json:"id"`
+	Title                  string             `json:"title"`
+	MainPicture            Picture            `json:"main_picture"`
+	AlternativeTitles      Titles             `json:"alternative_titles"`
+	StartDate              string             `json:"start_date"`
+	EndDate                string             `json:"end_date"`
+	Synopsis               string             `json:"synopsis"`
+	Mean                   float64            `json:"mean"`
+	Rank                   int                `json:"rank"`
+	Popularity             int                `json:"popularity"`
+	NumListUsers           int                `json:"num_list_users"`
+	NumScoringUsers        int                `json:"num_scoring_users"`
+	NSFW                   string             `json:"nsfw"`
+	CreatedAt              time.Time          `json:"created_at"`
+	UpdatedAt              time.Time          `json:"updated_at"`
+	MediaType              string             `json:"media_type"`
+	Status                 string             `json:"status"`
+	Genres                 []Genre            `json:"genres"`
+	MyListStatus           AnimeListStatus    `json:"my_list_status"`
+	NumEpisodes            int                `json:"num_episodes"`
+	StartSeason            StartSeason        `json:"start_season"`
+	Broadcast              Broadcast          `json:"broadcast"`
+	Source                 string             `json:"source"`
+	AverageEpisodeDuration int                `json:"average_episode_duration"`
+	Rating                 string             `json:"rating"`
+	Pictures               []Picture          `json:"pictures"`
+	Background             string             `json:"background"`
+	RelatedAnime           []RelatedAnime     `json:"related_anime"`
+	RelatedManga           []RelatedManga     `json:"related_manga"`
+	Recommendations        []RecommendedAnime `json:"recommendations"`
+	Studios                []Studio           `json:"studios"`
+	Statistics             Statistics         `json:"statistics"`
 }
 
 // Picture is a representative picture from the show.
 type Picture struct {
-	Medium string `json:"medium,omitempty"`
-	Large  string `json:"large,omitempty"`
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
 }
 
 // Titles of the anime in English and Japanese.
 type Titles struct {
-	Synonyms []string `json:"synonyms,omitempty"`
-	En       string   `json:"en,omitempty"`
-	Ja       string   `json:"ja,omitempty"`
+	Synonyms []string `json:"synonyms"`
+	En       string   `json:"en"`
+	Ja       string   `json:"ja"`
 }
 
 // The Genre of the anime.
 type Genre struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 // The Studio that created the anime.
 type Studio struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 // Status of the user's anime list contained in statistics.
 type Status struct {
-	Watching    string `json:"watching,omitempty"`
-	Completed   string `json:"completed,omitempty"`
-	OnHold      string `json:"on_hold,omitempty"`
-	Dropped     string `json:"dropped,omitempty"`
-	PlanToWatch string `json:"plan_to_watch,omitempty"`
+	Watching    string `json:"watching"`
+	Completed   string `json:"completed"`
+	OnHold      string `json:"on_hold"`
+	Dropped     string `json:"dropped"`
+	PlanToWatch string `json:"plan_to_watch"`
 }
 
 // Statistics about the anime.
 type Statistics struct {
-	Status       Status `json:"status,omitempty"`
-	NumListUsers int    `json:"num_list_users,omitempty"`
+	Status       Status `json:"status"`
+	NumListUsers int    `json:"num_list_users"`
 }
 
 // RecommendedAnime is a recommended anime.
 type RecommendedAnime struct {
-	Node               Anime `json:"node,omitempty"`
-	NumRecommendations int   `json:"num_recommendations,omitempty"`
+	Node               Anime `json:"node"`
+	NumRecommendations int   `json:"num_recommendations"`
 }
 
 // RelatedAnime contains a related anime.
 type RelatedAnime struct {
-	Node                  Anime  `json:"node,omitempty"`
-	RelationType          string `json:"relation_type,omitempty"`
-	RelationTypeFormatted string `json:"relation_type_formatted,omitempty"`
+	Node                  Anime  `json:"node"`
+	RelationType          string `json:"relation_type"`
+	RelationTypeFormatted string `json:"relation_type_formatted"`
 }
 
 // StartSeason is the season an anime starts.
 type StartSeason struct {
-	Year   int    `json:"year,omitempty"`
-	Season string `json:"season,omitempty"`
+	Year   int    `json:"year"`
+	Season string `json:"season"`
 }
 
 // Broadcast is the day and time that the show broadcasts.
 type Broadcast struct {
-	DayOfTheWeek string `json:"day_of_the_week,omitempty"`
-	StartTime    string `json:"start_time,omitempty"`
+	DayOfTheWeek string `json:"day_of_the_week"`
+	StartTime    string `json:"start_time"`
 }
 
 // DetailsOption is an option specific for the anime and manga details methods.

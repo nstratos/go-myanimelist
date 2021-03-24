@@ -62,7 +62,7 @@ type Author struct {
 
 // RelatedManga shows manga related with the returned entry.
 type RelatedManga struct {
-	Node                  Manga  `json:"node,omitempty"`
+	Node                  Manga  `json:"node"`
 	RelationType          string `json:"relation_type"`
 	RelationTypeFormatted string `json:"relation_type_formatted"`
 }
