@@ -35,7 +35,7 @@ jobs:
 
     - name: Run golint
       run: |
-        go get -u golang.org/x/lint/golint
+        go install golang.org/x/lint/golint
         golint `go list ./... | grep -v /vendor/`
 
     - name: Run go vet
