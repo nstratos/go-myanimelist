@@ -2,6 +2,7 @@ package mal_test
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"reflect"
 	"testing"
@@ -11,19 +12,48 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var accessToken = flag.String("access-token", "", "MyAnimeList.net access token to use for integration tests")
+var (
+	oauth2Token  = flag.String("oauth2-token", "", "MyAnimeList.net oauth2 token to use for integration tests in `JSON` format")
+	clientID     = flag.String("client-id", "", "your registered MyAnimeList.net application client ID")
+	clientSecret = flag.String("client-secret", "", "your registered MyAnimeList.net application client secret; optional if you chose App Type 'other'")
+)
 
 func setup(ctx context.Context, t *testing.T) *mal.Client {
-	if *accessToken == "" {
-		t.Log("No access token provided.")
+	const tokenFormat = `
+	{
+		"token_type": "Bearer",
+		"access_token": "yourAccessToken",
+		"refresh_token": "yourRefreshToken",
+		"expiry": "2021-06-01T16:12:56.1319122Z"
+	}`
+	if *oauth2Token == "" || *clientID == "" {
+		t.Log("No oauth2 token or client ID provided.")
 		t.Log("The integration tests are meant to be run with a dedicated test account with empty lists.")
-		t.Skip("To run the integration tests use: go test --access-token '<your access token>'")
+		t.Log("To run the integration tests use: go test --client-id='<your client ID>' --oauth2-token='<your oauth2 token>'")
+		t.Logf("The oauth2 token is expected to be in JSON format, example: %s", tokenFormat)
+		t.Log(`Note: On some terminals you may need to escape the double quotes: --oauth2-token='{\"token_type\":\"Bearer\",...'`)
+		t.Skip("Skipping integration tests.")
 	}
 
-	tc := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: *accessToken},
-	))
-	return mal.NewClient(tc)
+	token := new(oauth2.Token)
+	err := json.Unmarshal([]byte(*oauth2Token), token)
+	if err != nil {
+		t.Logf("The oauth2 token is expected to be in JSON format, example: %s", tokenFormat)
+		t.Log(`Note: On some terminals you may need to escape the double quotes: --oauth2-token='{\"token_type\":\"Bearer\",...'`)
+		t.Fatalf("failed to unmarshal oauth2 token: %v", err)
+	}
+
+	conf := &oauth2.Config{
+		ClientID:     *clientID,
+		ClientSecret: *clientSecret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:   "https://myanimelist.net/v1/oauth2/authorize",
+			TokenURL:  "https://myanimelist.net/v1/oauth2/token",
+			AuthStyle: oauth2.AuthStyleInParams,
+		},
+	}
+
+	return mal.NewClient(conf.Client(ctx, token))
 }
 
 func TestIntegration(t *testing.T) {

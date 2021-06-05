@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
@@ -38,8 +39,8 @@ const (
 
 func run() error {
 	var (
-		clientID     = flag.String("client-id", defaultClientID, "your application client ID")
-		clientSecret = flag.String("client-secret", defaultClientSecret, "your application client secret")
+		clientID     = flag.String("client-id", defaultClientID, "your registered MyAnimeList.net application client ID")
+		clientSecret = flag.String("client-secret", defaultClientSecret, "your registered MyAnimeList.net application client secret; optional if you chose App Type 'other'")
 		// state is a token to protect the user from CSRF attacks. In a web
 		// application, you should provide a non-empty string and validate that
 		// it matches the state query parameter on the redirect URL callback
@@ -63,11 +64,9 @@ func run() error {
 }
 
 func authenticate(ctx context.Context, clientID, clientSecret, state string) (*http.Client, error) {
-	accessToken := loadCachedToken()
-	if accessToken != "" {
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: accessToken},
-		)
+	oauth2Token, err := loadCachedToken()
+	if err == nil {
+		ts := oauth2.StaticTokenSource(oauth2Token)
 		return oauth2.NewClient(ctx, ts), nil
 	}
 
@@ -123,29 +122,38 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 	if err != nil {
 		return nil, fmt.Errorf("exchanging code for token: %v", err)
 	}
-	fmt.Println("Authentication was successful. Caching access token...")
-	cacheToken(token.AccessToken)
+	fmt.Println("Authentication was successful. Caching oauth2 token...")
+	if err := cacheToken(*token); err != nil {
+		return nil, fmt.Errorf("caching oauth2 token: %s", err)
+	}
 
 	return conf.Client(ctx, token), nil
 }
 
 const cacheName = "auth-example-token-cache.txt"
 
-func cacheToken(token string) {
-	content := []byte(token)
-	err := os.WriteFile(cacheName, content, 0644)
+func cacheToken(token oauth2.Token) error {
+	b, err := json.MarshalIndent(token, "", "   ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "caching access token: %v, token is: %s", err, token)
-		return
+		return fmt.Errorf("marshaling token %s: %v", token, err)
 	}
+	err = os.WriteFile(cacheName, b, 0644)
+	if err != nil {
+		return fmt.Errorf("writing token %s to file %q: %v", token, cacheName, err)
+	}
+	return nil
 }
 
-func loadCachedToken() string {
-	token, err := os.ReadFile(cacheName)
+func loadCachedToken() (*oauth2.Token, error) {
+	b, err := os.ReadFile(cacheName)
 	if err != nil {
-		return ""
+		return nil, fmt.Errorf("reading oauth2 token from cache file %q: %v", cacheName, err)
 	}
-	return string(token)
+	token := new(oauth2.Token)
+	if err := json.Unmarshal(b, token); err != nil {
+		return nil, fmt.Errorf("unmarshaling oauth2 token: %v", err)
+	}
+	return token, nil
 }
 
 func generateCodeVerifier(length int) (string, error) {
