@@ -6,16 +6,12 @@ import (
 	"net/url"
 
 	"github.com/nstratos/go-myanimelist/mal"
-	"golang.org/x/oauth2"
 )
 
 func ExampleUserService_MyInfo() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
+
+	c := mal.NewClient(nil)
 
 	// Ignore the 3 following lines. A stub server is used instead of the real
 	// API to produce testable examples. See: https://go.dev/blog/examples

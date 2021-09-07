@@ -8,16 +8,12 @@ import (
 	"strings"
 
 	"github.com/nstratos/go-myanimelist/mal"
-	"golang.org/x/oauth2"
 )
 
 func ExampleAnimeService_List() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
+
+	c := mal.NewClient(nil)
 
 	// Ignore the 3 following lines. A stub server is used instead of the real
 	// API to produce testable examples. See: https://go.dev/blog/examples
@@ -45,13 +41,11 @@ func ExampleAnimeService_List() {
 
 func ExampleAnimeService_Details() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
@@ -110,13 +104,11 @@ func ExampleAnimeService_Details() {
 
 func ExampleAnimeService_Ranking() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
@@ -144,13 +136,11 @@ func ExampleAnimeService_Ranking() {
 
 func ExampleAnimeService_Seasonal() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
@@ -176,13 +166,11 @@ func ExampleAnimeService_Seasonal() {
 
 func ExampleAnimeService_Suggested() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
@@ -206,13 +194,11 @@ func ExampleAnimeService_Suggested() {
 
 func ExampleAnimeService_DeleteMyListItem() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
