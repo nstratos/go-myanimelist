@@ -40,7 +40,8 @@ func setup(ctx context.Context, t *testing.T) *mal.Client {
 	if err != nil {
 		t.Logf("The oauth2 token is expected to be in JSON format, example: %s", tokenFormat)
 		t.Log(`Note: On some terminals you may need to escape the double quotes: --oauth2-token='{\"token_type\":\"Bearer\",...'`)
-		t.Fatalf("failed to unmarshal oauth2 token: %v", err)
+		t.Logf("failed to unmarshal oauth2 token: %v", err)
+		t.Fatalf("input was:\n%s", *oauth2Token)
 	}
 
 	conf := &oauth2.Config{
