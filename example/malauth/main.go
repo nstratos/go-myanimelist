@@ -64,12 +64,6 @@ func run() error {
 }
 
 func authenticate(ctx context.Context, clientID, clientSecret, state string) (*http.Client, error) {
-	oauth2Token, err := loadCachedToken()
-	if err == nil {
-		ts := oauth2.StaticTokenSource(oauth2Token)
-		return oauth2.NewClient(ctx, ts), nil
-	}
-
 	// Prepare the oauth2 configuration with your application ID, secret, the
 	// MyAnimeList authentication and token URLs as specified in:
 	//
@@ -82,6 +76,19 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 			TokenURL:  "https://myanimelist.net/v1/oauth2/token",
 			AuthStyle: oauth2.AuthStyleInParams,
 		},
+	}
+
+	oauth2Token, err := loadCachedToken()
+	if err == nil {
+		refreshedToken, err := conf.TokenSource(ctx, oauth2Token).Token()
+		if err == nil && (oauth2Token != refreshedToken) {
+			fmt.Println("Caching refreshed oauth2 token...")
+			if err := cacheToken(*refreshedToken); err != nil {
+				return nil, fmt.Errorf("caching refreshed oauth2 token: %s", err)
+			}
+			return conf.Client(ctx, refreshedToken), nil
+		}
+		return conf.Client(ctx, oauth2Token), nil
 	}
 
 	// Generate a code verifier, a high-entropy cryptographic random string. It
