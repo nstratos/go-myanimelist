@@ -13,9 +13,6 @@ import (
 	"strings"
 )
 
-// Status specifies a status for anime and manga entries.
-//type Status int
-
 // Anime and manga entries have a status such as completed, on hold and
 // dropped.
 //
