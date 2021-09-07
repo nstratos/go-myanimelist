@@ -59,13 +59,25 @@ const storedToken = `
 }`
 
 oauth2Token := new(oauth2.Token)
-err := json.Unmarshal([]byte(storedToken), oauth2Token)
-// handle err...
+_ = json.Unmarshal([]byte(storedToken), oauth2Token)
 
-ctx := context.Background()
-c := mal.NewClient(
-	oauth2.NewClient(ctx, oauth2.StaticTokenSource(oauth2Token)),
-)
+// Create client ID and secret from https://myanimelist.net/apiconfig. 
+//
+// Secret is currently optional if you choose App Type 'other'.
+oauth2Conf := &oauth2.Config{
+    ClientID:     "<Enter your registered MyAnimeList.net application client ID>",
+    ClientSecret: "<Enter your registered MyAnimeList.net application client secret>",
+    Endpoint: oauth2.Endpoint{
+        AuthURL:   "https://myanimelist.net/v1/oauth2/authorize",
+        TokenURL:  "https://myanimelist.net/v1/oauth2/token",
+        AuthStyle: oauth2.AuthStyleInParams,
+    },
+}
+
+oauth2Client := oauth2Conf.Client(ctx, oauth2Token)
+
+// The oauth2Client will refresh the token if it expires.
+c := mal.NewClient(oauth2Client)
 ```
 
 Note that all calls made by the client above will include the specified oauth2
