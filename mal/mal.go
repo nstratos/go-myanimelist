@@ -13,23 +13,6 @@ import (
 	"strings"
 )
 
-// Status specifies a status for anime and manga entries.
-//type Status int
-
-// Anime and manga entries have a status such as completed, on hold and
-// dropped.
-//
-// Current is for entries marked as currently watching or reading.
-//
-// Planned is for entries marked as plan to watch or read.
-// const (
-// 	Current   Status = 1
-// 	Completed        = 2
-// 	OnHold           = 3
-// 	Dropped          = 4
-// 	Planned          = 6
-// )
-
 const (
 	defaultBaseURL = "https://api.myanimelist.net/v2/"
 )

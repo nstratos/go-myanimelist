@@ -25,4 +25,4 @@ jobs:
     - name: Run all tests including integration tests
       run: |
         cd mal
-        go test -v --access-token=${{ secrets.MAL_ACCESS_TOKEN }}
+        go test -v --client-id=${{ secrets.MAL_CLIENT_ID }} --oauth2-token='${{ secrets.MAL_OAUTH2_TOKEN }}'

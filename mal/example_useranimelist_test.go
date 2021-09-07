@@ -6,18 +6,15 @@ import (
 	"net/url"
 
 	"github.com/nstratos/go-myanimelist/mal"
-	"golang.org/x/oauth2"
 )
 
 func ExampleUserService_AnimeList() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)
@@ -44,13 +41,11 @@ func ExampleUserService_AnimeList() {
 
 func ExampleAnimeService_UpdateMyListStatus() {
 	ctx := context.Background()
-	c := mal.NewClient(
-		oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: "<your access token>"},
-		)),
-	)
 
-	// Use a stub server instead of the real API.
+	c := mal.NewClient(nil)
+
+	// Ignore the 3 following lines. A stub server is used instead of the real
+	// API to produce testable examples. See: https://go.dev/blog/examples
 	server := newStubServer()
 	defer server.Close()
 	c.BaseURL, _ = url.Parse(server.URL)

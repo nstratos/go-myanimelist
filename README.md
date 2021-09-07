@@ -45,25 +45,49 @@ the different MyAnimeList API methods.
 When creating a new client, pass an `http.Client` that can handle authentication
 for you. The recommended way is to use the `golang.org/x/oauth2` package
 (https://github.com/golang/oauth2). After performing the OAuth2 flow, you will
-get an access token which can be used like this:
+get an oauth2 token containing an access token, a refresh token and an
+expiration date. The oauth2 token can easily be stored in JSON format and used
+like this:
 
 ```go
-ctx := context.Background()
-c := mal.NewClient(
-	oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "<your access token>"},
-	)),
-)
+const storedToken = `
+{
+	"token_type": "Bearer",
+	"access_token": "yourAccessToken",
+	"refresh_token": "yourRefreshToken",
+	"expiry": "2021-06-01T16:12:56.1319122Z"
+}`
+
+oauth2Token := new(oauth2.Token)
+_ = json.Unmarshal([]byte(storedToken), oauth2Token)
+
+// Create client ID and secret from https://myanimelist.net/apiconfig. 
+//
+// Secret is currently optional if you choose App Type 'other'.
+oauth2Conf := &oauth2.Config{
+    ClientID:     "<Enter your registered MyAnimeList.net application client ID>",
+    ClientSecret: "<Enter your registered MyAnimeList.net application client secret>",
+    Endpoint: oauth2.Endpoint{
+        AuthURL:   "https://myanimelist.net/v1/oauth2/authorize",
+        TokenURL:  "https://myanimelist.net/v1/oauth2/token",
+        AuthStyle: oauth2.AuthStyleInParams,
+    },
+}
+
+oauth2Client := oauth2Conf.Client(ctx, oauth2Token)
+
+// The oauth2Client will refresh the token if it expires.
+c := mal.NewClient(oauth2Client)
 ```
 
-Note that all calls made by the client above will include the specified access
+Note that all calls made by the client above will include the specified oauth2
 token which is specific for an authenticated user. Therefore, authenticated
 clients should almost never be shared between different users.
 
 Performing the OAuth2 flow involves registering a MAL API application and then
 asking for the user's consent to allow the application to access their data.
 
-There is a detailed example of how to perform the Oauth2 flow and get an access
+There is a detailed example of how to perform the Oauth2 flow and get an oauth2
 token through the terminal under `example/malauth`. The only thing you need to run
 the example is a client ID and a client secret which you can acquire after
 registering your MAL API application. Here's how:
@@ -84,7 +108,7 @@ ID and client secret through flags:
     go install github.com/nstratos/go-myanimelist/example/malauth
     malauth --client-id=... --client-secret=...
 
-After you perform a successful authentication once, the access token will be
+After you perform a successful authentication once, the oauth2 token will be
 cached in a file under the same directory which makes it easier to run the
 example multiple times.
 
@@ -307,13 +331,13 @@ also a much higher chance of false positives in test failures due to network
 issues etc.
 
 These tests are meant to be run using a dedicated test account that contains
-empty anime and manga lists. A valid access token needs to be provided every
+empty anime and manga lists. A valid oauth2 token needs to be provided every
 time. Check the authentication section to learn how to get one.
 
-By default the integration tests are skipped when an access token is not
+By default the integration tests are skipped when an oauth2 token is not
 provided. To run all tests including the integration tests:
 
-	go test --access-token '<your access token>'
+	go test --client-id='<your app client ID>' --oauth2-token='<your oauth2 token>'
 
 ## License
 
