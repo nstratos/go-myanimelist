@@ -43,8 +43,43 @@ the different MyAnimeList API methods.
 ## Authentication
 
 When creating a new client, pass an `http.Client` that can handle authentication
-for you. The recommended way is to use the `golang.org/x/oauth2` package
-(https://github.com/golang/oauth2). After performing the OAuth2 flow, you will
+for you. 
+
+### Accessing publicly available information
+
+To access public information, you need to add the ` X-MAL-CLIENT-ID` header in
+your requests. You can achieve this by creating an `http.Client` with a custom
+transport and use it as shown below:
+
+```go
+type clientIDTransport struct {
+	Transport http.RoundTripper
+	ClientID  string
+}
+
+func (c *clientIDTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if c.Transport == nil {
+		c.Transport = http.DefaultTransport
+	}
+	req.Header.Add("X-MAL-CLIENT-ID", c.ClientID)
+	return c.Transport.RoundTrip(req)
+}
+
+func main() {
+	publicInfoClient := &http.Client{
+		// Create client ID from https://myanimelist.net/apiconfig. 
+		Transport: &clientIDTransport{ClientID: "<Your application client ID>"},
+	}
+
+	c := mal.NewClient(publicInfoClient)
+	// ...
+}
+```
+
+### Authenticating using OAuth2
+
+The recommended way is to use the `golang.org/x/oauth2` package
+(https://github.com/golang/oauth2). After completing the OAuth2 flow, you will
 get an oauth2 token containing an access token, a refresh token and an
 expiration date. The oauth2 token can easily be stored in JSON format and used
 like this:
