@@ -141,6 +141,12 @@ type Option interface {
 	apply(v *url.Values)
 }
 
+// NSFW is an option which sets the NSFW query option. By default this is set to
+// false.
+type NSFW bool
+
+func (n NSFW) apply(v *url.Values) { v.Set("nsfw", strconv.FormatBool(bool(n))) }
+
 type optionFunc func(v *url.Values)
 
 func (f optionFunc) apply(v *url.Values) {
