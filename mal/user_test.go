@@ -14,11 +14,16 @@ func TestUserServiceMyInfo(t *testing.T) {
 
 	mux.HandleFunc("/users/@me", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
+		testURLValues(t, r, urlValues{
+			"fields": "time_zone,is_supporter",
+		})
 		fmt.Fprint(w, `{"id":1}`)
 	})
 
 	ctx := context.Background()
-	u, _, err := client.User.MyInfo(ctx)
+	u, _, err := client.User.MyInfo(ctx,
+		Fields{"time_zone", "is_supporter"},
+	)
 	if err != nil {
 		t.Errorf("User.MyInfo returned error: %v", err)
 	}
