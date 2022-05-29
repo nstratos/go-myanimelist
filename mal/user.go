@@ -21,11 +21,14 @@ type UserService struct {
 type User struct {
 	ID              int64           `json:"id"`
 	Name            string          `json:"name"`
-	Gender          string          `json:"gender"`
-	Location        string          `json:"location"`
 	Picture         string          `json:"picture"`
+	Gender          string          `json:"gender"`
+	Birthday        string          `json:"birthday"`
+	Location        string          `json:"location"`
 	JoinedAt        time.Time       `json:"joined_at"`
 	AnimeStatistics AnimeStatistics `json:"anime_statistics"`
+	TimeZone        string          `json:"time_zone"`
+	IsSupporter     bool            `json:"is_supporter"`
 }
 
 // AnimeStatistics about the user.
@@ -58,6 +61,11 @@ func (s *UserService) MyInfo(ctx context.Context, options ...MyInfoOption) (*Use
 	if err != nil {
 		return nil, nil, err
 	}
+	q := req.URL.Query()
+	for _, o := range options {
+		o.myInfoApply(&q)
+	}
+	req.URL.RawQuery = q.Encode()
 
 	u := new(User)
 	resp, err := s.client.Do(ctx, req, u)
