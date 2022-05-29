@@ -61,6 +61,7 @@ func TestAnimeServiceList(t *testing.T) {
 			"fields": "foo,bar",
 			"limit":  "10",
 			"offset": "0",
+			"nsfw":   "true",
 		})
 		const out = `
 		{
@@ -85,6 +86,7 @@ func TestAnimeServiceList(t *testing.T) {
 		Fields{"foo", "bar"},
 		Limit(10),
 		Offset(0),
+		NSFW(true),
 	)
 	if err != nil {
 		t.Errorf("Anime.List returned error: %v", err)
@@ -229,6 +231,7 @@ func TestAnimeServiceSeasonal(t *testing.T) {
 			"fields": "foo,bar",
 			"limit":  "10",
 			"offset": "0",
+			"nsfw":   "false",
 		})
 		const out = `
 		{
@@ -257,6 +260,7 @@ func TestAnimeServiceSeasonal(t *testing.T) {
 		Fields{"foo", "bar"},
 		Limit(10),
 		Offset(0),
+		NSFW(false),
 	)
 	if err != nil {
 		t.Errorf("Anime.Seasonal returned error: %v", err)
