@@ -141,12 +141,6 @@ type Option interface {
 	apply(v *url.Values)
 }
 
-// NSFW is an option which sets the NSFW query option. By default this is set to
-// false.
-type NSFW bool
-
-func (n NSFW) apply(v *url.Values) { v.Set("nsfw", strconv.FormatBool(bool(n))) }
-
 type optionFunc func(v *url.Values)
 
 func (f optionFunc) apply(v *url.Values) {
@@ -172,6 +166,15 @@ func (o Offset) seasonalAnimeApply(v *url.Values) { o.apply(v) }
 func (o Offset) animeListApply(v *url.Values)     { o.apply(v) }
 func (o Offset) mangaListApply(v *url.Values)     { o.apply(v) }
 func (o Offset) apply(v *url.Values)              { v.Set("offset", strconv.Itoa(int(o))) }
+
+// NSFW is an option which sets the NSFW query option. By default this is set to
+// false.
+type NSFW bool
+
+func (n NSFW) seasonalAnimeApply(v *url.Values) { n.apply(v) }
+func (n NSFW) animeListApply(v *url.Values)     { n.apply(v) }
+func (n NSFW) mangaListApply(v *url.Values)     { n.apply(v) }
+func (n NSFW) apply(v *url.Values)              { v.Set("nsfw", strconv.FormatBool(bool(n))) }
 
 // Fields is an option that allows to choose the fields that should be returned
 // as by default, the API doesn't return all fields.

@@ -21,6 +21,7 @@ func TestUserServiceAnimeList(t *testing.T) {
 			"fields": "foo,bar",
 			"limit":  "10",
 			"offset": "0",
+			"nsfw":   "true",
 		})
 		const out = `
 		{
@@ -53,6 +54,7 @@ func TestUserServiceAnimeList(t *testing.T) {
 		Fields{"foo", "bar"},
 		Limit(10),
 		Offset(0),
+		NSFW(true),
 	)
 	if err != nil {
 		t.Errorf("User.AnimeList returned error: %v", err)
