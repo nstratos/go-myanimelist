@@ -106,7 +106,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testBody(t, r, "comments=comments&is_rewatching=true&num_times_rewatched=2&num_watched_episodes=3&priority=2&rewatch_value=1&score=8&status=completed&tags=foo%2Cbar")
+		testBody(t, r, "comments=comments&finish_date=2022-04-16&is_rewatching=true&num_times_rewatched=2&num_watched_episodes=3&priority=2&rewatch_value=1&score=8&start_date=2022-02-20&status=completed&tags=foo%2Cbar")
 		const out = `
 		{
 		  "status": "completed",
@@ -118,7 +118,9 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		  "num_times_rewatched": 2,
 		  "rewatch_value": 1,
 		  "tags": ["foo","bar"],
-		  "comments": "comments"
+		  "comments": "comments",
+		  "start_date": "2022-02-20",
+		  "finish_date": "2022-04-16"
 		}`
 		fmt.Fprint(w, out)
 	})
@@ -134,6 +136,8 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		RewatchValue(1),
 		Tags{"foo", "bar"},
 		Comments("comments"),
+		StartDate("2022-02-20"),
+		FinishDate("2022-04-16"),
 	)
 	if err != nil {
 		t.Errorf("Anime.UpdateMyListStatus returned error: %v", err)
@@ -150,6 +154,8 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		Tags:               []string{"foo", "bar"},
 		Comments:           "comments",
 		UpdatedAt:          time.Date(2018, 04, 25, 15, 59, 52, 0, time.UTC),
+		StartDate:          "2022-02-20",
+		FinishDate:         "2022-04-16",
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Anime.UpdateMyListStatus returned\nhave: %+v\n\nwant: %+v", got, want)
