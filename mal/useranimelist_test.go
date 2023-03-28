@@ -114,13 +114,13 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		  "num_episodes_watched": 3,
 		  "is_rewatching": true,
 		  "updated_at": "2018-04-25T15:59:52Z",
+		  "start_date": "2022-02-20",
+		  "finish_date": "2022-04-16",
 		  "priority": 2,
 		  "num_times_rewatched": 2,
 		  "rewatch_value": 1,
 		  "tags": ["foo","bar"],
-		  "comments": "comments",
-		  "start_date": "2022-02-20",
-		  "finish_date": "2022-04-16"
+		  "comments": "comments"
 		}`
 		fmt.Fprint(w, out)
 	})
@@ -136,8 +136,8 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		RewatchValue(1),
 		Tags{"foo", "bar"},
 		Comments("comments"),
-		StartDate("2022-02-20"),
-		FinishDate("2022-04-16"),
+		StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		FinishDate(time.Date(2022, 04, 16, 0, 0, 0, 0, time.UTC)),
 	)
 	if err != nil {
 		t.Errorf("Anime.UpdateMyListStatus returned error: %v", err)

@@ -200,17 +200,25 @@ func (c Comments) updateMyMangaListStatusApply(v *url.Values) { v.Set("comments"
 
 // StartDate is an option that allows to update the start date of anime and manga
 // in the user's list.
-type StartDate string
+type StartDate time.Time
 
-func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) { v.Set("start_date", string(d)) }
-func (d StartDate) updateMyMangaListStatusApply(v *url.Values) { v.Set("start_date", string(d)) }
+func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("start_date", time.Time(d).Format("2006-01-02"))
+}
+func (d StartDate) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("start_date", time.Time(d).Format("2006-01-02"))
+}
 
 // FinishDate is an option that allows to update the finish date of anime and manga
 // in the user's list.
-type FinishDate string
+type FinishDate time.Time
 
-func (d FinishDate) updateMyAnimeListStatusApply(v *url.Values) { v.Set("finish_date", string(d)) }
-func (d FinishDate) updateMyMangaListStatusApply(v *url.Values) { v.Set("finish_date", string(d)) }
+func (d FinishDate) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("finish_date", time.Time(d).Format("2006-01-02"))
+}
+func (d FinishDate) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("finish_date", time.Time(d).Format("2006-01-02"))
+}
 
 // UpdateMyListStatus adds the anime specified by animeID to the user's anime
 // list with one or more options added to update the status. If the anime
