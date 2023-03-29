@@ -115,7 +115,6 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		  "is_rewatching": true,
 		  "updated_at": "2018-04-25T15:59:52Z",
 		  "start_date": "2022-02-20",
-		  "finish_date": "2022-04-16",
 		  "priority": 2,
 		  "num_times_rewatched": 2,
 		  "rewatch_value": 1,
