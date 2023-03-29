@@ -213,7 +213,7 @@ func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("start_date", formatMALDate(time.Time(d)))
 }
 func (d StartDate) updateMyMangaListStatusApply(v *url.Values) {
-	v.Set("start_date", time.Time(d).Format(YYYYMMDD))
+	v.Set("start_date", formatMALDate(time.Time(d)))
 }
 
 // FinishDate is an option that allows to update the finish date of anime and manga
@@ -221,10 +221,10 @@ func (d StartDate) updateMyMangaListStatusApply(v *url.Values) {
 type FinishDate time.Time
 
 func (d FinishDate) updateMyAnimeListStatusApply(v *url.Values) {
-	v.Set("finish_date", time.Time(d).Format(YYYYMMDD))
+	v.Set("finish_date", formatMALDate(time.Time(d)))
 }
 func (d FinishDate) updateMyMangaListStatusApply(v *url.Values) {
-	v.Set("finish_date", time.Time(d).Format(YYYYMMDD))
+	v.Set("finish_date", formatMALDate(time.Time(d)))
 }
 
 // UpdateMyListStatus adds the anime specified by animeID to the user's anime
