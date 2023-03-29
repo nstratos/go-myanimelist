@@ -83,6 +83,8 @@ type AnimeListStatus struct {
 	RewatchValue       int         `json:"rewatch_value"`
 	Tags               []string    `json:"tags"`
 	Comments           string      `json:"comments"`
+	StartDate          string      `json:"start_date"`
+	FinishDate         string      `json:"finish_date"`
 }
 
 // animeList represents the anime list of a user.
@@ -195,6 +197,35 @@ type Comments string
 
 func (c Comments) updateMyAnimeListStatusApply(v *url.Values) { v.Set("comments", string(c)) }
 func (c Comments) updateMyMangaListStatusApply(v *url.Values) { v.Set("comments", string(c)) }
+
+// StartDate is an option that allows to update the start date of anime and manga
+// in the user's list.
+type StartDate time.Time
+
+func formatMALDate(d time.Time) string {
+	if d.IsZero() {
+		return ""
+	}
+	return d.Format("2006-01-02")
+}
+
+func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("start_date", formatMALDate(time.Time(d)))
+}
+func (d StartDate) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("start_date", formatMALDate(time.Time(d)))
+}
+
+// FinishDate is an option that allows to update the finish date of anime and manga
+// in the user's list.
+type FinishDate time.Time
+
+func (d FinishDate) updateMyAnimeListStatusApply(v *url.Values) {
+	v.Set("finish_date", formatMALDate(time.Time(d)))
+}
+func (d FinishDate) updateMyMangaListStatusApply(v *url.Values) {
+	v.Set("finish_date", formatMALDate(time.Time(d)))
+}
 
 // UpdateMyListStatus adds the anime specified by animeID to the user's anime
 // list with one or more options added to update the status. If the anime
