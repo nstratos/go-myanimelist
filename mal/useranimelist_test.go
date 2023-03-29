@@ -137,7 +137,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		Tags{"foo", "bar"},
 		Comments("comments"),
 		StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
-		FinishDate(time.Date(2022, 04, 16, 0, 0, 0, 0, time.UTC)),
+		FinishDate(time.Time{}),
 	)
 	if err != nil {
 		t.Errorf("Anime.UpdateMyListStatus returned error: %v", err)
