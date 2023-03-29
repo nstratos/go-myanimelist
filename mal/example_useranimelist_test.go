@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
@@ -55,12 +56,14 @@ func ExampleAnimeService_UpdateMyListStatus() {
 		mal.NumEpisodesWatched(73),
 		mal.Score(8),
 		mal.Comments("You wa shock!"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	if err != nil {
 		fmt.Printf("Anime.UpdateMyListStatus error: %v", err)
 		return
 	}
-	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments)
+	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %q, Start Date: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments, s.StartDate)
 	// Output:
-	// Status: "watching", Score: 8, Episodes Watched: 73, Comments: You wa shock!
+	// Status: "watching", Score: 8, Episodes Watched: 73, Comments: "You wa shock!", Start Date: 2022-02-20
 }

@@ -4,3 +4,5 @@ count.out
 cover.out
 *token-cache.txt
 *.exe
+malauth
+!malauth/

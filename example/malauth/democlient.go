@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
@@ -261,12 +262,14 @@ func (c *demoClient) updateMyAnimeListStatus(ctx context.Context) {
 		mal.NumEpisodesWatched(73),
 		mal.Score(8),
 		mal.Comments("You wa shock!"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	if err != nil {
 		c.err = err
 		return
 	}
-	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments)
+	fmt.Printf("Status: %q, Score: %d, Episodes Watched: %d, Comments: %q, Start Date: %s\n", s.Status, s.Score, s.NumEpisodesWatched, s.Comments, s.StartDate)
 }
 
 func (c *demoClient) updateMyMangaListStatus(ctx context.Context) {
@@ -278,12 +281,14 @@ func (c *demoClient) updateMyMangaListStatus(ctx context.Context) {
 		mal.NumVolumesRead(1),
 		mal.NumChaptersRead(5),
 		mal.Comments("Migi"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	if err != nil {
 		c.err = err
 		return
 	}
-	fmt.Printf("Status: %q, Volumes Read: %d, Chapters Read: %d, Comments: %s\n", s.Status, s.NumVolumesRead, s.NumChaptersRead, s.Comments)
+	fmt.Printf("Status: %q, Volumes Read: %d, Chapters Read: %d, Comments: %q, Start Date: %s\n", s.Status, s.NumVolumesRead, s.NumChaptersRead, s.Comments, s.StartDate)
 }
 
 func (c *demoClient) deleteMyAnimeListItem(ctx context.Context) {

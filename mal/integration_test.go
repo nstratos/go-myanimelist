@@ -127,6 +127,8 @@ func testUpdateUserAnimeList(ctx context.Context, t *testing.T, client *mal.Clie
 			mal.RewatchValue(1),
 			mal.Score(1),
 			mal.Tags{"foo", "bar"},
+			mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+			mal.FinishDate(time.Time{}),
 		); err != nil {
 			t.Fatalf("Anime.UpdateMyListStatus(%d) returned err: %v", id, err)
 		}
@@ -157,6 +159,8 @@ func testUpdateUserAnimeList(ctx context.Context, t *testing.T, client *mal.Clie
 			RewatchValue:       1,
 			Tags:               []string{"foo", "bar"},
 			Comments:           "test comment",
+			StartDate:          "2022-02-20",
+			FinishDate:         "",
 		}
 		a.Status.UpdatedAt = time.Time{}
 		if got := a.Status; !reflect.DeepEqual(got, want) {
@@ -201,6 +205,8 @@ func testUpdateUserMangaList(ctx context.Context, t *testing.T, client *mal.Clie
 			mal.RereadValue(1),
 			mal.Score(1),
 			mal.Tags{"foo", "bar"},
+			mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+			mal.FinishDate(time.Time{}),
 		); err != nil {
 			t.Fatalf("Manga.UpdateMyListStatus(%d) returned err: %v", id, err)
 		}
@@ -232,6 +238,8 @@ func testUpdateUserMangaList(ctx context.Context, t *testing.T, client *mal.Clie
 			RereadValue:     1,
 			Tags:            []string{"foo", "bar"},
 			Comments:        "test comment",
+			StartDate:       "2022-02-20",
+			FinishDate:      "",
 		}
 		a.Status.UpdatedAt = time.Time{}
 		if got := a.Status; !reflect.DeepEqual(got, want) {

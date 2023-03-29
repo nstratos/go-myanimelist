@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/nstratos/go-myanimelist/mal"
 )
@@ -52,12 +53,14 @@ func ExampleMangaService_UpdateMyListStatus() {
 		mal.NumVolumesRead(1),
 		mal.NumChaptersRead(5),
 		mal.Comments("Migi"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	if err != nil {
 		fmt.Printf("Manga.UpdateMyListStatus error: %v", err)
 		return
 	}
-	fmt.Printf("Status: %q, Volumes Read: %d, Chapters Read: %d, Comments: %s\n", s.Status, s.NumVolumesRead, s.NumChaptersRead, s.Comments)
+	fmt.Printf("Status: %q, Volumes Read: %d, Chapters Read: %d, Comments: %q, Start Date: %s\n", s.Status, s.NumVolumesRead, s.NumChaptersRead, s.Comments, s.StartDate)
 	// Output:
-	// Status: "reading", Volumes Read: 1, Chapters Read: 5, Comments: Migi
+	// Status: "reading", Volumes Read: 1, Chapters Read: 5, Comments: "Migi", Start Date: 2022-02-20
 }

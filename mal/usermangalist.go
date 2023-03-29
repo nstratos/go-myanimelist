@@ -45,6 +45,8 @@ type MangaListStatus struct {
 	RereadValue     int         `json:"reread_value"`
 	Tags            []string    `json:"tags"`
 	Comments        string      `json:"comments"`
+	StartDate       string      `json:"start_date"`
+	FinishDate      string      `json:"finish_date"`
 }
 
 // mangaList represents the anime list of a user.
