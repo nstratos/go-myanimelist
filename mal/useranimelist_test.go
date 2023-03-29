@@ -154,7 +154,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 		Comments:           "comments",
 		UpdatedAt:          time.Date(2018, 04, 25, 15, 59, 52, 0, time.UTC),
 		StartDate:          "2022-02-20",
-		FinishDate:         "2022-04-16",
+		FinishDate:         "",
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Anime.UpdateMyListStatus returned\nhave: %+v\n\nwant: %+v", got, want)
