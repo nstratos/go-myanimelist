@@ -181,7 +181,7 @@ func (n NSFW) apply(v *url.Values)              { v.Set("nsfw", strconv.FormatBo
 //
 // Example:
 //
-//     Fields{"synopsis", "my_list_status{priority,comments}"}
+//	Fields{"synopsis", "my_list_status{priority,comments}"}
 type Fields []string
 
 func (f Fields) seasonalAnimeApply(v *url.Values) { f.apply(v) }

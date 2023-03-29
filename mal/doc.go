@@ -2,13 +2,13 @@
 Package mal provides a client for accessing the MyAnimeList API:
 https://myanimelist.net/apiconfig/references/api/v2.
 
-Installation
+# Installation
 
 This package can be installed using:
 
 	go get github.com/nstratos/go-myanimelist/mal
 
-Usage
+# Usage
 
 Import the package using:
 
@@ -21,12 +21,12 @@ First construct a new mal client:
 Then use one of the client's services (User, Anime, Manga and Forum) to access
 the different MyAnimeList API methods.
 
-Authentication
+# Authentication
 
 When creating a new client, pass an `http.Client` that can handle authentication
 for you.
 
-Accessing publicly available information
+# Accessing publicly available information
 
 To access public information, you need to add the ` X-MAL-CLIENT-ID` header in
 your requests. You can achieve this by creating an `http.Client` with a custom
@@ -55,7 +55,7 @@ transport and use it as shown below:
 		// ...
 	}
 
-Authenticating using OAuth2
+# Authenticating using OAuth2
 
 The recommended way is to use the golang.org/x/oauth2 package
 (https://github.com/golang/oauth2). After completing the OAuth2 flow, you will
@@ -127,7 +127,7 @@ example multiple times.
 Official MAL API OAuth2 docs:
 https://myanimelist.net/apiconfig/references/authorization
 
-List
+# List
 
 To search and get anime and manga data:
 
@@ -152,7 +152,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_get
 
-UserList
+# UserList
 
 To get the anime or manga list of a user:
 
@@ -185,7 +185,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_mangalist_get
 
-MyInfo
+# MyInfo
 
 To get information about the authenticated user:
 
@@ -199,7 +199,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/users_user_id_get
 
-Details
+# Details
 
 To get details for a certain anime or manga:
 
@@ -239,7 +239,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_get
 
-Ranking
+# Ranking
 
 To get anime or manga based on a certain ranking:
 
@@ -263,7 +263,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_ranking_get
 
-Add or Update List
+# Add or Update List
 
 To add or update an entry in an authenticated user's list, provide the anime or
 manga ID and then options to specify the status, score, comments, tags etc.
@@ -290,7 +290,7 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_put
 
-Delete
+# Delete
 
 To delete anime or manga from a user's list, simply provide their IDs:
 
@@ -306,12 +306,12 @@ Official docs:
 
 - https://myanimelist.net/apiconfig/references/api/v2#operation/manga_manga_id_my_list_status_delete
 
-More Examples
+# More Examples
 
 See package examples:
 https://pkg.go.dev/github.com/nstratos/go-myanimelist/mal#pkg-examples
 
-Unit Testing
+# Unit Testing
 
 To run all unit tests:
 
@@ -321,7 +321,7 @@ To see test coverage in your browser:
 
 	go test -covermode=count -coverprofile=count.out && go tool cover -html count.out
 
-Integration Testing
+# Integration Testing
 
 The integration tests will exercise the entire package against the live
 MyAnimeList API. As a result, these tests take much longer to run and there is
@@ -337,9 +337,8 @@ provided. To run all tests including the integration tests:
 
 	go test --client-id='<your app client ID>' --oauth2-token='<your oauth2 token>'
 
-License
+# License
 
 MIT
-
 */
 package mal
