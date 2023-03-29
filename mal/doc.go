@@ -273,6 +273,8 @@ manga ID and then options to specify the status, score, comments, tags etc.
 		mal.NumEpisodesWatched(73),
 		mal.Score(8),
 		mal.Comments("You wa shock!"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	// ...
 
@@ -281,6 +283,8 @@ manga ID and then options to specify the status, score, comments, tags etc.
 		mal.NumVolumesRead(1),
 		mal.NumChaptersRead(5),
 		mal.Comments("Migi"),
+		mal.StartDate(time.Date(2022, 02, 20, 0, 0, 0, 0, time.UTC)),
+		mal.FinishDate(time.Time{}), // Remove an existing date.
 	)
 	// ...
 
