@@ -210,7 +210,7 @@ func formatMALDate(d time.Time) string {
 }
 
 func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) {
-	v.Set("start_date", time.Time(d).Format(YYYYMMDD))
+	v.Set("start_date", formatMALDate(time.Time(d)))
 }
 func (d StartDate) updateMyMangaListStatusApply(v *url.Values) {
 	v.Set("start_date", time.Time(d).Format(YYYYMMDD))
