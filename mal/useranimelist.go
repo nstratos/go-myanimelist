@@ -202,9 +202,12 @@ func (c Comments) updateMyMangaListStatusApply(v *url.Values) { v.Set("comments"
 // in the user's list.
 type StartDate time.Time
 
-// YYYYMMDD is the layout string for the start date and finish date of anime
-// and manga in the user's list.
-const YYYYMMDD = "2006-01-02"
+func formatMALDate(d time.Time) string {
+	if d.IsZero() {
+		return ""
+	}
+	return d.Format("2006-01-02")
+}
 
 func (d StartDate) updateMyAnimeListStatusApply(v *url.Values) {
 	v.Set("start_date", time.Time(d).Format(YYYYMMDD))
