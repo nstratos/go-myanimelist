@@ -106,7 +106,7 @@ func TestAnimeServiceUpdateMyListStatus(t *testing.T) {
 	mux.HandleFunc("/anime/1/my_list_status", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		testContentType(t, r, "application/x-www-form-urlencoded")
-		testBody(t, r, "comments=comments&finish_date=2022-04-16&is_rewatching=true&num_times_rewatched=2&num_watched_episodes=3&priority=2&rewatch_value=1&score=8&start_date=2022-02-20&status=completed&tags=foo%2Cbar")
+		testBody(t, r, "comments=comments&finish_date=&is_rewatching=true&num_times_rewatched=2&num_watched_episodes=3&priority=2&rewatch_value=1&score=8&start_date=2022-02-20&status=completed&tags=foo%2Cbar")
 		const out = `
 		{
 		  "status": "completed",
