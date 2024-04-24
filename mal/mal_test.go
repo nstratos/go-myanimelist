@@ -57,6 +57,36 @@ func testBody(t *testing.T, r *http.Request, want string) {
 	}
 }
 
+func testJSONMarshal[T any](t *testing.T, input T, want string) {
+	t.Helper()
+
+	gotOut, err := json.Marshal(input)
+	if err != nil {
+		t.Errorf("Cannot json.Marshal 'input' of type %T: %v\n\ninput value is: %#v", input, err, input)
+	}
+
+	// First we validate the wanted JSON.
+	if ok := json.Valid([]byte(want)); !ok {
+		t.Fatalf("Provided 'want' is not a valid JSON: %s", want)
+	}
+	// Then we unmarshal the wanted JSON to the same type as the input to verify
+	// that all fields decode correctly.
+	v := new(T)
+	if err := json.Unmarshal([]byte(want), v); err != nil {
+		t.Errorf("Cannot json.Unmarshal 'want' to type %T: %v\n\nwant string is: %s", input, err, want)
+	}
+	// Finally we marshal again so that the fields are sorted in order to
+	// compare the JSON strings.
+	wantOut, err := json.Marshal(v)
+	if err != nil {
+		t.Errorf("Cannot json.Marshal 'want' which has first been json.Unmarshal-ed to type %T: %v\n\nwant value is: %#v", v, err, v)
+	}
+
+	if got, want := string(gotOut), string(wantOut); got != want {
+		t.Errorf("json.Marshal(%#v) ->\n\nhave: %s\n\nwant: %s", input, got, want)
+	}
+}
+
 func testMethod(t *testing.T, r *http.Request, want string) {
 	if want != r.Method {
 		t.Errorf("Request method = %v, want %v", r.Method, want)
