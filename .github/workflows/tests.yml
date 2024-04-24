@@ -54,7 +54,7 @@ jobs:
         golint `go list ./... | grep -v /vendor/`
 
     - name: Run go test
-      run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.out github.com/nstratos/go-myanimelist/mal/...
 
     - name: Upload test coverage to Coveralls
       if: ${{ matrix.upload-coverage }}
