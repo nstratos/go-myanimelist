@@ -142,11 +142,11 @@ const cacheName = "auth-example-token-cache.txt"
 func cacheToken(token oauth2.Token) error {
 	b, err := json.MarshalIndent(token, "", "   ")
 	if err != nil {
-		return fmt.Errorf("marshaling token %s: %v", token, err)
+		return fmt.Errorf("marshaling token %v: %v", token, err)
 	}
 	err = os.WriteFile(cacheName, b, 0644)
 	if err != nil {
-		return fmt.Errorf("writing token %s to file %q: %v", token, cacheName, err)
+		return fmt.Errorf("writing token %v to file %q: %v", token, cacheName, err)
 	}
 	return nil
 }
