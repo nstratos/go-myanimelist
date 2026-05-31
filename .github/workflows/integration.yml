@@ -6,18 +6,21 @@ on:
   schedule:
     - cron: "0 10 * * 6"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
     - name: Install Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v6
       with:
         go-version: 1.x
-
-    - name: Checkout code
-      uses: actions/checkout@v2
 
     - name: Mod verify
       run: go mod verify
