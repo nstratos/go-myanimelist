@@ -29,7 +29,7 @@ func setup(ctx context.Context, t *testing.T) *mal.Client {
 	if *oauth2Token == "" || *clientID == "" {
 		t.Log("No oauth2 token or client ID provided.")
 		t.Log("The integration tests are meant to be run with a dedicated test account with empty lists.")
-		t.Log("To run the integration tests use: go test --client-id='<your client ID>' --oauth2-token='<your oauth2 token>'")
+		t.Log("To run the integration tests use: go test --client-id='<your client ID>' --client-secret='<your client secret>' --oauth2-token='<your oauth2 token>'")
 		t.Logf("The oauth2 token is expected to be in JSON format, example: %s", tokenFormat)
 		t.Log(`Note: On some terminals you may need to escape the double quotes: --oauth2-token='{\"token_type\":\"Bearer\",...'`)
 		t.Skip("Skipping integration tests.")

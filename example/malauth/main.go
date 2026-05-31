@@ -31,6 +31,7 @@ func main() {
 const (
 	defaultClientID     = ""
 	defaultClientSecret = ""
+	defaultRedirectURL  = ""
 )
 
 // Authorization Documentation:
@@ -41,6 +42,7 @@ func run() error {
 	var (
 		clientID     = flag.String("client-id", defaultClientID, "your registered MyAnimeList.net application client ID")
 		clientSecret = flag.String("client-secret", defaultClientSecret, "your registered MyAnimeList.net application client secret; optional if you chose App Type 'other'")
+		redirectURL  = flag.String("redirect-url", defaultRedirectURL, "your registered MyAnimeList.net application redirect URL; optional if your application does not require one")
 		// state is a token to protect the user from CSRF attacks. In a web
 		// application, you should provide a non-empty string and validate that
 		// it matches the state query parameter on the redirect URL callback
@@ -51,7 +53,7 @@ func run() error {
 
 	ctx := context.Background()
 
-	tokenClient, err := authenticate(ctx, *clientID, *clientSecret, *state)
+	tokenClient, err := authenticate(ctx, *clientID, *clientSecret, *redirectURL, *state)
 	if err != nil {
 		return err
 	}
@@ -63,7 +65,7 @@ func run() error {
 	return c.showcase(ctx)
 }
 
-func authenticate(ctx context.Context, clientID, clientSecret, state string) (*http.Client, error) {
+func authenticate(ctx context.Context, clientID, clientSecret, redirectURL, state string) (*http.Client, error) {
 	// Prepare the oauth2 configuration with your application ID, secret, the
 	// MyAnimeList authentication and token URLs as specified in:
 	//
@@ -71,6 +73,7 @@ func authenticate(ctx context.Context, clientID, clientSecret, state string) (*h
 	conf := &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:   "https://myanimelist.net/v1/oauth2/authorize",
 			TokenURL:  "https://myanimelist.net/v1/oauth2/token",

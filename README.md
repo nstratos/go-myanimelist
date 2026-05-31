@@ -142,6 +142,9 @@ ID and client secret through flags:
     go install github.com/nstratos/go-myanimelist/example/malauth
     malauth --client-id=... --client-secret=...
 
+For applications registered with App Type "web", you may also provide the
+redirect URL registered for that app using the `--redirect-url` flag.
+
 After you perform a successful authentication once, the oauth2 token will be
 cached in a file under the same directory which makes it easier to run the
 example multiple times.
@@ -375,7 +378,10 @@ time. Check the authentication section to learn how to get one.
 By default the integration tests are skipped when an oauth2 token is not
 provided. To run all tests including the integration tests:
 
-	go test --client-id='<your app client ID>' --oauth2-token='<your oauth2 token>'
+	go test --client-id='<your app client ID>' --client-secret='<your app client secret>' --oauth2-token='<your oauth2 token>'
+
+The client ID, client secret, and oauth2 token must all belong to the same
+registered MyAnimeList API application.
 
 ## License
 
